@@ -1,9 +1,9 @@
 /* ============================================================
-   Registrar_usuarioCSS.css — ClassControl
+   Registrar_usuarioCSS.css ? ClassControl
    Complementa Bootstrap 5 + Inicio_de_sesionCSS.css (global)
    ============================================================ */
 
-/* ── Variables extra de esta pantalla ─────────────────────── */
+/* -- Variables extra de esta pantalla ----------------------- */
 :root {
   --cc-orange:        #ec5b13;
   --cc-orange-dark:   #c94a0c;
@@ -11,7 +11,7 @@
   --cc-nav-h:         62px;
 }
 
-/* ── Página ────────────────────────────────────────────────── */
+/* -- Página -------------------------------------------------- */
 .cc-reg-body {
   background-color: #f2f5f0;
   min-height: 100vh;
@@ -19,7 +19,7 @@
   flex-direction: column;
 }
 
-/* ── Navbar ────────────────────────────────────────────────── */
+/* -- Navbar -------------------------------------------------- */
 .cc-navbar {
   background: #fff;
   border-bottom: 1px solid var(--cc-border);
@@ -91,7 +91,7 @@
 }
 .cc-nav-user:hover .cc-avatar { border-color: var(--cc-primary); }
 
-/* ── Main ──────────────────────────────────────────────────── */
+/* -- Main ---------------------------------------------------- */
 .cc-reg-main {
   flex: 1;
   display: flex;
@@ -100,7 +100,7 @@
   padding: 2rem 1rem 3rem;
 }
 
-/* ── Tarjeta principal ─────────────────────────────────────── */
+/* -- Tarjeta principal --------------------------------------- */
 .cc-reg-card {
   width: 100%;
   max-width: 920px;
@@ -112,7 +112,7 @@
   animation: cc-fadeUp 0.38s ease both;
 }
 
-/* ── Sidebar ───────────────────────────────────────────────── */
+/* -- Sidebar ------------------------------------------------- */
 .cc-reg-sidebar {
   width: 270px;
   flex-shrink: 0;
@@ -194,14 +194,14 @@
   line-height: 1.55;
 }
 
-/* ── Sección del formulario ────────────────────────────────── */
+/* -- SecciÓn del formulario ---------------------------------- */
 .cc-reg-form-section {
   flex: 1;
   padding: 2.25rem 2rem 2rem;
   overflow-y: auto;
 }
 
-/* Títulos de sección dentro del form */
+/* TÍtulos de secciÓn dentro del form */
 .cc-form-section-title {
   font-size: 0.7rem;
   font-weight: 700;
@@ -221,7 +221,7 @@
 }
 .cc-form-section-title i { color: var(--cc-primary); font-size: 0.875rem; }
 
-/* ── Inputs (complemento a Bootstrap) ─────────────────────── */
+/* -- Inputs (complemento a Bootstrap) ----------------------- */
 .form-label {
   font-size: 0.8125rem;
   font-weight: 600;
@@ -274,7 +274,7 @@
 }
 .cc-toggle-pass:hover { color: var(--cc-primary); }
 
-/* ── Barra de fortaleza ────────────────────────────────────── */
+/* -- Barra de fortaleza -------------------------------------- */
 .cc-pw-bar {
   height: 4px;
   border-radius: 99px;
@@ -285,7 +285,7 @@
 .cc-pw-bar.fair   { background: #ffc107; }
 .cc-pw-bar.strong { background: var(--cc-primary); }
 
-/* ── Botones de acción ─────────────────────────────────────── */
+/* -- Botones de acciÓn --------------------------------------- */
 .cc-btn-submit {
   background: var(--cc-primary);
   border: none;
@@ -317,7 +317,7 @@
 }
 .cc-btn-cancel:hover { background: #f0f5ec; color: var(--cc-text-main); }
 
-/* ── Toast ─────────────────────────────────────────────────── */
+/* -- Toast --------------------------------------------------- */
 .cc-toast {
   position: fixed;
   bottom: 1.5rem;
@@ -346,7 +346,7 @@
 .cc-pw-strength { font-size: .8rem; }
 .cc-pw-bars { height: 4px; }
 
-/* ── Footer ────────────────────────────────────────────────── */
+/* -- Footer -------------------------------------------------- */
 .cc-reg-footer {
   padding: 1.25rem;
   font-size: 0.8125rem;
@@ -354,7 +354,7 @@
   border-top: 1px solid var(--cc-border);
 }
 
-/* ── Responsive ────────────────────────────────────────────── */
+/* -- Responsive ---------------------------------------------- */
 @media (max-width: 768px) {
   .cc-reg-card { flex-direction: column; }
   .cc-reg-sidebar {

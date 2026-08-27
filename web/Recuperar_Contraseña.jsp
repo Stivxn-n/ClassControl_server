@@ -75,6 +75,23 @@
           </span>
         </div>
 
+        <div class="form-group">
+          <label for="documento">Número de documento</label>
+          <div class="input-wrap">
+            <span class="material-symbols-outlined field-icon">badge</span>
+            <input id="documento"
+                   type="text"
+                   name="documento"
+                   placeholder="Tu documento de identidad"
+                   autocomplete="off"
+                   required />
+          </div>
+          <span id="documentoError" class="field-error">
+            <span class="material-symbols-outlined" style="font-size:13px">error</span>
+            <span></span>
+          </span>
+        </div>
+
         <button id="submitBtn" type="submit" class="btn-submit" style="margin-top:8px">
           <div class="btn-spinner"></div>
           <span class="btn-text"><fmt:message bundle="${i18n}" key="recuperar.btn.enviar"/></span>
@@ -87,17 +104,16 @@
       <!-- ── SUCCESS PANEL (oculto hasta envío) ── -->
       <div id="successPanel" class="success-panel" aria-live="polite">
         <div class="success-circle">
-          <span class="material-symbols-outlined">mark_email_read</span>
+          <span class="material-symbols-outlined">key</span>
         </div>
-        <h3><fmt:message bundle="${i18n}" key="recuperar.success.titulo"/></h3>
+        <h3>Tu contraseña temporal</h3>
         <p>
-          Enviamos el enlace de recuperación a<br>
-          <strong id="successEmail"></strong>
+          Guárdala ahora: es la única vez que se muestra.<br>
+          Úsala para iniciar sesión y cámbiala después desde tu perfil.
         </p>
-        <p class="resend-timer" id="resendTimer" style="display:none">
-          <fmt:message bundle="${i18n}" key="recuperar.info.reenviarTemporizador"/>
-        </p>
-        <a id="resendLink" class="resend-timer"><fmt:message bundle="${i18n}" key="recuperar.btn.reenviar"/></a>
+        <div id="claveTemporalBox"
+             style="font-family:'DM Mono',monospace;font-size:26px;font-weight:800;letter-spacing:4px;background:#E3F4DC;border:1.5px solid #39A900;color:#1B5E20;border-radius:12px;padding:14px 22px;margin:12px auto;display:inline-block;">
+        </div>
       </div>
 
 

@@ -1,5 +1,5 @@
 /* ============================================================
-   ClassControl — Programación de Instructores
+   ClassControl ? Programación de Instructores
    Programacion_instructoresJS.js
    Bootstrap 5 + DataTables 1.13
    Lee datos desde el bloque <script type="application/json">
@@ -9,9 +9,9 @@
 
 "use strict";
 
-/* ── Constantes de dominio ───────────────────────────────── */
+/* -- Constantes de dominio --------------------------------- */
 
-// Mapa de días del ENUM de MySQL → índice columna del calendario
+// Mapa de dÍas del ENUM de MySQL ? ?ndice columna del calendario
 const DAY_INDEX = {
   "LUN": 0,
   "MAR": 1,
@@ -22,14 +22,14 @@ const DAY_INDEX = {
 };
 const DAYS = ["LUN", "MAR", "MIE", "JUE", "VIE", "SAB"];
 
-// Código del ENUM → nombre legible (solo para mostrar en la tabla de lista)
+// Código del ENUM ? nombre legible (solo para mostrar en la tabla de lista)
 const DAY_LABEL = {
   "LUN": "Lunes",
   "MAR": "Martes",
   "MIE": "Miércoles",
   "JUE": "Jueves",
   "VIE": "Viernes",
-  "SAB": "Sábado",
+  "SAB": "S?bado",
 };
 
 function formatDiasSemana(codigos) {
@@ -44,7 +44,7 @@ function formatDiasSemana(codigos) {
 // Franjas horarias del calendario semanal (hora inicio de cada bloque)
 const SLOT_LABELS = ["07:00", "10:00", "14:00"];
 
-// Colores por estado — clave = valor en minúsculas que venga de la BD
+// Colores por estado ? clave = valor en minúsculas que venga de la BD
 const STATE_COLOR = {
   "activo":     "green",
   "en curso":   "orange",
@@ -52,18 +52,18 @@ const STATE_COLOR = {
   "inactivo":   "gray",
 };
 
-/* ── Leer datos desde el JSON embebido por el JSP ────────── */
+/* -- Leer datos desde el JSON embebido por el JSP ---------- */
 let schedule = [];
 let opcionesFiltrosCargadas = false;
 
-/* ── Estado de UI ────────────────────────────────────────── */
+/* -- Estado de UI ------------------------------------------ */
 let editingId        = null;
 let filteredSchedule = [...schedule];
 
-/* ── Bootstrap instances ─────────────────────────────────── */
+/* -- Bootstrap instances ----------------------------------- */
 let bsModal, bsToast, dtInstance;
 
-/* ── DOM refs ────────────────────────────────────────────── */
+/* -- DOM refs ---------------------------------------------- */
 const calendarBody     = document.getElementById("calendar-body");
 const calendarView     = document.getElementById("calendar-view");
 const listView         = document.getElementById("list-view");
@@ -72,23 +72,27 @@ const btnViewList      = document.getElementById("btn-view-list");
 const btnNew           = document.getElementById("btn-new");
 const btnDelete        = document.getElementById("btn-delete");
 const form             = document.getElementById("scheduling-form");
+const btnSubmit        = document.querySelector('button[form="scheduling-form"][type="submit"]');
 const modalTitle       = document.getElementById("modal-title");
 const searchInput      = document.getElementById("search-input");
 const filterInstructor = document.getElementById("filter-instructor");
 const filterFicha      = document.getElementById("filter-ficha");
 const filterTrimestre  = document.getElementById("filter-trimestre");
 const btnClearFilters  = document.getElementById("btn-clear-filters");
-const btnDark          = document.getElementById("btn-dark-toggle");
-const btnSidebarToggle = document.getElementById("btn-sidebar-toggle");
-const sidebar          = document.getElementById("sidebar");
+const btnDark          = document.getElementById("dark-toggle");
+const btnSidebarToggle = document.getElementById("sidebar-toggle");
+const sidebar          = document.getElementById("cc-sidebar");
 const toastEl          = document.getElementById("toast");
 const toastBody        = document.getElementById("toast-body");
 
-/* ── Init ────────────────────────────────────────────────── */
+/* -- Init -------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", async () => {
   bsModal = new bootstrap.Modal(document.getElementById("schedulingModal"));
   bsToast = new bootstrap.Toast(toastEl, { delay: 3500 });
 
+  // La vista también puede abrirse directamente como JSP. Por eso las
+  // opciones del formulario se consultan aquí y no dependen del forward.
+  await cargarCatalogosFormulario();
   await cargarProgramaciones();
   // Los controles principales no dependen de que DataTables cargue bien.
   bindEvents();
@@ -96,9 +100,77 @@ document.addEventListener("DOMContentLoaded", async () => {
   applyFilters();
 });
 
-/* ══════════════════════════════════════════════════════════
+/* ----------------------------------------------------------
+   CATÁLOGOS DEL FORMULARIO
+---------------------------------------------------------- */
+async function obtenerCatalogo(url) {
+  const response = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!response.ok) throw new Error(`${url} respondió ${response.status}`);
+  return response.json();
+}
+
+function llenarSelectFormulario(id, items, placeholder, etiqueta) {
+  const select = document.getElementById(id);
+  if (!select) return;
+
+  const valorActual = select.value;
+  select.innerHTML = "";
+  const inicial = document.createElement("option");
+  inicial.value = "";
+  inicial.textContent = placeholder;
+  select.appendChild(inicial);
+
+  items.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent = etiqueta(item);
+    select.appendChild(option);
+  });
+
+  if (valorActual && [...select.options].some(option => option.value === valorActual)) {
+    select.value = valorActual;
+  }
+}
+
+async function cargarCatalogosFormulario() {
+  try {
+    const [actividades, usuarios, roles, fichas, ambientes, trimestres, estados] = await Promise.all([
+      obtenerCatalogo("ConsultarActividades"),
+      obtenerCatalogo("ConsultarUsuarios"),
+      obtenerCatalogo("ConsultarRoles"),
+      obtenerCatalogo("ConsultarFichas"),
+      obtenerCatalogo("ConsultarAmbientes"),
+      obtenerCatalogo("ConsultarTrimestres"),
+      obtenerCatalogo("ConsultarEstados"),
+    ]);
+
+    const rolesPorId = new Map(roles.map(rol => [String(rol.id), String(rol.descripcion || "").toLowerCase()]));
+    const instructores = usuarios.filter(usuario =>
+      rolesPorId.get(String(usuario.rolId || ""))?.includes("instructor")
+    );
+
+    llenarSelectFormulario("field-subject", actividades, "Seleccione una actividad", actividad =>
+      `${actividad.codigoActividad} - ${actividad.nombre}`);
+    llenarSelectFormulario("field-instructor", instructores.length ? instructores : usuarios,
+      "Seleccione un instructor", usuario =>
+      `${usuario.nombres || ""} ${usuario.apellidos || ""}`.trim());
+    llenarSelectFormulario("field-ficha", fichas, "Seleccione una ficha", ficha =>
+      `Ficha ${ficha.codigo}`);
+    llenarSelectFormulario("field-ambiente", ambientes, "Seleccione un ambiente", ambiente =>
+      ambiente.descripcion);
+    llenarSelectFormulario("field-trimestre", trimestres, "Seleccione un trimestre", trimestre =>
+      `Trimestre ${trimestre.numTrimestre} - ${trimestre.descripcion}`);
+    llenarSelectFormulario("field-estado", estados, "Seleccione un estado", estado =>
+      estado.descripcion);
+  } catch (error) {
+    console.error("No fue posible cargar los catálogos de programación", error);
+    showToast("No se pudieron cargar las opciones del formulario.", "error");
+  }
+}
+
+/* ----------------------------------------------------------
    FILTROS
-══════════════════════════════════════════════════════════ */
+---------------------------------------------------------- */
 function applyFilters() {
   const query    = (searchInput?.value ?? "").toLowerCase().trim();
 
@@ -116,6 +188,7 @@ function applyFilters() {
 
   renderCalendar(filteredSchedule);
   reloadDataTable(filteredSchedule);
+  actualizarHorasFiltro();
 }
 
 async function cargarProgramaciones() {
@@ -167,9 +240,26 @@ async function cambiarFiltrosServidor() {
   applyFilters();
 }
 
-/* ══════════════════════════════════════════════════════════
+/* Resumen de horas junto al filtro de instructor. Al seleccionar un
+   instructor muestra sus horas semanales totales (y un subtotal si hay
+   filtro adicional de día/trimestre ya aplicado sobre la lista). */
+function actualizarHorasFiltro() {
+  const el = document.getElementById("filter-instructor-horas");
+  if (!el) return;
+  const instructorId = filterInstructor?.value;
+  if (!instructorId) {
+    el.classList.add("d-none");
+    return;
+  }
+  const totales = horasSemanaPorInstructor(schedule);
+  const horas = (totales[Number(instructorId)] || 0) / 60;
+  el.textContent = `${horas.toFixed(0)} h/sem`;
+  el.classList.remove("d-none");
+}
+
+/* ----------------------------------------------------------
    CALENDARIO SEMANAL
-══════════════════════════════════════════════════════════ */
+---------------------------------------------------------- */
 function renderCalendar(data) {
   calendarBody.innerHTML = "";
 
@@ -183,7 +273,7 @@ function renderCalendar(data) {
     timeCell.textContent = slotStart;
     row.appendChild(timeCell);
 
-    // Columnas por día
+    // Columnas por dÍa
     DAYS.forEach(dayName => {
       const cell = document.createElement("div");
       cell.className = "cc-slot-cell";
@@ -198,7 +288,11 @@ function renderCalendar(data) {
         const cardEl = document.createElement("div");
         cardEl.innerHTML = buildCardHTML(entry);
         const card = cardEl.firstElementChild;
-        card.addEventListener("click", () => openEditModal(entry.id));
+        // El clic sobre la tarjeta abre el modal de edición solo si
+        // el rol puede escribir (Aprendiz consulta su horario sin editar).
+        if (window.ccPuedeEscribirProgramacion) {
+          card.addEventListener("click", () => openEditModal(entry.id));
+        }
         cell.appendChild(card);
       });
 
@@ -237,7 +331,7 @@ function buildCardHTML(entry) {
         </span>
         <span>
           <span class="material-symbols-outlined">schedule</span>
-          ${escapeHtml(entry.horaInicio)} – ${escapeHtml(entry.horaFin)}
+          ${escapeHtml(entry.horaInicio)} - ${escapeHtml(entry.horaFin)}
         </span>
         <span class="cc-estado-pill cc-estado--${color}">
           ${escapeHtml(entry.estado)}
@@ -255,9 +349,9 @@ function buildRecesoRow() {
   return row;
 }
 
-/* ══════════════════════════════════════════════════════════
-   DATATABLE — Vista lista
-══════════════════════════════════════════════════════════ */
+/* ----------------------------------------------------------
+   DATATABLE ? Vista lista
+---------------------------------------------------------- */
 function initDataTable() {
   dtInstance = $("#schedule-table").DataTable({
     data:    toTableData(schedule),
@@ -269,6 +363,7 @@ function initDataTable() {
       { data: "ambiente"    },
       { data: "diasSemana"  },
       { data: "horario"     },
+      { data: "horasSemana" },
       { data: "estadoBadge", orderable: false },
       { data: "vigencia"    },
       { data: "actions",    orderable: false  },
@@ -285,9 +380,27 @@ function initDataTable() {
   });
 }
 
+/* Calcula el total de horas semanales por instructor sumando la
+   duración (hora_fin - hora_inicio) de cada una de sus programaciones. */
+function horasSemanaPorInstructor(data) {
+  const totales = {};
+  (data || []).forEach(e => {
+    if (e.instructorId == null || !e.horaInicio || !e.horaFin) return;
+    const [hiH, hiM] = String(e.horaInicio).split(":").map(Number);
+    const [hfH, hfM] = String(e.horaFin).split(":").map(Number);
+    const minutos = ((hfH * 60 + hfM) - (hiH * 60 + hiM));
+    if (minutos > 0) {
+      totales[e.instructorId] = (totales[e.instructorId] || 0) + minutos;
+    }
+  });
+  return totales;
+}
+
 function toTableData(data) {
+  const totalesInstructor = horasSemanaPorInstructor(data);
   return data.map(e => {
     const color = resolveColor(e);
+    const horas = (totalesInstructor[e.instructorId] || 0) / 60;
     return {
       actividad:   `${escapeHtml(e.actividad)}<small class="d-block text-muted">${escapeHtml(e.competencia)}</small>`,
       instructor:  escapeHtml(e.instructor),
@@ -295,13 +408,16 @@ function toTableData(data) {
       trimestre:   escapeHtml(e.trimestre),
       ambiente:    escapeHtml(e.ambiente),
       diasSemana:  escapeHtml(formatDiasSemana(e.diasSemana)),
-      horario:     `${escapeHtml(e.horaInicio)} – ${escapeHtml(e.horaFin)}`,
+      horario:     `${escapeHtml(e.horaInicio)} - ${escapeHtml(e.horaFin)}`,
+      horasSemana: `<span class="cc-badge-horas">${horas.toFixed(0)}</span>`,
       estadoBadge: `<span class="cc-pill cc-pill--${color}">${escapeHtml(e.estado)}</span>`,
       vigencia:    `${escapeHtml(e.fechaInicio)} <span class="text-muted">a</span> ${escapeHtml(e.fechaFin)}`,
-      actions:     `<button class="btn btn-sm btn-outline-secondary py-0 px-2 btn-edit-row"
-                            data-id="${e.id}" title="Editar">
-                      <span class="material-symbols-outlined cc-icon-sm">edit</span>
-                    </button>`,
+      actions:     window.ccPuedeEscribirProgramacion
+                     ? `<button class="btn btn-sm btn-outline-secondary py-0 px-2 btn-edit-row"
+                             data-id="${e.id}" title="Editar">
+                       <span class="material-symbols-outlined cc-icon-sm">edit</span>
+                     </button>`
+                     : "",
       _id: e.id,
     };
   });
@@ -320,9 +436,9 @@ function bindEditButtons() {
   });
 }
 
-/* ══════════════════════════════════════════════════════════
-   MODAL — NUEVO / EDITAR
-══════════════════════════════════════════════════════════ */
+/* ----------------------------------------------------------
+   MODAL ? NUEVO / EDITAR
+---------------------------------------------------------- */
 function openNewModal() {
   editingId = null;
   modalTitle.textContent = "Nueva Programación";
@@ -382,8 +498,8 @@ function setSelectValue(elId, val) {
   }
 }
 
-/* ── Envío del formulario ────────────────────────────────── */
-form.addEventListener("submit", e => {
+/* -- Envío del formulario ---------------------------------- */
+form.addEventListener("submit", async e => {
   form.classList.add("was-validated");
   const fechaInicio = document.getElementById("field-fecha-inicio")?.value;
   const fechaFin = document.getElementById("field-fecha-fin")?.value;
@@ -394,30 +510,69 @@ form.addEventListener("submit", e => {
   if (!form.checkValidity() || rangoInvalido) {
     e.preventDefault();
     showToast(rangoInvalido ? "Verifica las fechas y horas." : "Completa todos los campos requeridos.", "error");
+    return;
   }
-  // Si es válido deja que el POST viaje al servlet
+
+  // Se envía por fetch con Accept: application/json para que el servlet
+  // devuelva el mensaje de conflicto de horario (si lo hay) y mostrarlo
+  // en el toast en lugar de redirigir y perder la información.
+  e.preventDefault();
+  const url = form.getAttribute("action") || "RegistrarProgramacion";
+
+  btnSubmit.disabled = true;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+      },
+      body: new URLSearchParams(new FormData(form)).toString(),
+    });
+
+    if (response.ok) {
+      bsModal.hide();
+      showToast("Programación guardada correctamente.");
+      await cargarProgramaciones();
+      applyFilters();
+    } else {
+      let mensaje = "No se pudo guardar la programación.";
+      try {
+        const data = await response.json();
+        if (data?.error) mensaje = data.error;
+      } catch (err) { /* respuesta no JSON */ }
+      showToast(mensaje, "error");
+    }
+  } catch (error) {
+    showToast("No se pudo guardar la programación.", "error");
+  } finally {
+    btnSubmit.disabled = false;
+  }
 });
 
-/* ── Eliminar ────────────────────────────────────────────── */
-btnDelete.addEventListener("click", () => {
-  if (editingId === null) return;
-  if (!confirm("¿Eliminar esta programación? Esta acción no se puede deshacer.")) return;
+/* -- Eliminar (solo roles con permiso de escritura; el backend
+      además reserva la eliminación exclusivamente al Admin) ---- */
+if (window.ccPuedeEscribirProgramacion) {
+  btnDelete.addEventListener("click", () => {
+    if (editingId === null) return;
+    if (!confirm("?Eliminar esta programación? Esta acciÓn no se puede deshacer.")) return;
 
-  const f     = document.createElement("form");
-  f.method    = "POST";
-  f.action    = "EliminarProgramacion";
-  const input = document.createElement("input");
-  input.type  = "hidden";
-  input.name  = "id";
-  input.value = editingId;
-  f.appendChild(input);
-  document.body.appendChild(f);
-  f.submit();
-});
+    const f     = document.createElement("form");
+    f.method    = "POST";
+    f.action    = "EliminarProgramacion";
+    const input = document.createElement("input");
+    input.type  = "hidden";
+    input.name  = "id";
+    input.value = editingId;
+    f.appendChild(input);
+    document.body.appendChild(f);
+    f.submit();
+  });
+}
 
-/* ══════════════════════════════════════════════════════════
+/* ----------------------------------------------------------
    TOGGLE DE VISTAS
-══════════════════════════════════════════════════════════ */
+---------------------------------------------------------- */
 function activateView(view) {
   if (view === "calendar") {
     calendarView.classList.remove("d-none");
@@ -433,18 +588,14 @@ function activateView(view) {
   }
 }
 
-/* ══════════════════════════════════════════════════════════
+/* ----------------------------------------------------------
    DARK MODE
-══════════════════════════════════════════════════════════ */
-function toggleDarkMode() {
-  const html = document.documentElement;
-  html.setAttribute("data-bs-theme",
-    html.getAttribute("data-bs-theme") === "dark" ? "light" : "dark");
-}
+---------------------------------------------------------- */
+function toggleDarkMode() { window.ClassControlTheme?.toggle(); }
 
-/* ══════════════════════════════════════════════════════════
+/* ----------------------------------------------------------
    TOAST
-══════════════════════════════════════════════════════════ */
+---------------------------------------------------------- */
 function showToast(msg, type = "success") {
   toastBody.textContent = msg;
   toastEl.classList.remove("bg-success", "bg-danger", "bg-warning");
@@ -455,16 +606,16 @@ function showToast(msg, type = "success") {
   bsToast.show();
 }
 
-/* ══════════════════════════════════════════════════════════
-   SIDEBAR MÓVIL
-══════════════════════════════════════════════════════════ */
+/* ----------------------------------------------------------
+   SIDEBAR M?VIL
+---------------------------------------------------------- */
 function toggleSidebar() {
   sidebar.classList.toggle("is-open");
 }
 
-/* ══════════════════════════════════════════════════════════
+/* ----------------------------------------------------------
    HELPERS
-══════════════════════════════════════════════════════════ */
+---------------------------------------------------------- */
 function resolveColor(entry) {
   const key = (entry.estado ?? "").toLowerCase().trim();
   return STATE_COLOR[key] ?? "green";
@@ -480,9 +631,13 @@ function escapeHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
-/* ── Bind de todos los eventos ───────────────────────────── */
+/* -- Bind de todos los eventos ----------------------------- */
 function bindEvents() {
-  btnNew.addEventListener("click", openNewModal);
+  if (window.ccPuedeEscribirProgramacion) {
+    btnNew.addEventListener("click", openNewModal);
+  } else {
+    btnNew?.classList.add("d-none");
+  }
 
   btnViewCal.addEventListener("click",  () => activateView("calendar"));
   btnViewList.addEventListener("click", () => activateView("list"));
@@ -510,8 +665,7 @@ function bindEvents() {
     await cambiarFiltrosServidor();
   });
 
-  if (btnDark)          btnDark.addEventListener("click", toggleDarkMode);
-  if (btnSidebarToggle) btnSidebarToggle.addEventListener("click", toggleSidebar);
+  // El controlador compartido ya registra el botón de tema y el men? m?vil.
 
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") bsModal?.hide();

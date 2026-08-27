@@ -1,0 +1,10 @@
+# ClassControl backend - archivos que NO van al repositorio
+
+# Salida de compilacion (se regenera con ant clean dist)
+/build/
+
+# Archivos locales de NetBeans y temporales
+/nbproject/private/
+/tmp/
+*.log
+*.zip

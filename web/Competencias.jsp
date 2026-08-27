@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- ══════════════════════ PROTECCIÓN DE SESIÓN ══════════════════════ --%>
+<%-- ---------------------- PROTECCIÓN DE SESIÓN ---------------------- --%>
 <%
   String sesNombres   = (String)  session.getAttribute("nombres");
   String sesApellidos = (String)  session.getAttribute("apellidos");
@@ -9,6 +9,13 @@
 
   if (sesNombres == null) {
     response.sendRedirect("Inicio_de_sesion.jsp");
+    return;
+  }
+
+  // Administrador (3), Coordinador (4) y Aprendiz (2) ven Competencias.
+  // El Instructor (1) no la necesita.
+  if (sesRol == null || sesRol == 1) {
+    response.sendRedirect("Pagina_Principal.jsp?error=permiso");
     return;
   }
 %>
@@ -49,9 +56,9 @@
 <%@ include file="_Sidebar.jspf" %>
 
   <!-- MAIN -->
-  <main class="cc-main">
+  <main class="cc-main cc-catalog-main">
 
-    <button class="cc-sidebar-toggle d-lg-none" id="btnSidebarToggle" aria-label="Abrir menú">
+    <button class="cc-sidebar-toggle d-lg-none" id="btnSidebarToggle" aria-label="Abrir men?">
       <span class="material-symbols-outlined">menu</span>
     </button>
 
@@ -62,6 +69,9 @@
         <p class="cc-page-sub"><fmt:message bundle="${i18n}" key="competencias.header.subtitle"/></p>
       </div>
       <div class="d-flex gap-2">
+        <button id="dark-toggle" class="btn cc-icon-btn" title="Cambiar tema">
+          <span class="material-symbols-outlined">dark_mode</span>
+        </button>
         <button id="btn-descargar" class="btn cc-btn-outline">
           <span class="material-symbols-outlined">file_download</span><fmt:message bundle="${i18n}" key="competencias.btn.exportarCsv"/>
         </button>
@@ -71,7 +81,7 @@
       </div>
     </div>
 
-    <!-- Métricas -->
+    <!-- MÉtricas -->
     <div class="row g-3 mb-4" id="metricas"></div>
 
     <!-- Filtros -->
@@ -144,7 +154,7 @@
         <div class="cc-export-banner">
           <div>
             <div class="fw-bold mb-1">Exportar Listado Académico</div>
-            <div class="small" style="color:rgba(255,255,255,.7)">Descarga la sábana de competencias en formato CSV.</div>
+            <div class="small" style="color:rgba(255,255,255,.7)">Descarga la s?bana de competencias en formato CSV.</div>
           </div>
           <button id="btn-generar-reporte" class="btn cc-btn-export">
             <span class="material-symbols-outlined">download</span>Generar Reporte
@@ -157,7 +167,7 @@
 </div>
 
 
-<!-- MODAL — Nueva / Editar -->
+<!-- MODAL ? Nueva / Editar -->
 <div class="modal fade" id="modal-competencia" tabindex="-1"
      aria-labelledby="modal-titulo" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -206,7 +216,7 @@
 </div>
 
 
-<!-- MODAL — Ver Detalle -->
+<!-- MODAL ? Ver Detalle -->
 <div class="modal fade" id="modal-detalle" tabindex="-1"
      aria-labelledby="detalle-titulo" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -226,7 +236,7 @@
 </div>
 
 
-<!-- MODAL — Confirmar <fmt:message bundle="${i18n}" key="common.btn.eliminar"/> -->
+<!-- MODAL ? Confirmar <fmt:message bundle="${i18n}" key="common.btn.eliminar"/> -->
 <div class="modal fade" id="modal-eliminar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content cc-modal text-center">
@@ -262,6 +272,11 @@
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js" defer></script>
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js" defer></script>
 <script src="JS/ClassControl_ui.js"></script>
+<script>
+  // Solo Administrador (3) y Coordinador (4) gestionan competencias.
+  // El Aprendiz (2) entra en modo solo lectura.
+  window.ccPuedeGestionarCatalogo = <%= (sesRol != null && (sesRol == 3 || sesRol == 4)) %>;
+</script>
 <script src="JS/CompetenciasJS.js"></script>
   <script src="JS/ClassControl_theme.js"></script>
 </body>

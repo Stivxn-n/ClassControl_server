@@ -22,7 +22,8 @@ public class TrimestreDAO {
             return lista;
         }
 
-        String sql = "SELECT id_trimestre, num_trimestre, descripcion, fecha_inicio, fecha_fin FROM trimestre ORDER BY fecha_inicio DESC";
+        String sql = "SELECT id_trimestre, num_trimestre, descripcion, fecha_inicio, fecha_fin "
+                + "FROM trimestre WHERE num_trimestre <= 7 ORDER BY num_trimestre ASC";
 
         try (PreparedStatement ps = con.prepareStatement(sql);
              java.sql.ResultSet rs = ps.executeQuery()) {
@@ -136,7 +137,7 @@ public class TrimestreDAO {
     
     public boolean actualizarTrimestre(Trimestre trimestre) {
     
-    String sql = "UPDATE Trimestre SET num_trimestre = ?, descripcion = ?, fecha_inicio = ?, fecha_fin = ? WHERE id_trimestre = ?";
+    String sql = "UPDATE trimestre SET num_trimestre = ?, descripcion = ?, fecha_inicio = ?, fecha_fin = ? WHERE id_trimestre = ?";
     
     Conexion conexion = new Conexion();
     

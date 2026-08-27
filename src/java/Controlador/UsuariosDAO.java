@@ -11,10 +11,30 @@ import java.util.List;
 
 public class UsuariosDAO {
 
+    private static final String COLUMNAS =
+            "id_usuarios, nombres, apellidos, identificacion, fecha_Nacimiento, correo, " +
+            "telefono, direccion, username, nivel_Educativo, profesion, clave, fecha_Creacion, " +
+            "activo, fecha_ExpiracionContraseña, Roles_id_roles, Tipo_Documento_id_tipo_Documento, " +
+            "Tipo_vinculacion_id_tipo_vinculacion, Ficha_id_ficha";
+
     // ══════════════════════════════════════════════════════════════
     //  LISTAR — todos los usuarios (reutiliza mapearUsuario)
     // ══════════════════════════════════════════════════════════════
     public List<Usuarios> listarUsuarios() {
+        return listarUsuarios(null, null, null);
+    }
+
+    /**
+     * Lista usuarios aplicando filtros opcionales — TODOS con
+     * PreparedStatement (sin interpolación de cadenas del cliente, a prueba
+     * de inyección SQL).
+     *
+     * @param fichaId Ficha_id_ficha exacto, o {@code null} para cualquiera.
+     * @param rolId   Roles_id_roles exacto, o {@code null} para cualquiera.
+     * @param q       texto de búsqueda en nombres/apellidos/identificación/
+     *                correo/username, o {@code null}.
+     */
+    public List<Usuarios> listarUsuarios(Integer fichaId, Integer rolId, String q) {
         List<Usuarios> lista = new ArrayList<>();
         Conexion conexion = new Conexion();
         Connection con = conexion.getConexion();
@@ -23,17 +43,41 @@ public class UsuariosDAO {
             return lista;
         }
 
-        String sql = "SELECT id_usuarios, nombres, apellidos, identificacion, fecha_Nacimiento, correo, " +
-                    "telefono, direccion, username, nivel_Educativo, profesion, clave, fecha_Creacion, " +
-                    "activo, fecha_ExpiracionContraseña, Roles_id_roles, Tipo_Documento_id_tipo_Documento, " +
-                    "Tipo_vinculacion_id_tipo_vinculacion " +
-                    "FROM usuarios ORDER BY nombres, apellidos";
+        StringBuilder sql = new StringBuilder(
+                "SELECT " + COLUMNAS + " FROM usuarios WHERE 1=1");
+        java.util.List<String> condiciones = new ArrayList<>();
+        java.util.List<Object> params = new ArrayList<>();
 
-        try (PreparedStatement ps = con.prepareStatement(sql);
-             java.sql.ResultSet rs = ps.executeQuery()) {
+        if (fichaId != null) {
+            condiciones.add("Ficha_id_ficha = ?");
+            params.add(fichaId);
+        }
+        if (rolId != null) {
+            condiciones.add("Roles_id_roles = ?");
+            params.add(rolId);
+        }
+        if (q != null && !q.trim().isEmpty()) {
+            String b = "%" + q.trim() + "%";
+            condiciones.add("(nombres LIKE ? OR apellidos LIKE ? OR identificacion LIKE ? "
+                    + "OR correo LIKE ? OR username LIKE ?)");
+            for (int i = 0; i < 5; i++) {
+                params.add(b);
+            }
+        }
 
-            while (rs.next()) {
-                lista.add(mapearUsuario(rs));
+        if (!condiciones.isEmpty()) {
+            sql.append(" AND ").append(String.join(" AND ", condiciones));
+        }
+        sql.append(" ORDER BY nombres, apellidos");
+
+        try (PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearUsuario(rs));
+                }
             }
         } catch (SQLException e) {
             System.out.println("❌ Error al listar usuarios: " + e.getMessage());
@@ -55,8 +99,8 @@ public class UsuariosDAO {
         String sql = "INSERT INTO usuarios (nombres, apellidos, identificacion, fecha_Nacimiento, " +
                     "correo, telefono, direccion, username, nivel_Educativo, profesion, clave, " +
                     "fecha_Creacion, activo, fecha_ExpiracionContraseña, Roles_id_roles, " +
-                    "Tipo_Documento_id_tipo_Documento, Tipo_vinculacion_id_tipo_vinculacion) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "Tipo_Documento_id_tipo_Documento, Tipo_vinculacion_id_tipo_vinculacion, Ficha_id_ficha) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1,  usuario.getNombres());
@@ -76,6 +120,11 @@ public class UsuariosDAO {
             ps.setInt(15, usuario.getRoles_id_roles());
             ps.setInt(16, usuario.getTipo_Documento_id_tipo_Documento());
             ps.setInt(17, usuario.getTipo_vinculacion_id_tipo_vinculacion());
+            if (usuario.getFicha_id_ficha() != null) {
+                ps.setInt(18, usuario.getFicha_id_ficha());
+            } else {
+                ps.setNull(18, java.sql.Types.INTEGER);
+            }
 
             ps.executeUpdate();
             insertado = true;
@@ -101,7 +150,7 @@ public class UsuariosDAO {
         String sql = "SELECT id_usuarios, nombres, apellidos, identificacion, fecha_Nacimiento, correo, " +
                     "telefono, direccion, username, nivel_Educativo, profesion, clave, fecha_Creacion, " +
                     "activo, fecha_ExpiracionContraseña, Roles_id_roles, Tipo_Documento_id_tipo_Documento, " +
-                    "Tipo_vinculacion_id_tipo_vinculacion " +
+                    "Tipo_vinculacion_id_tipo_vinculacion, Ficha_id_ficha " +
                     "FROM usuarios WHERE username = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -127,7 +176,7 @@ public class UsuariosDAO {
         String sql = "SELECT id_usuarios, nombres, apellidos, identificacion, fecha_Nacimiento, correo, " +
                     "telefono, direccion, username, nivel_Educativo, profesion, clave, fecha_Creacion, " +
                     "activo, fecha_ExpiracionContraseña, Roles_id_roles, Tipo_Documento_id_tipo_Documento, " +
-                    "Tipo_vinculacion_id_tipo_vinculacion " +
+                    "Tipo_vinculacion_id_tipo_vinculacion, Ficha_id_ficha " +
                     "FROM usuarios WHERE id_usuarios = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -165,7 +214,8 @@ public class UsuariosDAO {
                     "fecha_Nacimiento = ?, correo = ?, telefono = ?, direccion = ?, " +
                     "username = ?, nivel_Educativo = ?, profesion = ?, clave = ?, " +
                     "activo = ?, fecha_ExpiracionContraseña = ?, Roles_id_roles = ?, " +
-                    "Tipo_Documento_id_tipo_Documento = ?, Tipo_vinculacion_id_tipo_vinculacion = ? " +
+                    "Tipo_Documento_id_tipo_Documento = ?, Tipo_vinculacion_id_tipo_vinculacion = ?, " +
+                    "Ficha_id_ficha = ? " +
                     "WHERE id_usuarios = ?";
 
         Conexion conexion = new Conexion();
@@ -189,7 +239,12 @@ public class UsuariosDAO {
             ps.setInt(14, usuario.getRoles_id_roles());
             ps.setInt(15, usuario.getTipo_Documento_id_tipo_Documento());
             ps.setInt(16, usuario.getTipo_vinculacion_id_tipo_vinculacion());
-            ps.setInt(17, usuario.getId_usuarios());
+            if (usuario.getFicha_id_ficha() != null) {
+                ps.setInt(17, usuario.getFicha_id_ficha());
+            } else {
+                ps.setNull(17, java.sql.Types.INTEGER);
+            }
+            ps.setInt(18, usuario.getId_usuarios());
 
             int filas = ps.executeUpdate();
             if (filas > 0) {
@@ -224,6 +279,8 @@ public class UsuariosDAO {
         u.setRoles_id_roles(rs.getInt("Roles_id_roles"));
         u.setTipo_Documento_id_tipo_Documento(rs.getInt("Tipo_Documento_id_tipo_Documento"));
         u.setTipo_vinculacion_id_tipo_vinculacion(rs.getInt("Tipo_vinculacion_id_tipo_vinculacion"));
+        int fichaId = rs.getInt("Ficha_id_ficha");
+        u.setFicha_id_ficha(rs.wasNull() ? null : fichaId);
         return u;
     }
 }

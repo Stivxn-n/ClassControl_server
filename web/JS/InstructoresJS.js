@@ -1,5 +1,5 @@
 /* ============================================================
-   ClassControl — Gestión de Instructores
+   ClassControl ? Gestión de Instructores
    InstructoresJS.js  (Bootstrap 5 + DataTables)
 
    Datos reales desde el backend:
@@ -18,9 +18,9 @@
 
 'use strict';
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    1. ESTADO EN MEMORIA (poblado desde el backend)
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 let usuarios = [];
 let roles = [];
 let rolesPersonal = [];   // roles sin "Aprendiz", usados en filtros/formulario
@@ -38,9 +38,9 @@ function instructores() {
   return usuarios.filter(u => !idsExcluidos.has(u.rolId));
 }
 
-/* ══════════════════════════════════════════════════
-   2. COLORES DE AVATAR (por área/profesión)
-══════════════════════════════════════════════════ */
+/* --------------------------------------------------
+   2. COLORES DE AVATAR (por Área/profesión)
+-------------------------------------------------- */
 const PALETA_AVATAR = [
   { bg: '#dbeafe', text: '#1e40af' },
   { bg: '#dcfce7', text: '#166534' },
@@ -68,9 +68,9 @@ function rolNombre(rolId) {
   return r ? r.descripcion : `Rol ${rolId}`;
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    3. BOOTSTRAP MODAL INSTANCES
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 let bsModalInst, bsModalDetalle, bsModalEliminar;
 let dtInstance = null;
 
@@ -87,7 +87,11 @@ $(document).ready(function () {
   initSidebarToggle();
 
   document.getElementById('btn-descargar')?.addEventListener('click', exportarCSV);
-  document.getElementById('btn-nuevo-instructor')?.addEventListener('click', () => abrirModalNuevo());
+  if (window.ccSoloLectura) {
+    document.getElementById('btn-nuevo-instructor')?.classList.add('d-none');
+  } else {
+    document.getElementById('btn-nuevo-instructor')?.addEventListener('click', () => abrirModalNuevo());
+  }
 
   document.getElementById('modal-instructor')?.addEventListener('hidden.bs.modal', () => {
     document.getElementById('inst-id').value = '';
@@ -154,18 +158,18 @@ async function cargarUsuarios() {
   renderMetricas();
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    4. DATATABLES INIT
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function initDataTable() {
   dtInstance = $('#instructores-table').DataTable({
     dom: '<"d-none"f>rt<"d-flex align-items-center justify-content-between px-3 py-2 border-top"ip>',
     language: {
-      info:         'Mostrando _START_–_END_ de _TOTAL_ instructor(es)',
+      info:         'Mostrando _START_ - _END_ de _TOTAL_ instructor(es)',
       infoEmpty:    'Sin instructores disponibles',
       infoFiltered: '(filtrados de _MAX_ totales)',
       emptyTable:   'No se encontraron instructores con los filtros aplicados.',
-      paginate:     { previous: '‹', next: '›' },
+      paginate:     { previous: '«', next: '»' },
     },
     pageLength: 10,
     ordering:   true,
@@ -181,16 +185,16 @@ function initDataTable() {
   $('#instructores-table tbody').on('click', '.btn-eliminar', function() { abrirModalEliminar(parseInt(this.dataset.id, 10)); });
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    5. RENDER
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function renderTableData(lista = instructores()) {
   if (!dtInstance) return;
 
   dtInstance.clear();
 
   lista.forEach(u => {
-    const area = u.profesion || '—';
+    const area = u.profesion || '-';
     const col  = getColorAvatar(u.profesion);
     const inic = getIniciales(u.nombres, u.apellidos);
     const inac = !u.activo;
@@ -211,13 +215,13 @@ function renderTableData(lista = instructores()) {
       `<div class="cc-action-group d-flex justify-content-end gap-1">
         <button class="cc-inst-btn cc-inst-btn--ver btn-ver"      data-id="${u.id}" title="Ver perfil">
           <span class="material-symbols-outlined" style="font-size:1.2rem">visibility</span>
-        </button>
+        </button>${window.ccSoloLectura ? '' : `
         <button class="cc-inst-btn cc-inst-btn--editar btn-editar"  data-id="${u.id}" title="Editar">
           <span class="material-symbols-outlined" style="font-size:1.2rem">edit_note</span>
         </button>
         <button class="cc-inst-btn cc-inst-btn--borrar btn-eliminar" data-id="${u.id}" title="Eliminar">
           <span class="material-symbols-outlined" style="font-size:1.2rem">person_remove</span>
-        </button>
+        </button>`}
        </div>`,
     ]);
   });
@@ -225,9 +229,9 @@ function renderTableData(lista = instructores()) {
   dtInstance.draw();
 }
 
-/* ══════════════════════════════════════════════════
-   6. MÉTRICAS
-══════════════════════════════════════════════════ */
+/* --------------------------------------------------
+   6. M?TRICAS
+-------------------------------------------------- */
 function renderMetricas() {
   const lista   = instructores();
   const total   = lista.length;
@@ -254,9 +258,9 @@ function renderMetricas() {
     </div>`).join('');
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    7. HTML HELPERS
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function badgeRol(rol) {
   const cls = {
     'Instructor':    'cc-rol-badge--instructor',
@@ -272,9 +276,9 @@ function badgeEstado(activo) {
   </span>`;
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    8. FILTROS REACTIVOS
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function initFiltros() {
   const filtroBusqueda = document.getElementById('filtro-busqueda');
   const filtroRol      = document.getElementById('filtro-rol');
@@ -302,9 +306,9 @@ function initFiltros() {
   formFiltros?.addEventListener('reset',  () => setTimeout(() => renderTableData(), 0));
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    9. MODAL CREAR / EDITAR
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function abrirModalNuevo() {
   document.getElementById('modal-titulo').textContent = 'Nuevo Instructor';
   document.getElementById('inst-id').value = '';
@@ -375,7 +379,7 @@ function initFormEvents() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
       });
-      if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+      if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
       await cargarUsuarios();
       bsModalInst.hide();
@@ -387,9 +391,9 @@ function initFormEvents() {
   });
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    10. VALIDACIÓN
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function validarForm() {
   let ok = true;
   const requeridos = ['inst-nombres', 'inst-apellidos', 'inst-cedula', 'inst-correo', 'inst-rol', 'inst-tipoDoc', 'inst-estado'];
@@ -423,9 +427,9 @@ function limpiarErrores() {
   document.querySelectorAll('#form-instructor .is-invalid').forEach(el => el.classList.remove('is-invalid'));
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    11. VER DETALLE (Perfil)
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function verDetalle(id) {
   const u = usuarios.find(x => x.id === id);
   if (!u) return;
@@ -448,11 +452,11 @@ function verDetalle(id) {
     </div>
     <div class="cc-detail-row">
       <span class="cc-detail-label">Teléfono</span>
-      <span class="cc-detail-value">${ClassControl.escapeHtml(u.telefono || '—')}</span>
+      <span class="cc-detail-value">${ClassControl.escapeHtml(u.telefono || '-')}</span>
     </div>
     <div class="cc-detail-row">
       <span class="cc-detail-label">Área</span>
-      <span class="cc-detail-value">${ClassControl.escapeHtml(u.profesion || '—')}</span>
+      <span class="cc-detail-value">${ClassControl.escapeHtml(u.profesion || '-')}</span>
     </div>
     <div class="cc-detail-row">
       <span class="cc-detail-label">Estado</span>
@@ -462,9 +466,9 @@ function verDetalle(id) {
   bsModalDetalle.show();
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    12. ELIMINAR
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function abrirModalEliminar(id) {
   idAEliminar = id;
   bsModalEliminar.show();
@@ -479,21 +483,21 @@ function initDeleteEvents() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ id: String(idAEliminar) })
       });
-      if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+      if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
       idAEliminar = null;
       bsModalEliminar.hide();
       await cargarUsuarios();
       showToast('Instructor eliminado.', 'error');
     } catch (err) {
       console.error(err);
-      showToast('No se pudo eliminar el instructor.', 'error');
+      showToast(err.message || 'No se pudo eliminar el instructor.', 'error');
     }
   });
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    13. EXPORTAR CSV
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function exportarCSV() {
   const lista = instructores();
   const cabecera = ['Nombres', 'Apellidos', 'Identificación', 'Correo', 'Teléfono', 'Área', 'Rol', 'Estado'];
@@ -513,40 +517,25 @@ function exportarCSV() {
   showToast('Reporte exportado correctamente.');
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    14. DARK MODE
-══════════════════════════════════════════════════ */
-function initDarkMode() {
-  const toggle = document.getElementById('dark-toggle');
-  const saved  = localStorage.getItem('cc-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  applyTheme(saved ? saved === 'dark' : prefersDark);
+-------------------------------------------------- */
+// El tema se administra de forma ?nica en ClassControl_theme.js.
+// Mantener esta página sin un segundo listener evita que un clic cambie dos veces.
+function initDarkMode() {}
 
-  toggle?.addEventListener('click', () => {
-    const isDark = document.documentElement.getAttribute('data-bs-theme') !== 'dark';
-    applyTheme(isDark);
-    localStorage.setItem('cc-theme', isDark ? 'dark' : 'light');
-  });
-}
-
-function applyTheme(isDark) {
-  document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
-  const icon = document.querySelector('#dark-toggle .material-symbols-outlined');
-  if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
-}
-
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    15. SIDEBAR TOGGLE (mobile)
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function initSidebarToggle() {
   const toggle  = document.getElementById('sidebar-toggle');
   const sidebar = document.getElementById('cc-sidebar');
   toggle?.addEventListener('click', () => sidebar?.classList.toggle('open'));
 }
 
-/* ══════════════════════════════════════════════════
+/* --------------------------------------------------
    16. TOAST
-══════════════════════════════════════════════════ */
+-------------------------------------------------- */
 function showToast(message, type = 'success') {
   const container = document.getElementById('toast-container');
   if (!container) return;

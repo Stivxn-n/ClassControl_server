@@ -1,14 +1,14 @@
 /* ============================================================
-   ClassControl — Programación de Instructores
+   ClassControl ? Programación de Instructores
    Programacion_instructoresCSS.css
-   Bootstrap 5.3 — Sin Tailwind
+   Bootstrap 5.3 ? Sin Tailwind
    Fuente: DM Sans (sistema de diseño ClassControl)
    ============================================================ */
-/* ── CSS Variables ───────────────────────────────────────── */
+/* -- CSS Variables ----------------------------------------- */
 /* --cc-primary, --cc-primary-dark, --cc-primary-light, --cc-dark,
    --cc-bg, --cc-surface, --cc-border, --cc-text, --cc-muted y
    --cc-font ya vienen de ClassControl_base.css (cargado antes que
-   este archivo) — no se redeclaran aquí para evitar que esta
+   este archivo) ? no se redeclaran aquí para evitar que esta
    pantalla se desvíe del resto de la app. */
 :root {
   --cc-toolbar-h:     56px;
@@ -31,8 +31,11 @@
   --cc-text:       #e8f5e2;
   --cc-muted:      #8da88a;
   --cc-gray-bg:    #2a2a2a;
+
+  --cc-orange-bg:  #3a2a17;
+  --cc-blue-bg:    #16233d;
 }
-/* ── Reset / Base ────────────────────────────────────────── */
+/* -- Reset / Base ------------------------------------------ */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
 body {
@@ -53,32 +56,15 @@ p,span,label,input,select,textarea,button,td,th,a {
   font-family: var(--cc-font);
   font-size: var(--cc-fs-base);
 }
-/* ── Layout ──────────────────────────────────────────────── */
+/* -- Layout ------------------------------------------------ */
 .cc-layout {
   display: flex;
   height: 100vh;
   overflow: hidden;
 }
-.cc-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
-}
-/* ── Sidebar ─────────────────────────────────────────────── */
-.cc-sidebar {
-  width: var(--cc-sidebar-w);
-  background-color: var(--cc-dark);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  z-index: 1030;
-  transition: transform 0.25s ease;
-}
+
+/* -- Sidebar ----------------------------------------------- */
+
 .cc-brand {
   display: flex;
   align-items: center;
@@ -106,42 +92,12 @@ p,span,label,input,select,textarea,button,td,th,a {
   font-weight: 500;
   letter-spacing: 0.02em;
 }
-.cc-nav {
-  flex: 1;
-  padding: 0.75rem 0.75rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.cc-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.6rem 0.9rem;
-  border-radius: var(--cc-radius);
-  color: rgba(255,255,255,0.75);
-  text-decoration: none;
-  font-weight: 500;
-  transition: background 0.15s, color 0.15s;
-}
-.cc-nav-link:hover {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-}
-.cc-nav-link.active {
-  background: var(--cc-primary-light);
-  color: var(--cc-primary) !important;
-  border-left: 3px solid var(--cc-primary);
-  font-weight: 600;
-}
-.cc-nav-separator {
-  border-top: 1px solid rgba(255,255,255,0.1);
-  margin: 0.5rem 0;
-}
-.cc-nav .material-symbols-outlined {
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
+
+
+
+
+
+
 .cc-sidebar__footer {
   padding: 0.75rem;
   border-top: 1px solid rgba(255,255,255,0.08);
@@ -161,20 +117,8 @@ p,span,label,input,select,textarea,button,td,th,a {
   transition: background 0.15s;
 }
 .cc-logout-btn:hover { background: rgba(248,113,113,0.15); }
-/* ── Header ──────────────────────────────────────────────── */
-.cc-header {
-  height: var(--cc-header-h);
-  background: var(--cc-surface);
-  border-bottom: 1px solid var(--cc-border);
-  padding: 0 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-shrink: 0;
-  box-shadow: var(--cc-shadow);
-  z-index: 100;
-}
+/* -- Header ------------------------------------------------ */
+
 .cc-header__title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -204,16 +148,9 @@ p,span,label,input,select,textarea,button,td,th,a {
   box-shadow: 0 0 0 3px rgba(56,168,0,0.18);
   border-color: var(--cc-primary);
 }
-.cc-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid var(--cc-primary);
-  flex-shrink: 0;
-}
-.cc-avatar img { width: 100%; height: 100%; object-fit: cover; }
-/* ── Toolbar ─────────────────────────────────────────────── */
+
+
+/* -- Toolbar ----------------------------------------------- */
 .cc-toolbar {
   height: var(--cc-toolbar-h);
   background: var(--cc-surface);
@@ -224,20 +161,24 @@ p,span,label,input,select,textarea,button,td,th,a {
   justify-content: space-between;
   flex-shrink: 0;
   gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
 }
-/* Etiqueta + select de filtro rápido */
+/* Etiqueta + select de filtro rÁpido */
 .cc-filter-label {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: var(--cc-muted);
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .cc-filter-select {
   font-size: 0.8rem !important;
   min-width: 140px;
   max-width: 180px;
+  border-radius: var(--cc-radius) !important;
 }
-/* ── Botones primarios ───────────────────────────────────── */
+/* -- Botones primarios ------------------------------------- */
 .btn-primary,
 .cc-btn-primary {
   white-space: nowrap;
@@ -245,15 +186,21 @@ p,span,label,input,select,textarea,button,td,th,a {
   background-color: var(--cc-primary) !important;
   border-color:     var(--cc-primary) !important;
   font-weight: 600;
+  border-radius: var(--cc-radius) !important;
+  box-shadow: 0 2px 6px var(--cc-primary-shadow);
+  transition: background-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .btn-primary:hover,
 .cc-btn-primary:hover {
   background-color: var(--cc-primary-dark) !important;
   border-color:     var(--cc-primary-dark) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px var(--cc-primary-shadow);
 }
 .btn-outline-primary {
   color:        var(--cc-primary) !important;
   border-color: var(--cc-primary) !important;
+  border-radius: var(--cc-radius) !important;
 }
 .btn-outline-primary:hover,
 .btn-outline-primary.active {
@@ -272,7 +219,7 @@ p,span,label,input,select,textarea,button,td,th,a {
   gap: 0.3rem;
 }
 .cc-icon-sm { font-size: 1rem; line-height: 1; }
-/* ── Área de scroll de contenido ────────────────────────── */
+/* -- Área de scroll de contenido -------------------------- */
 .cc-content-scroll {
   flex: 1;
   overflow-y: auto;
@@ -280,7 +227,7 @@ p,span,label,input,select,textarea,button,td,th,a {
   padding: 1.25rem;
   background: var(--cc-bg);
 }
-/* ── Calendario ──────────────────────────────────────────── */
+/* -- Calendario -------------------------------------------- */
 .cc-calendar-wrapper {
   background: var(--cc-surface);
   border-radius: var(--cc-radius);
@@ -294,19 +241,32 @@ p,span,label,input,select,textarea,button,td,th,a {
   grid-template-columns: 80px repeat(6, 1fr);
 }
 .cc-calendar-header {
-  background: var(--cc-bg);
+  background: linear-gradient(180deg, var(--cc-bg), rgba(56,168,0,0.04));
   border-bottom: 2px solid var(--cc-border);
 }
 .cc-time-col { border-right: 1px solid var(--cc-border); }
 .cc-day-header {
-  padding: 0.75rem 0.5rem;
+  padding: 0.85rem 0.5rem;
   text-align: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
   color: var(--cc-dark);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   border-right: 1px solid var(--cc-border);
+  position: relative;
+}
+.cc-day-header::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0.45rem;
+  transform: translateX(-50%);
+  width: 1.6rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--cc-primary);
+  opacity: 0.7;
 }
 [data-bs-theme="dark"] .cc-day-header { color: var(--cc-text); }
 .cc-day-header:last-child { border-right: none; }
@@ -316,22 +276,24 @@ p,span,label,input,select,textarea,button,td,th,a {
   border-bottom: 1px solid var(--cc-border);
   min-height: 10rem;
 }
+.cc-slot-row:hover { background: rgba(56,168,0,0.02); }
 .cc-slot-row:last-child { border-bottom: none; }
 .cc-time-label {
-  padding: 0.75rem 0.5rem;
-  font-size: 0.65rem;
+  padding: 0.75rem 0.6rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: var(--cc-muted);
   text-align: right;
   border-right: 1px solid var(--cc-border);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .cc-slot-cell {
-  padding: 0.4rem;
+  padding: 0.5rem;
   border-right: 1px solid var(--cc-border);
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 .cc-slot-cell:last-child { border-right: none; }
 .cc-receso-row {
@@ -342,12 +304,12 @@ p,span,label,input,select,textarea,button,td,th,a {
   border-bottom: 1px solid var(--cc-border);
 }
 .cc-receso-label {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: var(--cc-muted);
   font-style: italic;
   text-align: right;
-  padding: 0 0.5rem;
+  padding: 0 0.6rem;
   border-right: 1px solid var(--cc-border);
   display: flex;
   align-items: center;
@@ -364,53 +326,74 @@ p,span,label,input,select,textarea,button,td,th,a {
   width: 100%;
   border-top: 1px dashed var(--cc-border);
 }
-/* ── Tarjetas del calendario ─────────────────────────────── */
+/* -- Tarjetas del calendario ------------------------------- */
 .schedule-card {
   min-height: 7.5rem;
-  border-radius: 0.4rem;
-  padding: 0.55rem 0.6rem;
+  border-radius: 0.55rem;
+  padding: 0.6rem 0.65rem 0.5rem;
   cursor: pointer;
-  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
   border-left: 4px solid transparent;
+  border-right: 1px solid transparent;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: var(--cc-shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
+  position: relative;
+  overflow: hidden;
+}
+.schedule-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.5), transparent 60%);
+  pointer-events: none;
+}
+[data-bs-theme="dark"] .schedule-card::before {
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 60%);
 }
 .schedule-card:hover {
-  filter: brightness(0.96);
-  transform: scale(1.02);
+  filter: brightness(0.98);
+  transform: translateY(-2px) scale(1.015);
   box-shadow: var(--cc-shadow-md);
 }
 .schedule-card h4 {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   margin-bottom: 0.1rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--cc-text);
 }
 .schedule-card p {
-  font-size: 0.63rem;
-  font-weight: 500;
+  font-size: 0.64rem;
+  font-weight: 600;
   margin: 0;
   display: flex;
   align-items: center;
   gap: 3px;
+  color: var(--cc-text);
 }
 .schedule-card .sc-meta {
   margin-top: 0.3rem;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  border-top: 1px solid rgba(128,128,128,0.22);
+  padding-top: 0.3rem;
 }
 .schedule-card .sc-meta span {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-size: 0.6rem;
-  opacity: 0.8;
+  opacity: 0.88;
+  color: var(--cc-text);
 }
-.schedule-card .sc-meta .material-symbols-outlined { font-size: 0.7rem; }
+.schedule-card .sc-meta .material-symbols-outlined { font-size: 0.72rem; }
 /* Colores de tarjeta por estado */
 .schedule-card--green  { background: var(--cc-green-bg);  border-color: var(--cc-green);  }
 .schedule-card--orange { background: var(--cc-orange-bg); border-color: var(--cc-orange); }
@@ -419,20 +402,24 @@ p,span,label,input,select,textarea,button,td,th,a {
 /* Pill de estado dentro de la tarjeta */
 .cc-estado-pill {
   display: inline-block;
-  padding: 0.1rem 0.4rem;
+  padding: 0.15rem 0.45rem;
   border-radius: 2rem;
   font-size: 0.58rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
   align-self: flex-start;
 }
 .cc-estado--green  { background: var(--cc-green-bg);  color: #1d6b00; }
 .cc-estado--orange { background: var(--cc-orange-bg); color: #c2410c; }
 .cc-estado--blue   { background: var(--cc-blue-bg);   color: #1d4ed8; }
 .cc-estado--gray   { background: var(--cc-gray-bg);   color: #4b5563; }
-/* ── DataTable / Vista lista ─────────────────────────────── */
+[data-bs-theme="dark"] .cc-estado--green  { color: #7ee268; }
+[data-bs-theme="dark"] .cc-estado--orange { color: #fdba74; }
+[data-bs-theme="dark"] .cc-estado--blue   { color: #93c5fd; }
+[data-bs-theme="dark"] .cc-estado--gray   { color: #cbd5e1; }
+/* -- DataTable / Vista lista ------------------------------- */
 .cc-table-card {
   border-radius: var(--cc-radius);
   border: 1px solid var(--cc-border);
@@ -447,13 +434,18 @@ p,span,label,input,select,textarea,button,td,th,a {
   letter-spacing: 0.05em;
   color: var(--cc-muted);
   border-bottom: 2px solid var(--cc-border);
-  padding: 0.75rem 1rem;
+  padding: 0.8rem 1rem;
   white-space: nowrap;
+  background: var(--cc-bg);
 }
 #schedule-table tbody td {
-  padding: 0.7rem 1rem;
+  padding: 0.75rem 1rem;
   vertical-align: middle;
   border-color: var(--cc-border);
+  transition: background 0.15s;
+}
+#schedule-table tbody tr:hover td {
+  background: rgba(56,168,0,0.05);
 }
 /* Pills de estado en la tabla */
 .cc-pill {
@@ -467,6 +459,10 @@ p,span,label,input,select,textarea,button,td,th,a {
 .cc-pill--orange { background: var(--cc-orange-bg); color: #c2410c; }
 .cc-pill--blue   { background: var(--cc-blue-bg);   color: #1d4ed8; }
 .cc-pill--gray   { background: var(--cc-gray-bg);   color: #4b5563; }
+[data-bs-theme="dark"] .cc-pill--green  { color: #7ee268; }
+[data-bs-theme="dark"] .cc-pill--orange { color: #fdba74; }
+[data-bs-theme="dark"] .cc-pill--blue   { color: #93c5fd; }
+[data-bs-theme="dark"] .cc-pill--gray   { color: #cbd5e1; }
 /* DataTables overrides */
 .dataTables_wrapper .dataTables_filter input {
   font-family: var(--cc-font);
@@ -479,7 +475,7 @@ p,span,label,input,select,textarea,button,td,th,a {
   font-family: var(--cc-font);
   font-size: var(--cc-fs-base);
 }
-/* ── Footer ──────────────────────────────────────────────── */
+/* -- Footer ------------------------------------------------ */
 .cc-footer {
   height: var(--cc-footer-h);
   background: var(--cc-surface);
@@ -509,49 +505,92 @@ p,span,label,input,select,textarea,button,td,th,a {
 .cc-dot--gray   { background: var(--cc-gray);   }
 .cc-dot--purple { background: #a855f7; }
 .cc-footer__copy { font-size: 0.7rem; color: var(--cc-muted); }
-/* ── Modal ───────────────────────────────────────────────── */
-.modal-content {
-  border-radius: var(--cc-radius);
-  border: none;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  font-family: var(--cc-font);
+/* -- Botón editar fila ------------------------------------- */
+.btn-edit-row {
+  border-color: var(--cc-border) !important;
+  color: var(--cc-primary) !important;
+  border-radius: 0.4rem;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
 }
-.modal-header  { border-bottom: 1px solid var(--cc-border); padding: 1rem 1.25rem; }
-.modal-footer  { border-top:    1px solid var(--cc-border); }
+.btn-edit-row:hover {
+  background: var(--cc-primary) !important;
+  border-color: var(--cc-primary) !important;
+  color: #fff !important;
+  transform: scale(1.08);
+}
+/* -- Modal ------------------------------------------------- */
+.modal-content {
+  border-radius: var(--cc-radius-lg);
+  border: none;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  font-family: var(--cc-font);
+  overflow: hidden;
+}
+.modal-header {
+  border-bottom: 1px solid var(--cc-border);
+  padding: 1.1rem 1.4rem;
+  background: linear-gradient(135deg, var(--cc-primary-light), transparent 70%);
+}
+[data-bs-theme="dark"] .modal-header {
+  background: linear-gradient(135deg, rgba(56,168,0,0.14), transparent 70%);
+}
+.modal-footer  { border-top:    1px solid var(--cc-border); padding: 1rem 1.4rem; }
+.modal-body    { padding: 1.4rem; }
 .modal-title {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: var(--cc-dark);
 }
 [data-bs-theme="dark"] .modal-title { color: var(--cc-text); }
+.form-control,
+.form-select {
+  border-color: var(--cc-border);
+}
 .form-control:focus,
 .form-select:focus {
   border-color: var(--cc-primary);
   box-shadow: 0 0 0 3px rgba(56,168,0,0.18);
 }
 .form-label {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: var(--cc-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   margin-bottom: 0.3rem;
 }
-/* ── Toast ───────────────────────────────────────────────── */
+/* -- Toast ------------------------------------------------- */
 .toast      { min-width: 240px; font-family: var(--cc-font); }
 .toast-body { font-size: var(--cc-fs-base); }
-/* ── Responsive sidebar ──────────────────────────────────── */
+
+/* -- Horas semanales por instructor ------------------------ */
+.cc-filter-horas {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--cc-primary);
+  background: rgba(56,168,0,0.12);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  white-space: nowrap;
+}
+.cc-badge-horas {
+  display: inline-block;
+  min-width: 2rem;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cc-primary);
+  background: rgba(56,168,0,0.12);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+/* -- Responsive sidebar ------------------------------------ */
 @media (max-width: 991.98px) {
-  .cc-sidebar {
-    position: fixed;
-    top: 0; left: 0;
-    height: 100%;
-    transform: translateX(-100%);
-  }
+  
 
-  .cc-sidebar.is-open { transform: translateX(0); }
+  
 
-  .cc-main    { width: 100%; }
+  
   .cc-search  { width: 160px; }
 
   .cc-toolbar {
@@ -563,7 +602,7 @@ p,span,label,input,select,textarea,button,td,th,a {
 
   .cc-filter-select { min-width: 110px; }
 }
-/* ── Material Symbols ────────────────────────────────────── */
+/* -- Material Symbols -------------------------------------- */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   vertical-align: middle;

@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Competencias;
-import jakarta.resource.cci.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,7 +136,7 @@ public class CompetenciasDAO {
     
     public boolean actualizarCompetencias(Competencias competencias) {
     
-    String sql = "UPDATE Competencias SET codigo_Competencias = ?, descripcion_Competencias = ?, Programas_idProgramas = ? WHERE id_competencias = ?";
+    String sql = "UPDATE competencias SET codigo_Competencias = ?, descripcion_Competencias = ?, Programas_idProgramas = ? WHERE id_competencias = ?";
     
     Conexion conexion = new Conexion();
     

@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Actividades;
-import jakarta.resource.cci.ResultSet;
 
 
 public class ActividadesDAO {
@@ -120,16 +119,29 @@ public class ActividadesDAO {
     }
     
     public boolean eliminarActividades(int Id_actividades) {
-        
+
+        String sqlProgramaciones =
+                "DELETE FROM programacion_instructores WHERE Actividades_id_actividades = ?";
         String sql = "DELETE FROM actividades WHERE Id_actividades = ?";
         Conexion conexion = new Conexion();
-    
-        try (Connection con = conexion.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-         
-            ps.setInt(1, Id_actividades);
-            return ps.executeUpdate() > 0;
-        
+
+        try (Connection con = conexion.getConexion()) {
+            con.setAutoCommit(false);
+            try (PreparedStatement psProg = con.prepareStatement(sqlProgramaciones)) {
+                psProg.setInt(1, Id_actividades);
+                psProg.executeUpdate();
+            }
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, Id_actividades);
+                int filas = ps.executeUpdate();
+                con.commit();
+                return filas > 0;
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
+            } finally {
+                con.setAutoCommit(true);
+            }
          } catch (SQLException e) {
              System.out.println("Error al eliminar actividad: " + e.getMessage());
              return false;
@@ -138,7 +150,7 @@ public class ActividadesDAO {
     
     public boolean actualizarActividades(Actividades actividades) {
     
-    String sql = "UPDATE Actividades SET codigo_Actividad = ?, nombre_Act = ?, descripcion = ?, Resultado_aprendizaje_id_resultado_aprendizaje = ? WHERE id_actividades = ?";
+    String sql = "UPDATE actividades SET codigo_Actividad = ?, nombre_Act = ?, descripcion = ?, Resultado_aprendizaje_id_resultado_aprendizaje = ? WHERE id_actividades = ?";
     
     Conexion conexion = new Conexion();
     

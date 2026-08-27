@@ -94,16 +94,16 @@ public class Programacion_InstructoresDAO {
             "  ac.nombre_Act                       AS actividadNombre, " +
             "  COALESCE(c.descripcion_Competencias, '') AS competenciaNombre " +
 
-            "FROM programacion_Instructores pi " +
-            "INNER JOIN Ficha    f  ON f.id_ficha              = pi.Ficha_id_ficha " +
-            "LEFT  JOIN Programas p  ON p.idProgramas           = f.Programas_idProgramas " +
-            "INNER JOIN Usuarios  u  ON u.id_usuarios           = pi.Usuarios_id_usuarios " +
-            "INNER JOIN Ambientes a  ON a.id_ambientes          = pi.Ambientes_id_ambientes " +
-            "INNER JOIN Trimestre t  ON t.id_trimestre          = pi.Trimestre_id_trimestre " +
-            "INNER JOIN Estado    e  ON e.id_estado             = pi.Estado_id_estado " +
-            "INNER JOIN Actividades ac ON ac.id_actividades      = pi.Actividades_id_actividades " +
-            "LEFT JOIN Resultado_aprendizaje ra ON ra.id_resultado_aprendizaje = ac.Resultado_aprendizaje_id_resultado_aprendizaje " +
-            "LEFT JOIN Competencias c ON c.id_competencias       = ra.Competencias_id_competencias ";
+            "FROM programacion_instructores pi " +
+            "INNER JOIN ficha    f  ON f.id_ficha              = pi.ficha_id_ficha " +
+            "LEFT  JOIN programas p  ON p.idprogramas           = f.programas_idprogramas " +
+            "INNER JOIN usuarios  u  ON u.id_usuarios           = pi.usuarios_id_usuarios " +
+            "INNER JOIN ambientes a  ON a.id_ambientes          = pi.ambientes_id_ambientes " +
+            "INNER JOIN trimestre t  ON t.id_trimestre          = pi.trimestre_id_trimestre " +
+            "INNER JOIN estado    e  ON e.id_estado             = pi.estado_id_estado " +
+            "INNER JOIN actividades ac ON ac.id_actividades      = pi.actividades_id_actividades " +
+            "LEFT JOIN resultado_aprendizaje ra ON ra.id_resultado_aprendizaje = ac.resultado_aprendizaje_id_resultado_aprendizaje " +
+            "LEFT JOIN competencias c ON c.id_competencias       = ra.competencias_id_competencias ";
 
         StringBuilder sqlFiltrado = new StringBuilder(sql);
         List<Integer> valoresFiltro = new ArrayList<>();
@@ -177,13 +177,80 @@ public class Programacion_InstructoresDAO {
     //  INSERTAR
     // ══════════════════════════════════════════════════════════════
 
+    /**
+     * Verifica si existe una programación que entre en conflicto de horario
+     * con la que se intenta guardar.
+     *
+     * Se considera conflicto cuando hay otra programación en el MISMO ambiente
+     * y el MISMO día (dias_Semana) cuyo rango [hora_inicio, hora_fin] se
+     * solapa con el rango [horaInicio, horaFin] propuesto:
+     *     nuevoInicio < existenteFin  AND  nuevoFin > existenteInicio
+     *
+     * @param idIgnorar  id de la programación que se está editando (0 en un alta)
+     * @return una descripción legible del conflicto, o {@code null} si no hay
+     *         ninguna programación que se solape
+     */
+    private String obtenerDescripcionConflicto(Programacion_Instructores prog, int idIgnorar) {
+        Conexion conexion = new Conexion();
+        Connection con = conexion.getConexion();
+        if (con == null) {
+            return null;
+        }
+
+        String sql =
+            "SELECT CONCAT(u.nombres, ' ', u.apellidos) AS instructorNombre, " +
+            "       a.descripcion_Ambiente AS ambienteNombre, " +
+            "       pi.hora_inicio AS horaInicio, " +
+            "       pi.hora_fin AS horaFin " +
+            "FROM programacion_instructores pi " +
+            "INNER JOIN usuarios u ON u.id_usuarios = pi.Usuarios_id_usuarios " +
+            "INNER JOIN ambientes a ON a.id_ambientes = pi.Ambientes_id_ambientes " +
+            "WHERE pi.Ambientes_id_ambientes = ? " +
+            "  AND pi.dias_Semana = ? " +
+            "  AND pi.hora_inicio < ? " +
+            "  AND pi.hora_fin > ? " +
+            "  AND pi.id_programacion_Instructores <> ? " +
+            "LIMIT 1";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, prog.getAmbientes_id_ambientes());
+            ps.setString(2, prog.getDias_Semana());
+            ps.setObject(3, prog.getHora_fin());
+            ps.setObject(4, prog.getHora_inicio());
+            ps.setInt(5, idIgnorar);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String instructor = rs.getString("instructorNombre");
+                    String ambiente   = rs.getString("ambienteNombre");
+                    LocalTime hIni    = rs.getObject("horaInicio", LocalTime.class);
+                    LocalTime hFin    = rs.getObject("horaFin",    LocalTime.class);
+                    return "El ambiente " + (ambiente != null ? ambiente : "") +
+                        " ya está ocupado por el instructor " + (instructor != null ? instructor : "") +
+                        " de " + hIni + " a " + hFin + ".";
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("❌ Error al verificar conflicto de horario: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try { con.close(); } catch (SQLException ignored) {}
+        }
+        return null;
+    }
+
     public boolean InsertarProgramacion_Instructores(Programacion_Instructores prog) {
         boolean insertado = false;
         Conexion conexion = new Conexion();
         Connection con = conexion.getConexion();
 
+        String descripcionConflicto = obtenerDescripcionConflicto(prog, 0);
+        if (descripcionConflicto != null) {
+            throw new ConflictoHorarioException(descripcionConflicto, null);
+        }
+
         String sql =
-            "INSERT INTO programacion_Instructores " +
+            "INSERT INTO programacion_instructores " +
             "(Observaciones, fecha_inicial_Prog, fecha_fin_Prog, " +
             " dias_Semana, hora_inicio, hora_fin, Ficha_id_ficha, Usuarios_id_usuarios, " +
             " Ambientes_id_ambientes, Trimestre_id_trimestre, Estado_id_estado, Actividades_id_actividades) " +
@@ -235,7 +302,7 @@ public class Programacion_InstructoresDAO {
             "       fecha_fin_Prog, dias_Semana, hora_inicio, hora_fin, Ficha_id_ficha, " +
             "       Usuarios_id_usuarios, Ambientes_id_ambientes, " +
             "       Trimestre_id_trimestre, Estado_id_estado, Actividades_id_actividades " +
-            "FROM programacion_Instructores WHERE id_programacion_Instructores = ?";
+            "FROM programacion_instructores WHERE id_programacion_Instructores = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -270,7 +337,7 @@ public class Programacion_InstructoresDAO {
     // ══════════════════════════════════════════════════════════════
 
     public boolean eliminarProgramacion_Instructores(int id) {
-        String sql = "DELETE FROM programacion_Instructores WHERE id_programacion_Instructores = ?";
+        String sql = "DELETE FROM programacion_instructores WHERE id_programacion_Instructores = ?";
         Conexion conexion = new Conexion();
 
         try (Connection con = conexion.getConexion();
@@ -288,8 +355,13 @@ public class Programacion_InstructoresDAO {
     // ══════════════════════════════════════════════════════════════
 
     public boolean actualizarProgramacion_Instructores(Programacion_Instructores prog) {
+        String descripcionConflicto = obtenerDescripcionConflicto(prog, prog.getId_programacion_Instructores());
+        if (descripcionConflicto != null) {
+            throw new ConflictoHorarioException(descripcionConflicto, null);
+        }
+
         String sql =
-            "UPDATE programacion_Instructores SET " +
+            "UPDATE programacion_instructores SET " +
             "  Observaciones = ?, fecha_inicial_Prog = ?, fecha_fin_Prog = ?, " +
             "  dias_Semana = ?, hora_inicio = ?, hora_fin = ?, Ficha_id_ficha = ?, " +
             "  Usuarios_id_usuarios = ?, Ambientes_id_ambientes = ?, " +

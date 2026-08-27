@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Programas;
-import jakarta.resource.cci.ResultSet;
 
 
 public class ProgramasDAO {
@@ -130,7 +129,7 @@ public class ProgramasDAO {
     
     public boolean actualizarProgramas(Programas programas) {
     
-    String sql = "UPDATE Programas SET codigo_programa = ?, nombre_programa = ? WHERE idProgramas = ?";
+    String sql = "UPDATE programas SET codigo_programa = ?, nombre_programa = ? WHERE idProgramas = ?";
     
     Conexion conexion = new Conexion();
     

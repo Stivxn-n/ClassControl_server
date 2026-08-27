@@ -1,5 +1,5 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- ══════════════════════ PROTECCIÓN DE SESIÓN ══════════════════════ --%>
+﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%-- ---------------------- PROTECCIÓN DE SESIÓN ---------------------- --%>
 <%
   String sesNombres   = (String)  session.getAttribute("nombres");
   String sesApellidos = (String)  session.getAttribute("apellidos");
@@ -9,6 +9,12 @@
 
   if (sesNombres == null) {
     response.sendRedirect("Inicio_de_sesion.jsp");
+    return;
+  }
+
+  // Solo Administrador (3) y Coordinador (4) ven Programas.
+  if (sesRol == null || (sesRol != 3 && sesRol != 4)) {
+    response.sendRedirect("Pagina_Principal.jsp?error=permiso");
     return;
   }
 %>
@@ -44,19 +50,19 @@
 <body>
 <div class="cc-layout">
 
-  <!-- ═══════════════════════════════════════
+  <!-- ---------------------------------------
        SIDEBAR
-  ══════════════════════════════════════════ -->
+  ------------------------------------------ -->
   <%   String ccActivePage = "programas"; %>
 <%@ include file="_Sidebar.jspf" %>
 
-  <!-- ═══════════════════════════════════════
+  <!-- ---------------------------------------
        MAIN
-  ══════════════════════════════════════════ -->
-  <main class="cc-main">
+  ------------------------------------------ -->
+  <main class="cc-main cc-catalog-main">
 
-    <!-- Toggle sidebar (móvil) -->
-    <button class="cc-sidebar-toggle d-lg-none" id="btnSidebarToggle" aria-label="Abrir menú">
+    <!-- Toggle sidebar (m?vil) -->
+    <button class="cc-sidebar-toggle d-lg-none" id="btnSidebarToggle" aria-label="Abrir men?">
       <span class="material-symbols-outlined">menu</span>
     </button>
 
@@ -67,6 +73,9 @@
         <p class="cc-page-sub"><fmt:message bundle="${i18n}" key="programas.header.subtitle"/></p>
       </div>
       <div class="d-flex gap-2">
+        <button id="dark-toggle" class="btn cc-icon-btn" title="Cambiar tema">
+          <span class="material-symbols-outlined">dark_mode</span>
+        </button>
         <button id="btn-descargar" class="btn cc-btn-outline">
           <span class="material-symbols-outlined">file_download</span>
           <fmt:message bundle="${i18n}" key="programas.btn.descargarCsv"/>
@@ -78,7 +87,7 @@
       </div>
     </div>
 
-    <!-- Métricas -->
+    <!-- MÉtricas -->
     <div class="row g-3 mb-4" id="metricas"></div>
 
     <!-- Filtros -->
@@ -127,7 +136,7 @@
           </table>
         </div>
 
-        <!-- Paginación -->
+        <!-- PaginaciÓn -->
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3 cc-table-footer">
           <span id="contador-programas" class="text-muted small"></span>
           <div id="paginacion" class="d-flex gap-1"></div>
@@ -139,9 +148,9 @@
 </div><!-- /.cc-layout -->
 
 
-<!-- ═══════════════════════════════════════
-     MODAL — Nuevo / Editar Programa
-══════════════════════════════════════════ -->
+<!-- ---------------------------------------
+     MODAL ? Nuevo / Editar Programa
+------------------------------------------ -->
 <div class="modal fade" id="modal-programa" tabindex="-1" aria-labelledby="modal-titulo" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content cc-modal">
@@ -181,9 +190,9 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════
-     MODAL — Confirmar <fmt:message bundle="${i18n}" key="common.btn.eliminar"/>
-══════════════════════════════════════════ -->
+<!-- ---------------------------------------
+     MODAL ? Confirmar <fmt:message bundle="${i18n}" key="common.btn.eliminar"/>
+------------------------------------------ -->
 <div class="modal fade" id="modal-eliminar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content cc-modal text-center">
@@ -205,9 +214,9 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════
+<!-- ---------------------------------------
      TOAST
-══════════════════════════════════════════ -->
+------------------------------------------ -->
 <div id="toast" class="cc-toast" role="alert" aria-live="polite">
   <span id="toast-icon" class="material-symbols-outlined">check_circle</span>
   <span id="toast-msg"><fmt:message bundle="${i18n}" key="common.info.operacionExitosa"/></span>

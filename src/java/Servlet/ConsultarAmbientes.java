@@ -21,6 +21,7 @@ public class ConsultarAmbientes extends ConsultarBaseServlet<Ambientes> {
         return campoNum("id", a.getId_ambientes()) + ","
              + campoStr("descripcion", a.getDescripcion_Ambiente()) + ","
              + campoNum("capacidad", a.getCapacidad()) + ","
-             + campoNum("sedeId", a.getSede_id_sede());
+             + campoNum("sedeId", a.getSede_id_sede()) + ","
+             + campoStr("estado", a.getEstado_Ambiente());
     }
 }

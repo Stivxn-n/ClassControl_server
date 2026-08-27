@@ -1,5 +1,17 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- ══════════════════════ PROTECCIÓN DE SESIÓN ══════════════════════ --%>
+﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%!
+  /** Escapa texto para que los datos dinamicos no se interpreten como HTML. */
+  public static String escaparHtml(Object valor) {
+    if (valor == null) return "";
+    String texto = String.valueOf(valor);
+    return texto.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+  }
+%>
+<%-- ---------------------- PROTECCIÓN DE SESIÓN ---------------------- --%>
 <%
   String sesNombres   = (String)  session.getAttribute("nombres");
   String sesApellidos = (String)  session.getAttribute("apellidos");
@@ -10,6 +22,21 @@
   if (sesNombres == null) {
     response.sendRedirect("Inicio_de_sesion.jsp");
     return;
+  }
+
+  // Aprendiz (2) no ve Fichas; el Instructor (1) s?, pero filtrado a las
+  // suyas (ver ConsultarFichas / FichaDAO.listarFichasPorInstructor).
+  if (sesRol == null || sesRol == 2) {
+    response.sendRedirect("Pagina_Principal.jsp?error=permiso");
+    return;
+  }
+
+  String rolLabel = "Usuario";
+  if (sesRol != null) {
+    if (sesRol == 1) rolLabel = "Instructor";
+    else if (sesRol == 2) rolLabel = "Aprendiz";
+    else if (sesRol == 3) rolLabel = "Administrador";
+    else if (sesRol == 4) rolLabel = "Coordinador";
   }
 %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
@@ -24,16 +51,16 @@
   <title><fmt:message bundle="${i18n}" key="fichas.title"/></title>
 
   <link rel="icon" type="image/png" href="img/logo.png" />
-  <!-- ── Google Fonts (sistema de diseño ClassControl) ── -->
+  <!-- -- Google Fonts (sistema de diseño ClassControl) -- -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
 
-  <!-- ── Bootstrap 5.3 ── -->
+  <!-- -- Bootstrap 5.3 -- -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
 
-  <!-- ── DataTables + Bootstrap 5 skin ── -->
+  <!-- -- DataTables + Bootstrap 5 skin -- -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css"/>
 
   <link rel="stylesheet" href="CSS/ClassControl_base.css"/>
@@ -44,23 +71,23 @@
 </head>
 
 <body class="cc-dash-body">
-<div class="cc-app-wrapper">
+<div class="cc-wrapper">
 
-  <!-- ══════════ SIDEBAR ══════════ -->
+  <!-- ---------- SIDEBAR ---------- -->
   <%   String ccActivePage = "fichas"; %>
 <%@ include file="_Sidebar.jspf" %>
 
-  <!-- Overlay móvil -->
+  <!-- Overlay m?vil -->
   <div class="cc-sidebar-overlay d-lg-none" id="sidebarOverlay"></div>
 
-  <!-- ══════════ MAIN CONTENT ══════════ -->
-  <main class="cc-main-content">
+  <!-- ---------- MAIN CONTENT ---------- -->
+  <main class="cc-main">
 
-    <!-- ── HEADER ── -->
+    <!-- -- HEADER -- -->
     <header class="cc-top-header">
       <div class="d-flex align-items-center gap-3">
         <!-- Hamburger (solo mobile) -->
-        <button class="btn cc-icon-btn d-lg-none" id="sidebarToggle" aria-label="Menú">
+        <button class="btn cc-icon-btn d-lg-none" id="sidebarToggle" aria-label="Men?">
           <span class="material-symbols-outlined fs-5">menu</span>
         </button>
         <h2 class="cc-page-title mb-0"><fmt:message bundle="${i18n}" key="fichas.header.title"/></h2>
@@ -72,26 +99,10 @@
           <span id="dark-icon" class="material-symbols-outlined">dark_mode</span>
         </button>
 
-        <!-- Notificaciones -->
-        <button class="btn cc-icon-btn position-relative" aria-label="Notificaciones">
-          <span class="material-symbols-outlined fs-5">notifications</span>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                style="font-size:.45rem">●</span>
-        </button>
-
-        <div class="vr cc-nav-vr d-none d-sm-block"></div>
-
-        <!-- Usuario -->
-        <div class="d-none d-sm-block text-end">
-          <div class="cc-user-name">Carlos Rodríguez</div>
-          <div class="cc-user-role">Coordinador Académico</div>
-        </div>
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ4LoGWb00BoiO00zOUxRYwg_qXO7NvwhUrMZjpin1LBJrWmBSE0ftr0UU3E2JybOAT1uE139t9mgWb1F2v87C1kAjKuhTJN7Er_tWYYSNzjjUP6e_asLxN4EkNdR0vZxA2RgXdsblODJ9iZK5e5FNqK7yiq0OYu74fIoRy6WUdWKHmofYrCgOwppzpAmfzghF9LlILX-18DFGc1irIBLAwjlEXJplwlFI7Xu7Okm06dD0-So3ke7IjPPW0uU7HzJfaJ3QvPL9EOs"
-             alt="Avatar" class="cc-avatar"/>
       </div>
     </header>
 
-    <!-- ── CONTENIDO ── -->
+    <!-- -- CONTENIDO -- -->
     <div class="cc-dashboard-body">
 
       <!-- Barra de filtros -->
@@ -99,7 +110,7 @@
         <div class="card-body py-3">
           <div class="row g-2 align-items-center">
 
-            <!-- Búsqueda -->
+            <!-- BÚsqueda -->
             <div class="col-12 col-lg-4">
               <div class="input-group cc-search-group">
                 <span class="input-group-text bg-transparent border-end-0 cc-search-addon">
@@ -152,7 +163,7 @@
               <thead>
                 <tr>
                   <th>Código</th>
-                  <th>Programa de Formación</th>
+                  <th>Programa de FormaciÓn</th>
                   <th class="text-center">Fechas</th>
                   <th>Modalidad</th>
                   <th class="text-center">Aprendices</th>
@@ -170,16 +181,16 @@
 
     </div><!-- /cc-dashboard-body -->
   </main>
-</div><!-- /cc-app-wrapper -->
+</div><!-- /cc-wrapper -->
 
 <!-- Toast container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"
      style="z-index:1100"></div>
 
 
-<!-- ════════════════════════════════════
-     MODAL — NUEVA / EDITAR FICHA
-════════════════════════════════════ -->
+<!-- ------------------------------------
+     MODAL ? NUEVA / EDITAR FICHA
+------------------------------------ -->
 <div class="modal fade" id="modal-form" tabindex="-1"
      aria-labelledby="form-modal-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
@@ -214,7 +225,7 @@
 
             <div class="col-12">
               <label class="form-label" for="f-programa">
-                Programa de Formación <span class="text-danger">*</span>
+                Programa de FormaciÓn <span class="text-danger">*</span>
               </label>
               <select id="f-programa" name="Programas_idProgramas" class="form-select" required>
                 <option value="">Seleccione...</option>
@@ -247,7 +258,7 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label" for="f-aprendices">N.º Aprendices</label>
+              <label class="form-label" for="f-aprendices">N.? Aprendices</label>
               <input id="f-aprendices" name="cantidad_aprendices" type="number" min="0"
                      class="form-control" placeholder="0"/>
             </div>
@@ -294,9 +305,9 @@
 </div>
 
 
-<!-- ════════════════════════════════════
-     MODAL — DETALLE (solo lectura)
-════════════════════════════════════ -->
+<!-- ------------------------------------
+     MODAL ? DETALLE (solo lectura)
+------------------------------------ -->
 <div class="modal fade" id="modal-detail" tabindex="-1"
      aria-labelledby="detail-modal-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -326,9 +337,9 @@
 </div>
 
 
-<!-- ════════════════════════════════════
-     MODAL — CONFIRMAR ELIMINACIÓN
-════════════════════════════════════ -->
+<!-- ------------------------------------
+     MODAL ? CONFIRMAR ELIMINACIÓN
+------------------------------------ -->
 <div class="modal fade" id="modal-confirm" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content cc-modal">
@@ -344,7 +355,7 @@
           </div>
         </div>
         <p class="text-muted mb-0" style="font-size:.875rem">
-          ¿Confirmas eliminar la ficha
+          ?Confirmas eliminar la ficha
           <strong id="confirm-ficha-name" class="text-dark"></strong>?
         </p>
       </div>
@@ -362,7 +373,13 @@
 </div>
 
 
-<!-- ── Librerías JS ── -->
+<!-- -- Librerías JS -- -->
+<script>
+  // Instructor (1) solo consulta sus fichas asignadas: sin crear/editar/eliminar.
+  // Coordinador (4) crea/edita pero no elimina. Administrador (3): todo.
+  window.ccPuedeEscribirFichas  = <%= (sesRol != null && (sesRol == 3 || sesRol == 4)) %>;
+  window.ccPuedeEliminarFichas  = <%= (sesRol != null && sesRol == 3) %>;
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>

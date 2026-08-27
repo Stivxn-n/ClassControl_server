@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Etapa;
-import jakarta.resource.cci.ResultSet;
 
 
 public class EtapaDAO {
@@ -127,7 +126,7 @@ public class EtapaDAO {
     
     public boolean actualizarEtapa(Etapa etapa) {
     
-    String sql = "UPDATE Etapa SET descripcion_Etapa = ? WHERE id_etapa = ?";
+    String sql = "UPDATE etapa SET descripcion_Etapa = ? WHERE id_etapa = ?";
     
     Conexion conexion = new Conexion();
     

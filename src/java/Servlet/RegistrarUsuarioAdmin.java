@@ -53,6 +53,12 @@ public class RegistrarUsuarioAdmin extends RegistroBaseServlet {
                 (tipoVinculacionStr == null || tipoVinculacionStr.trim().isEmpty())
                         ? 1 : Integer.parseInt(tipoVinculacionStr.trim()));
 
+        // Ficha del aprendiz (opcional; solo aplica al rol Aprendiz).
+        String fichaStr = request.getParameter("ficha");
+        if (fichaStr != null && !fichaStr.trim().isEmpty()) {
+            usuario.setFicha_id_ficha(Integer.parseInt(fichaStr.trim()));
+        }
+
         String fechaNacStr = request.getParameter("fecha_Nacimiento");
         if (fechaNacStr != null && !fechaNacStr.trim().isEmpty()) {
             usuario.setFecha_Nacimiento(LocalDate.parse(fechaNacStr.trim()));

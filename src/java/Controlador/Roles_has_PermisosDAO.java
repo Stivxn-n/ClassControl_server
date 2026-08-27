@@ -51,7 +51,7 @@ public class Roles_has_PermisosDAO {
         List<Permisos> lista = new ArrayList<>();
         String sql = """
             SELECT p.id_permisos, p.descripcion_permisos
-            FROM Permisos p
+            FROM permisos p
             INNER JOIN Roles_has_Permisos rp ON p.id_permisos = rp.Permisos_id_permisos
             WHERE rp.Roles_id_roles = ?
         """;

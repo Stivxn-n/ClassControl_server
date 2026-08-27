@@ -11,6 +11,7 @@
 let usuarios = [];
 let roles = [];
 let tiposDocumento = [];
+let fichas = [];
 let editingId = null;
 let dataTable = null;
 let roleChart = null;
@@ -34,8 +35,35 @@ function rolNombre(rolId) {
   return r ? r.descripcion : `Rol ${rolId}`;
 }
 
+/** true si el rol seleccionado corresponde a Aprendiz. */
+function esRolAprendiz(rolId) {
+  const r = roles.find(r => r.id === Number(rolId));
+  return !!r && (r.descripcion || '').toLowerCase().includes('aprendiz');
+}
+
+/** Muestra/oculta el selector de Ficha según el rol elegido. */
+function actualizarVisibilidadFicha() {
+  const wrap = document.getElementById('fieldFichaWrap');
+  if (!wrap) return;
+  const rolId = document.getElementById('fieldRole').value;
+  wrap.classList.toggle('d-none', !esRolAprendiz(rolId));
+}
+
 function avatarHTML(u) {
   return `<div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;background:#e8f5e0;color:#38a800;font-weight:700;">${getInitials(nombreCompleto(u))}</div>`;
+}
+
+/** Número de ficha del usuario (id → codigo_ficha) o null si no tiene. */
+function fichaCodigo(u) {
+  if (!u || u.fichaId == null) return null;
+  const f = fichas.find(f => f.id === Number(u.fichaId));
+  return f ? f.codigo : u.fichaId;
+}
+
+/** Etiqueta corta " • Ficha 2393245" para la fila del usuario. */
+function fichaEtiqueta(u) {
+  const c = fichaCodigo(u);
+  return c != null ? ` • <span class="badge text-bg-light border">Ficha ${c}</span>` : '';
 }
 
 function roleBadge(rolId) {
@@ -49,7 +77,7 @@ function statusBadge(activo) {
 
 function rowTemplate(u) {
   return [
-    `<div class="d-flex align-items-center gap-2">${avatarHTML(u)}<div><div class="fw-semibold">${nombreCompleto(u)}</div><small class="text-muted">${u.identificacion}</small></div></div>`,
+    `<div class="d-flex align-items-center gap-2">${avatarHTML(u)}<div><div class="fw-semibold">${nombreCompleto(u)}</div><small class="text-muted">${u.identificacion}${fichaEtiqueta(u)}</small></div></div>`,
     u.correo,
     roleBadge(u.rolId),
     statusBadge(u.activo),
@@ -238,6 +266,16 @@ function llenarFiltroRoles() {
     roles.map(r => `<option value="${r.descripcion}">${r.descripcion}</option>`).join('');
 }
 
+/** El filtro de fichas usa "Ficha {codigo}" como texto. */
+function llenarFiltroFichas() {
+  const sel = document.getElementById('filterFicha');
+  if (!sel) return;
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">Todas las fichas</option>' +
+    fichas.map(f => `<option value="${f.id}">Ficha ${f.codigo}</option>`).join('');
+  sel.value = actual;
+}
+
 function openNewModal() {
   editingId = null;
   document.getElementById('fieldId').value = '';
@@ -246,6 +284,8 @@ function openNewModal() {
   document.getElementById('fieldPasswordReq').textContent = '*';
   document.getElementById('fieldPassword').setAttribute('required', 'required');
   document.getElementById('userForm').reset();
+  document.getElementById('fieldFicha').value = '';
+  actualizarVisibilidadFicha();
   clearValidation();
   userModal.show();
 }
@@ -272,6 +312,8 @@ window.openEditModal = function (id) {
   document.getElementById('fieldRole').value = u.rolId;
   document.getElementById('fieldStatus').value = String(u.activo);
   document.getElementById('fieldPassword').value = '';
+  document.getElementById('fieldFicha').value = u.fichaId ?? '';
+  actualizarVisibilidadFicha();
   clearValidation();
   userModal.show();
 };
@@ -287,12 +329,12 @@ window.deleteUser = async function (id) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ id: String(id) })
     });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+    if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
     await cargarUsuarios();
     showToast(`Usuario "${nombreCompleto(u)}" eliminado.`, 'error');
   } catch (err) {
     console.error(err);
-    showToast('No se pudo eliminar el usuario.', 'error');
+    showToast(err.message || 'No se pudo eliminar el usuario.', 'error');
   }
 };
 
@@ -310,8 +352,8 @@ function exportCSV() {
     return mRole && mStatus && mSearch;
   });
 
-  const rows = [['ID', 'Nombre', 'Correo', 'Rol', 'Estado'],
-    ...filtered.map(u => [u.id, nombreCompleto(u), u.correo, rolNombre(u.rolId), u.activo ? 'Activo' : 'Inactivo'])];
+  const rows = [['ID', 'Nombre', 'Correo', 'Rol', 'Ficha', 'Estado'],
+    ...filtered.map(u => [u.id, nombreCompleto(u), u.correo, rolNombre(u.rolId), fichaCodigo(u) ?? '', u.activo ? 'Activo' : 'Inactivo'])];
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -359,23 +401,37 @@ function initDataTable() {
 }
 
 async function cargarUsuarios() {
-  const resp = await fetch('ConsultarUsuarios');
+  const ficha = document.getElementById('filterFicha')?.value || '';
+  const qs = ficha ? `?ficha=${encodeURIComponent(ficha)}` : '';
+  const resp = await fetch('ConsultarUsuarios' + qs);
   if (!resp.ok) throw new Error('No se pudo cargar la lista de usuarios');
   usuarios = await resp.json();
   refreshTable();
 }
 
 async function cargarCatalogos() {
-  const [rolesResp, tiposDocResp] = await Promise.all([
+  const [rolesResp, tiposDocResp, fichasResp] = await Promise.all([
     fetch('ConsultarRoles'),
-    fetch('ConsultarTiposDocumento')
+    fetch('ConsultarTiposDocumento'),
+    fetch('ConsultarFichas')
   ]);
   roles = rolesResp.ok ? await rolesResp.json() : [];
   tiposDocumento = tiposDocResp.ok ? await tiposDocResp.json() : [];
+  fichas = fichasResp.ok ? await fichasResp.json() : [];
 
   llenarSelect(document.getElementById('fieldTipoDoc'), tiposDocumento, 'Seleccione...');
   llenarSelect(document.getElementById('fieldRole'), roles, 'Seleccione...');
   llenarFiltroRoles();
+  llenarSelectFichas();
+  llenarFiltroFichas();
+}
+
+/** El select de fichas usa "Ficha {codigo}" como texto (no hay descripcion). */
+function llenarSelectFichas() {
+  const sel = document.getElementById('fieldFicha');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Sin asignar</option>' +
+    fichas.map(f => `<option value="${f.id}">Ficha ${f.codigo}</option>`).join('');
 }
 
 async function inicializarDatos() {
@@ -403,6 +459,21 @@ function bindEvents() {
     dataTable.draw();
   });
 
+  // Filtro por ficha → recarga desde el servidor (los aprendices de esa ficha).
+  document.getElementById('filterFicha').addEventListener('change', async function () {
+    try {
+      await cargarUsuarios();
+      const f = fichas.find(x => String(x.id) === String(this.value));
+      showToast(f ? `Mostrando usuarios de la ficha ${f.codigo}.` : 'Mostrando todos los usuarios.', 'info');
+    } catch (err) {
+      console.error(err);
+      showToast('No se pudo filtrar por ficha.', 'error');
+    }
+  });
+
+  // El campo "Ficha del aprendiz" solo se muestra cuando el rol es Aprendiz.
+  document.getElementById('fieldRole').addEventListener('change', actualizarVisibilidadFicha);
+
   document.getElementById('btnExport').addEventListener('click', exportCSV);
 
   document.getElementById('userForm').addEventListener('submit', async function (e) {
@@ -419,7 +490,8 @@ function bindEvents() {
       username: document.getElementById('fieldUsername').value.trim(),
       direccion: document.getElementById('fieldDireccion').value.trim(),
       rol: document.getElementById('fieldRole').value,
-      activo: document.getElementById('fieldStatus').value
+      activo: document.getElementById('fieldStatus').value,
+      ficha: document.getElementById('fieldFicha').value
     });
 
     const password = document.getElementById('fieldPassword').value;
@@ -436,7 +508,7 @@ function bindEvents() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
       });
-      if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+      if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
       await cargarUsuarios();
       userModal.hide();

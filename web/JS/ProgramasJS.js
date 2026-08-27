@@ -1,7 +1,7 @@
 /* ============================================================
-   ProgramasJS.js — ClassControl
-   CRUD completo + filtros reactivos + paginación propia
-   + métricas dinámicas + descarga CSV
+   ProgramasJS.js ? ClassControl
+   CRUD completo + filtros reactivos + paginaciÓn propia
+   + mÉtricas dinámicas + descarga CSV
 
    Datos reales desde el backend:
    - GET  ConsultarProgramas -> lista de programas (JSON)
@@ -11,23 +11,23 @@
 
    Nota: el modelo de "programas" en la BD solo tiene código y
    nombre (idProgramas, codigo_programa, nombre_programa). Los
-   campos nivel/versión/estado se quitaron del formulario y la
+   campos nivel/versiÓn/estado se quitaron del formulario y la
    tabla porque todavía no existen en el backend.
    ============================================================ */
 
 'use strict';
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    1. ESTADO EN MEMORIA (poblado desde el backend)
-────────────────────────────────────────── */
+------------------------------------------ */
 let programas    = [];
 let paginaActual = 1;
 const POR_PAGINA = 5;
 let idAEliminar  = null;
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    2. SELECTORES
-────────────────────────────────────────── */
+------------------------------------------ */
 const tbodyProgramas   = document.getElementById('tbody-programas');
 const contadorEl       = document.getElementById('contador-programas');
 const paginacionEl     = document.getElementById('paginacion');
@@ -54,14 +54,14 @@ const toastIcon        = document.getElementById('toast-icon');
 const bsModalPrograma = new bootstrap.Modal(document.getElementById('modal-programa'));
 const bsModalEliminar = new bootstrap.Modal(document.getElementById('modal-eliminar'));
 
-/* Sidebar toggle (móvil) */
+/* Sidebar toggle (m?vil) */
 document.getElementById('btnSidebarToggle')?.addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('open');
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    3. CARGA DE DATOS DESDE EL BACKEND
-────────────────────────────────────────── */
+------------------------------------------ */
 async function cargarProgramas() {
   const resp = await fetch('ConsultarProgramas');
   if (!resp.ok) throw new Error('No se pudo cargar la lista de programas');
@@ -79,9 +79,9 @@ async function inicializarDatos() {
   }
 }
 
-/* ──────────────────────────────────────────
-   4. MÉTRICAS
-────────────────────────────────────────── */
+/* ------------------------------------------
+   4. M?TRICAS
+------------------------------------------ */
 function renderMetricas() {
   const datos = [
     { label: 'Total Programas', valor: programas.length, borde: 'var(--cc-primary)' },
@@ -97,9 +97,9 @@ function renderMetricas() {
   `).join('');
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    5. FILTRADO
-────────────────────────────────────────── */
+------------------------------------------ */
 function filtrarProgramas() {
   const busq = filtroBusqueda.value.trim().toLowerCase();
 
@@ -110,9 +110,9 @@ function filtrarProgramas() {
   );
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    6. RENDER TABLA
-────────────────────────────────────────── */
+------------------------------------------ */
 function renderTabla() {
   const filtrados  = filtrarProgramas();
   const total      = filtrados.length;
@@ -138,7 +138,7 @@ function renderTabla() {
   const desde = total === 0 ? 0 : inicio + 1;
   const hasta = Math.min(inicio + POR_PAGINA, total);
   contadorEl.textContent =
-    `Mostrando ${desde}–${hasta} de ${total} programa${total !== 1 ? 's' : ''}`;
+    `Mostrando ${desde} - ${hasta} de ${total} programa${total !== 1 ? 's' : ''}`;
 
   renderPaginacion(totalPags);
   renderMetricas();
@@ -171,9 +171,9 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    7. PAGINACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 function renderPaginacion(totalPags) {
   paginacionEl.innerHTML = '';
 
@@ -222,9 +222,9 @@ function calcularRango(actual, total) {
   return result;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    8. MODAL CREAR / EDITAR (Bootstrap 5)
-────────────────────────────────────────── */
+------------------------------------------ */
 function abrirModalNuevo() {
   modalTituloEl.textContent = 'Nuevo Programa';
   formPrograma.reset();
@@ -244,9 +244,9 @@ function abrirModalEditar(id) {
   bsModalPrograma.show();
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    9. VALIDACIÓN (Bootstrap 5 nativa)
-────────────────────────────────────────── */
+------------------------------------------ */
 function validarFormulario() {
   const campos = [progCodigo, progNombre];
   let valido = true;
@@ -271,9 +271,9 @@ function limpiarValidacion() {
   });
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    10. GUARDAR (crear / editar)
-────────────────────────────────────────── */
+------------------------------------------ */
 formPrograma.addEventListener('submit', async e => {
   e.preventDefault();
   if (!validarFormulario()) return;
@@ -293,7 +293,7 @@ formPrograma.addEventListener('submit', async e => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params
     });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+    if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
     await cargarProgramas();
     bsModalPrograma.hide();
@@ -310,9 +310,9 @@ document.getElementById('modal-programa').addEventListener('hidden.bs.modal', ()
   limpiarValidacion();
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    11. ELIMINAR
-────────────────────────────────────────── */
+------------------------------------------ */
 function abrirModalEliminar(id) {
   idAEliminar = id;
   bsModalEliminar.show();
@@ -325,7 +325,7 @@ btnConfirmarElim.addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ id: String(idAEliminar) })
     });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+    if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
     idAEliminar = null;
     bsModalEliminar.hide();
@@ -334,13 +334,13 @@ btnConfirmarElim.addEventListener('click', async () => {
   } catch (err) {
     console.error(err);
     bsModalEliminar.hide();
-    mostrarToast('No se pudo eliminar el programa.', 'error', ClassControl.colors.danger);
+    mostrarToast(err.message || 'No se pudo eliminar el programa.', 'error', ClassControl.colors.danger);
   }
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    12. DESCARGA CSV
-────────────────────────────────────────── */
+------------------------------------------ */
 btnDescargar.addEventListener('click', () => {
   const BOM      = '\uFEFF'; // UTF-8 BOM para compatibilidad Excel
   const cabecera = ['Código', 'Nombre'];
@@ -358,9 +358,9 @@ btnDescargar.addEventListener('click', () => {
   mostrarToast('Reporte descargado.', 'download', ClassControl.colors.info);
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    13. TOAST
-────────────────────────────────────────── */
+------------------------------------------ */
 let toastTimer = null;
 
 function mostrarToast(msg, icon = 'check_circle', color = 'var(--cc-primary)') {
@@ -372,9 +372,9 @@ function mostrarToast(msg, icon = 'check_circle', color = 'var(--cc-primary)') {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    14. DELEGACIÓN EN TABLA
-────────────────────────────────────────── */
+------------------------------------------ */
 tbodyProgramas.addEventListener('click', e => {
   const btnEdit = e.target.closest('.btn-editar');
   const btnDel  = e.target.closest('.btn-eliminar');
@@ -382,9 +382,9 @@ tbodyProgramas.addEventListener('click', e => {
   if (btnDel)  abrirModalEliminar(parseInt(btnDel.dataset.id, 10));
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    15. FILTROS REACTIVOS
-────────────────────────────────────────── */
+------------------------------------------ */
 filtroBusqueda.addEventListener('input', () => { paginaActual = 1; renderTabla(); });
 
 formFiltros.addEventListener('reset', () => {
@@ -397,16 +397,16 @@ formFiltros.addEventListener('submit', e => {
   renderTabla();
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    16. ATAJO TECLADO (Nuevo con Alt+N)
-────────────────────────────────────────── */
+------------------------------------------ */
 btnNuevo.addEventListener('click', abrirModalNuevo);
 
 document.addEventListener('keydown', e => {
   if (e.altKey && e.key === 'n') { e.preventDefault(); abrirModalNuevo(); }
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    17. INICIALIZACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 inicializarDatos();

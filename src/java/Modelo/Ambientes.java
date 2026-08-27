@@ -10,6 +10,7 @@ private int id_ambientes;
 private String descripcion_Ambiente;
 private int capacidad;
 private int Sede_id_sede;
+private String estado_Ambiente = "Disponible";
 
     public int getId_ambientes() {
         return id_ambientes;
@@ -41,6 +42,14 @@ private int Sede_id_sede;
 
     public void setSede_id_sede(int Sede_id_sede) {
         this.Sede_id_sede = Sede_id_sede;
+    }
+
+    public String getEstado_Ambiente() {
+        return estado_Ambiente;
+    }
+
+    public void setEstado_Ambiente(String estado_Ambiente) {
+        this.estado_Ambiente = estado_Ambiente;
     }
 
 }

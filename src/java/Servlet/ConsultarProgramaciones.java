@@ -1,7 +1,9 @@
 package Servlet;
 
 import Controlador.Programacion_InstructoresDAO;
+import Controlador.UsuariosDAO;
 import Modelo.ProgramacionInstructoresDTO;
+import Modelo.Usuarios;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -11,6 +13,17 @@ import java.util.List;
  * expone en JSON exactamente lo que el JS espera encontrar en
  * "data-programaciones" (instructor, ficha, ambiente,
  * trimestre, horaInicio, horaFin, diasSemana, estado...).
+ *
+ * Filtrado por rol:
+ *  - Administrador / Coordinador: ven todo, pueden usar los filtros de
+ *    la pantalla libremente (instructorId/fichaId/trimestreId).
+ *  - Instructor: SIEMPRE se fuerza instructorId = su propio id de
+ *    sesión, sin importar lo que envíe el cliente, para que nunca vea
+ *    el horario de otro instructor.
+ *  - Aprendiz: se fuerza fichaId = la ficha asignada en su perfil
+ *    (usuarios.Ficha_id_ficha), para que vea únicamente el horario de
+ *    su propia ficha. Si aún no tiene ficha asignada ve el listado
+ *    general filtrable a mano.
  */
 @WebServlet("/ConsultarProgramaciones")
 public class ConsultarProgramaciones extends ConsultarBaseServlet<ProgramacionInstructoresDTO> {
@@ -25,10 +38,28 @@ public class ConsultarProgramaciones extends ConsultarBaseServlet<ProgramacionIn
 
     @Override
     protected List<ProgramacionInstructoresDTO> obtenerLista(HttpServletRequest request) {
+        Integer instructorId = enteroOpcional(request, "instructorId");
+        Integer fichaId = enteroOpcional(request, "fichaId");
+        Integer trimestreId = enteroOpcional(request, "trimestreId");
+
+        if (Autorizacion.esInstructor(request)) {
+            Integer idPropio = Autorizacion.idUsuarioDe(request);
+            instructorId = idPropio; // se ignora cualquier valor que venga del cliente
+        }
+
+        if (Autorizacion.esAprendiz(request)) {
+            Integer idPropio = Autorizacion.idUsuarioDe(request);
+            if (idPropio != null) {
+                Usuarios aprendiz = new UsuariosDAO().consultaUsuarios(idPropio);
+                if (aprendiz != null && aprendiz.getFicha_id_ficha() != null) {
+                    // Se ignora el filtro que venga del cliente: su ficha manda.
+                    fichaId = aprendiz.getFicha_id_ficha();
+                }
+            }
+        }
+
         return new Programacion_InstructoresDAO().listarProgramaciones(
-                enteroOpcional(request, "instructorId"),
-                enteroOpcional(request, "fichaId"),
-                enteroOpcional(request, "trimestreId"));
+                instructorId, fichaId, trimestreId);
     }
 
     private Integer enteroOpcional(HttpServletRequest request, String nombre) {

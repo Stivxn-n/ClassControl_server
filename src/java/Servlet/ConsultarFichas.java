@@ -3,6 +3,7 @@ package Servlet;
 import Controlador.FichaDAO;
 import Modelo.Ficha;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @WebServlet("/ConsultarFichas")
@@ -14,6 +15,22 @@ public class ConsultarFichas extends ConsultarBaseServlet<Ficha> {
     @Override
     protected List<Ficha> obtenerLista() {
         return new FichaDAO().listarFichas();
+    }
+
+    /**
+     * Un Instructor solo debe ver las fichas asignadas a su propia
+     * programación; el resto de roles con acceso a esta pantalla
+     * (Administrador, Coordinador) ven el listado completo.
+     */
+    @Override
+    protected List<Ficha> obtenerLista(HttpServletRequest request) {
+        if (Autorizacion.esInstructor(request)) {
+            Integer idInstructor = Autorizacion.idUsuarioDe(request);
+            if (idInstructor != null) {
+                return new FichaDAO().listarFichasPorInstructor(idInstructor);
+            }
+        }
+        return obtenerLista();
     }
 
     @Override

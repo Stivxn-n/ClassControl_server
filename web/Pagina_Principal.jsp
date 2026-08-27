@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%!
   /** Escapa texto para que los datos dinamicos no se interpreten como HTML. */
   public static String escaparHtml(Object valor) {
@@ -16,7 +16,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClassControl – Inicio</title>
+  <title>ClassControl ? Inicio</title>
 
   <link rel="icon" type="image/png" href="img/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -30,7 +30,7 @@
 </head>
 
 <body>
-<%-- ══════════════════════ PROTECCIÓN DE SESIÓN ══════════════════════ --%>
+<%-- ---------------------- PROTECCIÓN DE SESIÓN ---------------------- --%>
 <%
   /* --- Leer sesión --- */
   String sesNombres   = (String)  session.getAttribute("nombres");
@@ -53,14 +53,14 @@
     else if (sesRol == 3) rolLabel = "Administrador";
   }
 
-  /* Los datos del dashboard (contadores, próximas actividades, estado de
+  /* Los datos del dashboard (contadores, prÓximas actividades, estado de
      programas) y las opciones de los <select> ya NO se calculan aquí con
      SQL directo: se piden por fetch() desde Pagina_PrincipalJS.js a
      ConsultarDashboard y a los servlets ConsultarProgramas, ConsultarJornadas,
      ConsultarModalidades, ConsultarNiveles, ConsultarSedes, ConsultarEtapas,
      ConsultarResultados, ConsultarCompetencias, ConsultarProgramaciones,
      ConsultarUsuarios, ConsultarAmbientes, ConsultarActividades,
-     ConsultarTrimestres, ConsultarEstados y ConsultarFichas — igual que
+     ConsultarTrimestres, ConsultarEstados y ConsultarFichas ? igual que
      hacen el resto de las vistas del proyecto. */
 
   /* Mensajes flash (tras redirect de modales) */
@@ -70,17 +70,17 @@
 
 <div class="cc-wrapper">
 
-  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <!-- -------------- SIDEBAR -------------- -->
   <%   String ccActivePage = "inicio"; %>
 <%@ include file="_Sidebar.jspf" %>
 
-  <!-- ══════════════ MAIN ══════════════ -->
+  <!-- -------------- MAIN -------------- -->
   <main class="cc-main">
 
     <!-- HEADER -->
     <header class="cc-header">
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-sm cc-hamburger d-lg-none me-1" id="sidebar-toggle" aria-label="Menú">
+        <button class="btn btn-sm cc-hamburger d-lg-none me-1" id="sidebar-toggle" aria-label="Men?">
           <span class="material-symbols-outlined">menu</span>
         </button>
         <h2 class="cc-page-title mb-0">Dashboard Principal</h2>
@@ -93,7 +93,7 @@
           </span>
           <input id="search-input" type="search"
                  class="form-control border-start-0 ps-0"
-                 placeholder="Buscar actividad, ficha…"
+                 placeholder="Buscar actividad, ficha?"
                  autocomplete="off" />
         </div>
 
@@ -101,15 +101,6 @@
           <span class="material-symbols-outlined">dark_mode</span>
         </button>
 
-        <%-- Usuario desde sesión --%>
-        <div class="cc-user-info text-end d-none d-sm-block">
-          <p class="cc-user-name mb-0"><%= escaparHtml(sesNombres) %> <%= escaparHtml(sesApellidos) %></p>
-          <p class="cc-user-role mb-0"><%= escaparHtml(rolLabel) %></p>
-        </div>
-        <div class="cc-avatar">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZMOhRtWsr8Z4MnnDUdk66vv7D9k4Vz3LIUExeOSW_9s2hfY-I1m51xlIl_LrakRuG0H4_vw4rI6Kn82giHecvRie9xCBFAhCZLw0RTLMBxTiBIkrSbDVGhcvgtSPKo6n5z9fRZWMZhX4blP9x-3NnbRm3te0RfStf0Gm6DyADxDUzovNDyHG07qBAtvExFOMOGlODRL-Qi-MBVa3qIO1vtq4mdyDHX5Df_DGxT9ZMhVoDSEXWHxphuRXC903z3Z7dmGHpEmkOAUE"
-               alt="Avatar" />
-        </div>
       </div>
     </header>
 
@@ -144,13 +135,13 @@
       <% } else if ("conflicto".equals(flashErr)) { %>
         <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
           <span class="material-symbols-outlined me-1" style="font-size:1rem;vertical-align:middle">event_busy</span>
-          Ya existe una programación para ese ambiente, día y hora. Elige otro horario o ambiente.
+          Ya existe una programación para ese ambiente, dÍa y hora. Elige otro horario o ambiente.
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
       <% } else if (flashErr != null) { %>
         <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
           <span class="material-symbols-outlined me-1" style="font-size:1rem;vertical-align:middle">error</span>
-          Ocurrió un error al guardar. Por favor intenta de nuevo.
+          Ocurri? un error al guardar. Por favor intenta de nuevo.
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
       <% } %>
@@ -230,7 +221,7 @@
               <h4 class="cc-widget-title">Estado de Programas</h4>
             </div>
             <div class="flex-grow-1" id="estado-programas-container">
-              <p class="text-muted" style="font-size:.8rem">Cargando programas…</p>
+              <p class="text-muted" style="font-size:.8rem">Cargando programas?</p>
               <%
                 /* Plantilla que Pagina_PrincipalJS.js clona para cada programa */
               %>
@@ -253,10 +244,10 @@
         </div>
       </div>
 
-      <!-- DATATABLE: Próximas Actividades -->
+      <!-- DATATABLE: PrÓximas Actividades -->
       <div class="cc-table-card">
         <div class="cc-table-header">
-          <h4 class="cc-widget-title mb-0">Próximas Actividades</h4>
+          <h4 class="cc-widget-title mb-0">PrÓximas Actividades</h4>
           <button class="btn btn-link cc-link-btn p-0">Ver todas</button>
         </div>
         <div class="table-responsive">
@@ -268,7 +259,7 @@
                 <th>Ambiente</th>
                 <th>Horario</th>
                 <th>Instructor</th>
-                <th class="text-end">Acción</th>
+                <th class="text-end">AcciÓn</th>
               </tr>
             </thead>
             <tbody id="tbody-actividades"></tbody>
@@ -419,7 +410,7 @@
 </div>
 
 
-<!-- ══════════════════════ MODAL: Nueva Ficha ══════════════════════ -->
+<!-- ---------------------- MODAL: Nueva Ficha ---------------------- -->
 <div class="modal fade" id="modal-nueva-ficha" tabindex="-1"
      aria-labelledby="title-nueva-ficha" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -436,7 +427,7 @@
               <label for="ficha-numero" class="form-label">Número de ficha *</label>
               <input id="ficha-numero" name="codigo_ficha" class="form-control" type="number"
                      min="1000000" max="9999999" placeholder="ej. 2670687" required />
-              <div class="invalid-feedback">Ingresa un número de ficha válido</div>
+              <div class="invalid-feedback">Ingresa un número de ficha v?lido</div>
             </div>
 
             <div class="col-6">
@@ -464,7 +455,7 @@
             </div>
 
             <div class="col-6">
-              <label for="ficha-nivel" class="form-label">Nivel de Formación *</label>
+              <label for="ficha-nivel" class="form-label">Nivel de FormaciÓn *</label>
               <select id="ficha-nivel" name="Nivel_formacion_id_nivel_formacion" class="form-select" required>
                 <option value="">Seleccionar...</option>
                               </select>
@@ -522,7 +513,7 @@
 </div>
 
 
-<!-- ══════════════════════ MODAL: Nueva Actividad ══════════════════════ -->
+<!-- ---------------------- MODAL: Nueva Actividad ---------------------- -->
 <div class="modal fade" id="modal-nueva-actividad" tabindex="-1"
      aria-labelledby="title-nueva-actividad" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -560,7 +551,7 @@
             <div class="col-12">
               <label for="act-descripcion" class="form-label">Descripción</label>
               <textarea id="act-descripcion" name="descripcion" class="form-control" rows="3"
-                        placeholder="Describe brevemente la actividad…"></textarea>
+                        placeholder="Describe brevemente la actividad?"></textarea>
             </div>
 
           </div>
@@ -577,7 +568,7 @@
 </div>
 
 
-<!-- ══════════════════════ MODAL: Nuevo Ambiente ══════════════════════ -->
+<!-- ---------------------- MODAL: Nuevo Ambiente ---------------------- -->
 <div class="modal fade" id="modal-nuevo-ambiente" tabindex="-1"
      aria-labelledby="title-nuevo-ambiente" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -626,7 +617,7 @@
 </div>
 
 
-<!-- ══════════════ SCRIPTS ══════════════ -->
+<!-- -------------- SCRIPTS -------------- -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
@@ -635,7 +626,7 @@
 <script src="JS/ClassControl_ui.js"></script>
 <script src="JS/Pagina_PrincipalJS.js"></script>
 
-<%-- Mapeo data-catalogo → Servlet independiente --%>
+<%-- Mapeo data-catalogo ? Servlet independiente --%>
 <script src="./JS/catalogo-modal.js"></script>
   <script src="JS/ClassControl_theme.js"></script>
 </body>

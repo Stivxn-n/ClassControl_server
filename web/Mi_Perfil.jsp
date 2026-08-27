@@ -6,15 +6,20 @@
   String sesUsername  = (String)  session.getAttribute("username");
   Integer sesRol      = (Integer) session.getAttribute("rol");
   Integer sesIdUser   = (Integer) session.getAttribute("id_usuario");
+  String sesRolNombre = (String)  session.getAttribute("rol_nombre");
 
   if (sesNombres == null) {
     response.sendRedirect("Inicio_de_sesion.jsp");
     return;
   }
+
+  // Nombre completo para pintar de una vez los datos del usuario logueado
+  // (el resto de campos los completa Mi_PerfilJS.js vía /api/MiPerfil).
+  String sesNombreCompleto = (sesNombres != null ? sesNombres : "")
+          + (sesApellidos != null ? " " + sesApellidos : "");
 %>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
-<fmt:setLocale value="es_CO"/>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,7 +41,7 @@
   <link rel="stylesheet" href="CSS/ClassControl_sidebar.css" />
   <link rel="stylesheet" href="CSS/Mi_PerfilCSS.css" />
 </head>
-<body data-user-id="<%= sesIdUser %>">
+<body>
   <div class="cc-wrapper">
     <!-- Sidebar desktop -->
     <%   String ccActivePage = "perfil"; %>
@@ -56,6 +61,9 @@
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
+            <button id="dark-toggle" class="btn cc-icon-btn" title="Cambiar tema">
+              <span class="material-symbols-outlined">dark_mode</span>
+            </button>
             <button class="btn btn-sm btn-outline-secondary" id="btnResetProfile" type="button">Restablecer</button>
             <button class="btn btn-sm btn-brand" id="btnQuickSave" type="button">Guardar Perfil</button>
           </div>
@@ -65,7 +73,7 @@
       <main class="container-fluid py-4">
         <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
           <div>
-            <h2 class="h4 fw-bold text-brand-blue mb-1">Mi Perfil</h2>
+            <h2 class="cc-page-title mb-1">Mi Perfil</h2>
             <p class="text-muted mb-0">Actualiza tus datos personales y la seguridad de tu cuenta institucional.</p>
           </div>
         </div>
@@ -83,9 +91,9 @@
                     <input id="avatarInput" type="file" class="d-none" accept="image/png,image/jpeg,image/webp" />
                   </div>
 
-                  <h3 id="displayName" class="h5 fw-bold text-brand-blue mb-1">${usuario.nombre}</h3>
-                  <p id="displayRole" class="text-muted mb-2">${usuario.rol}</p>
-                  <p id="displayEmail" class="small text-muted mb-3">${usuario.correo}</p>
+                  <h3 id="displayName" class="h5 fw-bold text-brand-blue mb-1"><%= sesNombreCompleto.trim() %></h3>
+                  <p id="displayRole" class="text-muted mb-2"><%= sesRolNombre != null ? sesRolNombre : "" %></p>
+                  <p id="displayEmail" class="small text-muted mb-3"></p>
 
                   <div class="d-flex gap-2 flex-wrap justify-content-center mb-3">
                     <span class="badge rounded-pill text-bg-success">Staff Activo</span>
@@ -95,15 +103,15 @@
                   <div class="w-100 border-top pt-3 mt-2">
                     <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted small">Sede</span>
-                    <span id="displaySede" class="fw-semibold small">${usuario.sede}</span>
+                    <span id="displaySede" class="fw-semibold small"></span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted small">Departamento</span>
-                    <span id="displayDepartment" class="fw-semibold small">${usuario.departamento}</span>
+                    <span id="displayDepartment" class="fw-semibold small"></span>
                     </div>
                     <div class="d-flex justify-content-between">
                     <span class="text-muted small">ID</span>
-                    <span id="displayCedula" class="fw-semibold small">${usuario.identificacion}</span>
+                    <span id="displayCedula" class="fw-semibold small"></span>
                     </div>
                   </div>
                 </div>
@@ -120,32 +128,32 @@
                 <form id="profileForm" class="row g-3 needs-validation" novalidate>
                   <div class="col-md-6">
                     <label for="fieldName" class="form-label">Nombre completo *</label>
-                    <input type="text" class="form-control" id="fieldName" minlength="3" value="${usuario.nombre}" required>
+                    <input type="text" class="form-control" id="fieldName" minlength="3" value="<%= sesNombreCompleto.trim() %>" required>
                     <div class="invalid-feedback">Ingresa un nombre válido (mínimo 3 caracteres).</div>
                   </div>
                   <div class="col-md-6">
                     <label for="fieldRole" class="form-label">Cargo / Rol *</label>
-                    <input type="text" class="form-control" id="fieldRole" value="${usuario.rol}" required>
+                    <input type="text" class="form-control" id="fieldRole" value="<%= sesRolNombre != null ? sesRolNombre : "" %>" required>
                     <div class="invalid-feedback">Ingresa el cargo o rol.</div>
                   </div>
                   <div class="col-md-6">
                     <label for="fieldEmail" class="form-label">Correo institucional *</label>
-                    <input type="email" class="form-control" id="fieldEmail" value="${usuario.correo}" required>
+                    <input type="email" class="form-control" id="fieldEmail" value="" required>
                     <div class="invalid-feedback">Ingresa un correo válido.</div>
                   </div>
                   <div class="col-md-6">
                     <label for="fieldCedula" class="form-label">Número de identificación *</label>
-                    <input type="text" class="form-control" id="fieldCedula" value="${usuario.identificacion}" required>
+                    <input type="text" class="form-control" id="fieldCedula" value="" required>
                     <div class="invalid-feedback">Ingresa un número de identificación.</div>
                   </div>
                   <div class="col-md-6">
                     <label for="fieldSede" class="form-label">Sede *</label>
-                    <input type="text" class="form-control" id="fieldSede" value="${usuario.sede}" required>
+                    <input type="text" class="form-control" id="fieldSede" value="" required>
                     <div class="invalid-feedback">Ingresa una sede.</div>
                   </div>
                   <div class="col-md-6">
                     <label for="fieldDepartment" class="form-label">Departamento *</label>
-                    <input type="text" class="form-control" id="fieldDepartment" value="${usuario.departamento}" required>
+                    <input type="text" class="form-control" id="fieldDepartment" value="" required>
                     <div class="invalid-feedback">Ingresa un departamento.</div>
                   </div>
                   <div class="col-12 d-flex justify-content-end gap-2 pt-2">
@@ -278,16 +286,16 @@
     </div>
     <div class="offcanvas-body">
       <nav class="cc-nav px-0">
-        <a class="cc-nav-link" href="${pageContext.request.contextPath}/Pagina Principal.jsp"><span class="material-symbols-outlined">dashboard</span><span>Inicio</span></a>
+        <a class="cc-nav-link" href="${pageContext.request.contextPath}/Pagina_Principal.jsp"><span class="material-symbols-outlined">dashboard</span><span>Inicio</span></a>
         <a class="cc-nav-link" href="${pageContext.request.contextPath}/Fichas.jsp"><span class="material-symbols-outlined">description</span><span>Fichas</span></a>
         <a class="cc-nav-link" href="${pageContext.request.contextPath}/Instructores.jsp"><span class="material-symbols-outlined">groups</span><span>Instructores</span></a>
         <a class="cc-nav-link" href="${pageContext.request.contextPath}/Programas.jsp"><span class="material-symbols-outlined">school</span><span>Programas</span></a>
         <a class="cc-nav-link" href="${pageContext.request.contextPath}/Ambientes.jsp"><span class="material-symbols-outlined">meeting_room</span><span>Ambientes</span></a>
         <a class="cc-nav-link" href="${pageContext.request.contextPath}/Competencias.jsp"><span class="material-symbols-outlined">target</span><span>Competencias</span></a>
         <a class="cc-nav-link" href="${pageContext.request.contextPath}/Actividades.jsp"><span class="material-symbols-outlined">assignment_turned_in</span><span>Actividades</span></a>
-        <a class="cc-nav-link" href="${pageContext.request.contextPath}/Programacion instructores.jsp"><span class="material-symbols-outlined">calendar_month</span><span>Programación</span></a>
+        <a class="cc-nav-link" href="${pageContext.request.contextPath}/Programacion_instructores.jsp"><span class="material-symbols-outlined">calendar_month</span><span>Programación</span></a>
         <div class="cc-nav-separator"></div>
-        <a class="cc-nav-link" href="${pageContext.request.contextPath}/Reportes_Y_Consultas.jsp"><span class="material-symbols-outlined">analytics</span><span>Reportes</span></a>
+        <a class="cc-nav-link" href="${pageContext.request.contextPath}/Incidencias.jsp"><span class="material-symbols-outlined">report_problem</span><span>Incidencias</span></a>
         <a class="cc-nav-link" href="${pageContext.request.contextPath}/Gestion_Usuarios.jsp"><span class="material-symbols-outlined">manage_accounts</span><span>Usuarios</span></a>
         <a class="cc-nav-link active" href="${pageContext.request.contextPath}/Mi_Perfil.jsp"><span class="material-symbols-outlined">person</span><span>Mi Perfil</span></a>
       </nav>

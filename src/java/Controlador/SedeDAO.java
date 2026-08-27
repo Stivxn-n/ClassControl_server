@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Sede;
-import jakarta.resource.cci.ResultSet;
 
 
 public class SedeDAO {
@@ -127,7 +126,7 @@ public class SedeDAO {
     
     public boolean actualizarSede(Sede sede) {
     
-    String sql = "UPDATE Sede SET nombre_sede = ? WHERE id_sede = ?";
+    String sql = "UPDATE sede SET nombre_sede = ? WHERE id_sede = ?";
     
     Conexion conexion = new Conexion();
     

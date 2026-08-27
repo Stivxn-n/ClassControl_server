@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Jornada;
-import jakarta.resource.cci.ResultSet;
 
 
 public class JornadaDAO {
@@ -127,7 +126,7 @@ public class JornadaDAO {
     
     public boolean actualizarJornada(Jornada jornada) {
     
-    String sql = "UPDATE Jornada SET descripcion_Jornada = ? WHERE id_jornada = ?";
+    String sql = "UPDATE jornada SET descripcion_Jornada = ? WHERE id_jornada = ?";
     
     Conexion conexion = new Conexion();
     

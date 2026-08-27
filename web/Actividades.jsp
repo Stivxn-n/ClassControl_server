@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- ══════════════════════ PROTECCIÓN DE SESIÓN ══════════════════════ --%>
+<%-- ---------------------- PROTECCIÓN DE SESIÓN ---------------------- --%>
 <%
   String sesNombres   = (String)  session.getAttribute("nombres");
   String sesApellidos = (String)  session.getAttribute("apellidos");
@@ -17,7 +17,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gestión de Actividades — ClassControl</title>
+  <title>Gestión de Actividades ? ClassControl</title>
 
   <link rel="icon" type="image/png" href="img/logo.png" />
   <!-- Google Fonts: DM Sans (body) + DM Mono (código) -->
@@ -40,19 +40,19 @@
 <body>
 <div class="cc-layout">
 
-  <!-- ════
+  <!-- ----
        SIDEBAR
-  ════ -->
+  ---- -->
   <%   String ccActivePage = "actividades"; %>
 <%@ include file="_Sidebar.jspf" %>
 
-  <!-- ════
+  <!-- ----
        MAIN
-  ════ -->
-  <main class="cc-main">
+  ---- -->
+  <main class="cc-main cc-catalog-main">
 
-    <!-- Toggle sidebar (móvil) -->
-    <button class="cc-sidebar-toggle d-lg-none" id="btnSidebarToggle" aria-label="Abrir menú">
+    <!-- Toggle sidebar (m?vil) -->
+    <button class="cc-sidebar-toggle d-lg-none" id="btnSidebarToggle" aria-label="Abrir men?">
       <span class="material-symbols-outlined">menu</span>
     </button>
 
@@ -60,12 +60,17 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="cc-page-title">Gestión de Actividades</h1>
-        <p class="cc-page-sub">Panel de control y seguimiento de la formación profesional integral.</p>
+        <p class="cc-page-sub">Panel de control y seguimiento de la formaciÓn profesional integral.</p>
       </div>
-      <button id="btn-nueva-actividad" class="btn cc-btn-primary">
-        <span class="material-symbols-outlined">add_circle</span>
-        Nueva Actividad
-      </button>
+      <div class="d-flex align-items-center gap-2">
+        <button id="dark-toggle" class="btn cc-icon-btn" title="Cambiar tema">
+          <span class="material-symbols-outlined">dark_mode</span>
+        </button>
+        <button id="btn-nueva-actividad" class="btn cc-btn-primary">
+          <span class="material-symbols-outlined">add_circle</span>
+          Nueva Actividad
+        </button>
+      </div>
     </div>
 
     <!-- Filtros -->
@@ -74,7 +79,7 @@
         <form id="form-filtros" novalidate>
           <div class="row g-2 align-items-end">
 
-            <!-- Búsqueda -->
+            <!-- BÚsqueda -->
             <div class="col-12 col-md-4">
               <label class="cc-label" for="filtro-busqueda">Buscar</label>
               <div class="cc-input-icon-wrap">
@@ -126,7 +131,7 @@
           </table>
         </div>
 
-        <!-- Paginación -->
+        <!-- PaginaciÓn -->
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3 cc-table-footer">
           <span id="contador-actividades" class="text-muted small"></span>
           <div id="paginacion" class="d-flex gap-1"></div>
@@ -138,9 +143,9 @@
 </div><!-- /.cc-layout -->
 
 
-<!-- ════
-     MODAL — Nueva / Editar Actividad
-════ -->
+<!-- ----
+     MODAL ? Nueva / Editar Actividad
+---- -->
 <div class="modal fade" id="modal-actividad" tabindex="-1" aria-labelledby="modal-titulo" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content cc-modal">
@@ -167,7 +172,7 @@
               <label class="cc-label" for="act-nombre">Nombre <span class="text-danger">*</span></label>
               <input id="act-nombre" name="nombre_Act" type="text" required
                 class="form-control cc-input"
-                placeholder="Ej. Taller de Lógica de Programación"/>
+                placeholder="Ej. Taller de L?gica de Programación"/>
               <div class="invalid-feedback">Este campo es obligatorio.</div>
             </div>
 
@@ -202,9 +207,9 @@
 </div>
 
 
-<!-- ════
-     MODAL — Ver Detalle Actividad
-════ -->
+<!-- ----
+     MODAL ? Ver Detalle Actividad
+---- -->
 <div class="modal fade" id="modal-detalle" tabindex="-1" aria-labelledby="detalle-titulo" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content cc-modal">
@@ -223,9 +228,9 @@
 </div>
 
 
-<!-- ════
-     MODAL — Confirmar Eliminar
-════ -->
+<!-- ----
+     MODAL ? Confirmar Eliminar
+---- -->
 <div class="modal fade" id="modal-eliminar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content cc-modal text-center">
@@ -233,8 +238,8 @@
         <div class="cc-delete-icon mb-3">
           <span class="material-symbols-outlined">delete_forever</span>
         </div>
-        <h5 class="fw-bold mb-1">¿Eliminar actividad?</h5>
-        <p class="text-muted small mb-4">Esta acción no se puede deshacer.</p>
+        <h5 class="fw-bold mb-1">?Eliminar actividad?</h5>
+        <p class="text-muted small mb-4">Esta acciÓn no se puede deshacer.</p>
         <div class="d-flex justify-content-center gap-2">
           <button id="btn-cancelar-eliminar" class="btn cc-btn-outline" data-bs-dismiss="modal">Cancelar</button>
           <button id="btn-confirmar-eliminar" class="btn btn-danger d-flex align-items-center gap-1">
@@ -247,9 +252,9 @@
 </div>
 
 
-<!-- ════
+<!-- ----
      TOAST
-════ -->
+---- -->
 <div id="toast" class="cc-toast" role="alert" aria-live="polite">
   <span id="toast-icon" class="material-symbols-outlined">check_circle</span>
   <span id="toast-msg">Operación exitosa</span>
@@ -261,6 +266,11 @@
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js" defer></script>
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js" defer></script>
 <script src="JS/ClassControl_ui.js"></script>
+<script>
+  // Solo Administrador (3) y Coordinador (4) gestionan actividades.
+  // Instructor y Aprendiz entran en modo solo lectura.
+  window.ccPuedeGestionarCatalogo = <%= (sesRol != null && (sesRol == 3 || sesRol == 4)) %>;
+</script>
 <script src="JS/ActividadesJS.js"></script>
   <script src="JS/ClassControl_theme.js"></script>
 </body>

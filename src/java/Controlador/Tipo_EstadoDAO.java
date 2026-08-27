@@ -22,7 +22,7 @@ public class Tipo_EstadoDAO {
             return lista;
         }
 
-        String sql = "SELECT id_tipo_estado, descripcion FROM Tipo_Estado ORDER BY descripcion";
+        String sql = "SELECT id_tipo_estado, descripcion FROM tipo_estado ORDER BY descripcion";
 
         try (PreparedStatement ps = con.prepareStatement(sql);
              java.sql.ResultSet rs = ps.executeQuery()) {
@@ -48,7 +48,7 @@ public class Tipo_EstadoDAO {
         Conexion conexion = new Conexion();
         Connection con = conexion.getConexion();
 
-        String sql = "INSERT INTO Tipo_Estado (id_tipo_estado, descripcion) VALUES (?, ?)";
+        String sql = "INSERT INTO tipo_estado (id_tipo_estado, descripcion) VALUES (?, ?)";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, tipoEstado.getId_tipo_estado());
@@ -82,7 +82,7 @@ public class Tipo_EstadoDAO {
             return null;
         }
 
-        String sql = "SELECT id_tipo_estado, descripcion FROM Tipo_Estado WHERE id_tipo_estado = ?";
+        String sql = "SELECT id_tipo_estado, descripcion FROM tipo_estado WHERE id_tipo_estado = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, Id_tipo_estado);
@@ -110,7 +110,7 @@ public class Tipo_EstadoDAO {
 
     public boolean eliminarTipo_Estado(int Id_tipo_estado) {
 
-        String sql = "DELETE FROM Tipo_Estado WHERE id_tipo_estado = ?";
+        String sql = "DELETE FROM tipo_estado WHERE id_tipo_estado = ?";
         Conexion conexion = new Conexion();
 
         try (Connection con = conexion.getConexion();
@@ -127,7 +127,7 @@ public class Tipo_EstadoDAO {
 
     public boolean actualizarTipo_Estado(Tipo_Estado tipoEstado) {
 
-        String sql = "UPDATE Tipo_Estado SET descripcion = ? WHERE id_tipo_estado = ?";
+        String sql = "UPDATE tipo_estado SET descripcion = ? WHERE id_tipo_estado = ?";
 
         Conexion conexion = new Conexion();
 

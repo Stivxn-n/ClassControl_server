@@ -1,6 +1,6 @@
-/* ============================================================
+﻿/* ============================================================
    ClassControl_base.css
-   Fuente única de las variables de marca (--cc-*) y de los
+   Fuente ?nica de las variables de marca (--cc-*) y de los
    botones compartidos cc-btn-*. El resto de CSS de pantalla
    deben usar estas variables en vez de valores/hex propios.
 
@@ -15,7 +15,21 @@
      <link rel="stylesheet" href="CSS/ProgramasCSS.css"/>
    ============================================================ */
 
-/* ── Variables globales ─────────────────────────────────────── */
+/* -- TÍtulo de página (unificado) ------------------------------
+   ?NICA fuente de verdad para el tÍtulo de cada pantalla.
+   NO redefinir .cc-page-title en el CSS propio de cada página. */
+.cc-page-title {
+  font-size:   1.5rem;
+  font-weight: 700;
+  color:       var(--cc-dark, #00304D);
+  line-height: 1.2;
+  margin:      0;
+}
+@media (max-width: 576px) {
+  .cc-page-title { font-size: 1.25rem; }
+}
+
+/* -- Variables globales --------------------------------------- */
 :root {
   /* Colores de marca */
   --cc-primary:        #38a800;
@@ -68,7 +82,7 @@
   --cc-transition:     0.18s ease;
 }
 
-/* ── Reset base ─────────────────────────────────────────────── */
+/* -- Reset base ----------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
@@ -81,9 +95,9 @@ body {
   margin: 0;
 }
 
-/* ── Botones compartidos cc-btn-* ───────────────────────────── */
+/* -- Botones compartidos cc-btn-* ----------------------------- */
 
-/* Verde SENA — acción principal */
+/* Verde SENA ? acciÓn principal */
 .cc-btn-primary {
   white-space: nowrap;
   flex-shrink: 0;
@@ -109,7 +123,7 @@ body {
 .cc-btn-primary:active { transform: scale(.97); }
 .cc-btn-primary:disabled { opacity: .65; cursor: not-allowed; }
 
-/* Azul oscuro — acción secundaria prominente (ej. Filtrar) */
+/* Azul oscuro ? acciÓn secundaria prominente (ej. Filtrar) */
 .cc-btn-dark {
   white-space: nowrap;
   flex-shrink: 0;
@@ -129,7 +143,7 @@ body {
 .cc-btn-dark:active { transform: scale(.97); }
 .cc-btn-dark:disabled { opacity: .65; cursor: not-allowed; }
 
-/* Contorno — acción terciaria (ej. Cancelar, Descargar CSV) */
+/* Contorno ? acciÓn terciaria (ej. Cancelar, Descargar CSV) */
 .cc-btn-outline {
   white-space: nowrap;
   flex-shrink: 0;
@@ -153,7 +167,7 @@ body {
 .cc-btn-outline:active { transform: scale(.97); }
 .cc-btn-outline:disabled { opacity: .65; cursor: not-allowed; }
 
-/* Ícono de fila (ver / editar / eliminar en tablas) */
+/* ?cono de fila (ver / editar / eliminar en tablas) */
 .cc-btn-icon {
   background:    none;
   border:        none;
@@ -172,11 +186,60 @@ body {
 .cc-btn-icon.cc-btn-icon--edit:hover   { color: var(--cc-warning); }
 .cc-btn-icon.cc-btn-icon--delete:hover { color: var(--cc-danger); }
 
-/* Material Symbols — configuración base para toda la app */
+/* Material Symbols ? configuración base para toda la app */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined' !important;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   vertical-align: middle;
   line-height: 1;
   user-select: none;
+}
+
+/* ============================================================
+   AJUSTES MOVILES GLOBALES
+   - Botones de accion por fila siempre visibles (en pantallas
+   tactiles no existe hover, y quedaban ocultos/inaccesibles).
+   - Controles de DataTables apilados sin desborde horizontal.
+   - Modales con margen en pantallas pequenas.
+   Cargado por todas las paginas (base.css va primero; las reglas
+   usan !important solo donde el CSS de pantalla pisa estas).
+   ============================================================ */
+@media (max-width: 767.98px) {
+  /* Acciones ver/editar/eliminar siempre visibles */
+  .row-actions,
+  .action-btns,
+  .cc-action-group { opacity: 1 !important; }
+  .cc-table tbody tr:hover .row-actions,
+  .cc-table tbody tr:hover .action-btns,
+  tr:hover .cc-action-group { opacity: 1 !important; }
+
+  /* Objetivos tactiles comodos (minimo ~34px) */
+  .btn-edit,
+  .btn-delete,
+  .cc-btn-icon,
+  .cc-row-btn,
+  .cc-inst-btn { min-width: 34px; min-height: 34px; }
+
+  /* La tabla se desplaza dentro de su tarjeta, no en la pagina */
+  body { overflow-x: hidden; }
+  .table-responsive { -webkit-overflow-scrolling: touch; margin-bottom: 1rem; }
+
+  /* DataTables: buscar / longitud / info / paginado apilados */
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    text-align: left;
+    width: 100%;
+    margin-bottom: .5rem;
+  }
+  .dataTables_wrapper .dataTables_filter input {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* Modales que respiran en pantallas muy pequenas */
+  .modal-dialog { margin: .5rem; max-width: calc(100vw - 1rem); }
 }

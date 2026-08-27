@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Nivel_formacion;
-import jakarta.resource.cci.ResultSet;
 
 
 public class Nivel_formacionDAO {
@@ -127,7 +126,7 @@ public class Nivel_formacionDAO {
     
     public boolean actualizarNivel_formacion(Nivel_formacion nivel_formacion) {
     
-    String sql = "UPDATE Nivel_formacion SET descripcion_Nivel_Formacion = ? WHERE id_nivel_formacion = ?";
+    String sql = "UPDATE nivel_formacion SET descripcion_Nivel_Formacion = ? WHERE id_nivel_formacion = ?";
     
     Conexion conexion = new Conexion();
     

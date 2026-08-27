@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Roles;
-import jakarta.resource.cci.ResultSet;
 
 
 public class RolesDAO {
@@ -127,7 +126,7 @@ public class RolesDAO {
     
     public boolean actualizarRoles(Roles roles) {
     
-    String sql = "UPDATE Roles SET descripcion_Roles = ? WHERE id_roles = ?";
+    String sql = "UPDATE roles SET descripcion_Roles = ? WHERE id_roles = ?";
     
     Conexion conexion = new Conexion();
     

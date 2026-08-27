@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- ══════════════════════ PROTECCIÓN DE SESIÓN ══════════════════════ --%>
+<%-- ---------------------- PROTECCIÓN DE SESIÓN ---------------------- --%>
 <%
   String sesNombres   = (String)  session.getAttribute("nombres");
   String sesApellidos = (String)  session.getAttribute("apellidos");
@@ -9,6 +9,13 @@
 
   if (sesNombres == null) {
     response.sendRedirect("Inicio_de_sesion.jsp");
+    return;
+  }
+
+  // Aprendiz (2) no ve Instructores. El Instructor (1) s?, en modo de
+  // solo lectura (para consultar datos de contacto de sus colegas).
+  if (sesRol == null || sesRol == 2) {
+    response.sendRedirect("Pagina_Principal.jsp?error=permiso");
     return;
   }
 %>
@@ -45,17 +52,17 @@
 <body>
 <div class="cc-wrapper">
 
-  <!-- ══════════════ SIDEBAR ══════════════ -->
+  <!-- -------------- SIDEBAR -------------- -->
   <%   String ccActivePage = "instructores"; %>
 <%@ include file="_Sidebar.jspf" %>
 
-  <!-- ══════════════ MAIN ══════════════ -->
+  <!-- -------------- MAIN -------------- -->
   <main class="cc-main">
 
     <!-- HEADER -->
     <header class="cc-header">
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-sm cc-hamburger d-lg-none me-1" id="sidebar-toggle" aria-label="Menú">
+        <button class="btn btn-sm cc-hamburger d-lg-none me-1" id="sidebar-toggle" aria-label="Men?">
           <span class="material-symbols-outlined">menu</span>
         </button>
         <div>
@@ -80,36 +87,27 @@
         <button id="dark-toggle" class="btn cc-icon-btn" title="Cambiar tema">
           <span class="material-symbols-outlined">dark_mode</span>
         </button>
-        <!-- User -->
-        <div class="cc-user-info text-end d-none d-lg-block">
-          <p class="cc-user-name mb-0">Coordinación Académica</p>
-          <p class="cc-user-role mb-0">SENA Centro Metalmecánico</p>
-        </div>
-        <div class="cc-avatar">
-          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC47qtltaWygGkaLmhJsAk5SHC5TqnoVHsO_Pm6E2iA3BVRB18DexiSVlRiULaL1HNjqUV_lk5bTIjNp5Z4wT-LB5MIItOfoIiNW7juD6nR9G7BwvIvj5n-qy96C0TV3CtABEwqXdWy-A3pX8SV5F0y1d75Tzleo6Bl7rmg-Ns4mv7adavlZTBDrZU-1EgB1EQX2zyw1vG1XYjTK3EBcO-D4nVpUnzbWpXfFrtIvgvMmZRgpgAvl8uUL_oFmTAgHpXeqQb6LAlXz6o"
-               alt="Avatar" />
-        </div>
       </div>
     </header>
 
     <!-- BODY -->
     <div class="cc-body">
 
-      <!-- ── Métricas ── -->
+      <!-- -- MÉtricas -- -->
       <div class="row g-3 mb-4" id="metricas"></div>
 
-      <!-- ── Filtros ── -->
+      <!-- -- Filtros -- -->
       <div class="cc-widget-card mb-4">
         <form id="form-filtros" novalidate>
           <div class="row g-3 align-items-end">
-            <!-- Búsqueda -->
+            <!-- BÚsqueda -->
             <div class="col-12 col-md-4">
               <div class="input-group cc-search-group">
                 <span class="input-group-text bg-transparent border-end-0">
                   <span class="material-symbols-outlined cc-icon-sm">search</span>
                 </span>
                 <input id="filtro-busqueda" type="search" class="form-control border-start-0 ps-0"
-                       placeholder="Buscar por nombre, apellido o cédula…" autocomplete="off" />
+                       placeholder="Buscar por nombre, apellido o c?dula?" autocomplete="off" />
               </div>
             </div>
             <!-- Rol -->
@@ -139,7 +137,7 @@
         </form>
       </div>
 
-      <!-- ── DataTable ── -->
+      <!-- -- DataTable -- -->
       <div class="cc-table-card">
         <div class="table-responsive">
           <table id="instructores-table" class="table table-hover align-middle mb-0 w-100">
@@ -166,7 +164,7 @@
 <!-- Toast container -->
 <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-<!-- ══════════════ MODAL: Nuevo / Editar Instructor ══════════════ -->
+<!-- -------------- MODAL: Nuevo / Editar Instructor -------------- -->
 <div class="modal fade" id="modal-instructor" tabindex="-1"
      aria-labelledby="modal-titulo" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -189,12 +187,12 @@
             <div class="col-6">
               <label for="inst-apellidos" class="form-label">Apellidos <span class="text-danger">*</span></label>
               <input id="inst-apellidos" name="apellidos" type="text" class="form-control"
-                     placeholder="Ej. Gómez Ruiz" required />
+                     placeholder="Ej. G?mez Ruiz" required />
               <div class="invalid-feedback"><fmt:message bundle="${i18n}" key="common.validation.requerido"/></div>
             </div>
-            <!-- Cédula -->
+            <!-- C?dula -->
             <div class="col-12">
-              <label for="inst-cedula" class="form-label">Cédula / Identificación <span class="text-danger">*</span></label>
+              <label for="inst-cedula" class="form-label">C?dula / Identificación <span class="text-danger">*</span></label>
               <input id="inst-cedula" name="identificacion" type="text" class="form-control"
                      placeholder="Ej. 1.020.304.050" required />
               <div class="invalid-feedback"><fmt:message bundle="${i18n}" key="common.validation.requerido"/></div>
@@ -246,8 +244,8 @@
             <div class="col-12">
               <label for="inst-clave" class="form-label">Contraseña <span id="inst-clave-req" class="text-danger">*</span></label>
               <input id="inst-clave" name="clave" type="password" class="form-control"
-                     placeholder="Mínimo 6 caracteres" minlength="6" />
-              <div class="form-text">Déjala en blanco al editar para conservar la contraseña actual.</div>
+                     placeholder="M?nimo 6 caracteres" minlength="6" />
+              <div class="form-text">D?jala en blanco al editar para conservar la contraseña actual.</div>
             </div>
           <input type="hidden" id="inst-username" name="username" value=""/>
           <input type="hidden" id="inst-tipoVinculacion" name="tipoVinculacion" value=""/>
@@ -264,7 +262,7 @@
   </div>
 </div>
 
-<!-- ══════════════ MODAL: Ver Perfil (read-only) ══════════════ -->
+<!-- -------------- MODAL: Ver Perfil (read-only) -------------- -->
 <div class="modal fade" id="modal-detalle" tabindex="-1"
      aria-labelledby="detalle-modal-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -286,7 +284,7 @@
   </div>
 </div>
 
-<!-- ══════════════ MODAL: Confirmar Eliminación ══════════════ -->
+<!-- -------------- MODAL: Confirmar Eliminación -------------- -->
 <div class="modal fade" id="modal-eliminar" tabindex="-1"
      aria-labelledby="eliminar-modal-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -309,6 +307,11 @@
 </div>
 
 <!-- Scripts -->
+<script>
+  // Instructor (rol 1): pantalla de solo lectura (consulta de contacto).
+  // Administrador (3) y Coordinador (4) mantienen control total.
+  window.ccSoloLectura = <%= (sesRol != null && sesRol == 1) %>;
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>

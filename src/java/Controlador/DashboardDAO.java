@@ -30,7 +30,7 @@ public class DashboardDAO {
 
     public int contarAmbientesOcupadosHoy() {
         String sql = "SELECT COUNT(DISTINCT Ambientes_id_ambientes) " +
-                     "FROM programacion_Instructores " +
+                     "FROM programacion_instructores " +
                      "WHERE fecha_inicial_Prog <= CURDATE() " +
                      "  AND fecha_fin_Prog     >= CURDATE() " +
                      "  AND Estado_id_estado = 1";
@@ -39,7 +39,7 @@ public class DashboardDAO {
 
     public int contarActividadesEnCurso() {
         String sql = "SELECT COUNT(*) " +
-                     "FROM programacion_Instructores " +
+                     "FROM programacion_instructores " +
                      "WHERE fecha_inicial_Prog <= CURDATE() " +
                      "  AND fecha_fin_Prog     >= CURDATE() " +
                      "  AND Estado_id_estado = 1";
@@ -93,7 +93,7 @@ public class DashboardDAO {
             "  pi.hora_inicio, " +
             "  pi.hora_fin, " +
             "  CONCAT(u.nombres, ' ', u.apellidos) AS instructor " +
-            "FROM programacion_Instructores pi " +
+            "FROM programacion_instructores pi " +
             "JOIN ficha      f   ON pi.Ficha_id_ficha            = f.id_ficha " +
             "JOIN programas  p   ON f.Programas_idProgramas      = p.idProgramas " +
             "JOIN jornada    j   ON f.Jornada_id_jornada         = j.id_jornada " +

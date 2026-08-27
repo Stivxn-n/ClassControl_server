@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Tipo_Documento;
-import jakarta.resource.cci.ResultSet;
 
 
 public class Tipo_DocumentoDAO {
@@ -22,7 +21,7 @@ public class Tipo_DocumentoDAO {
             return lista;
         }
 
-        String sql = "SELECT id_tipo_Documento, descripcion_Tipo_Doc FROM tipo_Documento ORDER BY descripcion_Tipo_Doc";
+        String sql = "SELECT id_tipo_Documento, descripcion_Tipo_Doc FROM tipo_documento ORDER BY descripcion_Tipo_Doc";
 
         try (PreparedStatement ps = con.prepareStatement(sql);
              java.sql.ResultSet rs = ps.executeQuery()) {
@@ -48,7 +47,7 @@ public class Tipo_DocumentoDAO {
         Conexion conexion = new Conexion();
         Connection con = conexion.getConexion();
        
-        String sql = "INSERT INTO tipo_Documento (id_tipo_Documento, descripcion_Tipo_Doc) VALUES (?, ?)";
+        String sql = "INSERT INTO tipo_documento (id_tipo_Documento, descripcion_Tipo_Doc) VALUES (?, ?)";
         
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, rol.getId_tipo_Documento());
@@ -82,7 +81,7 @@ public class Tipo_DocumentoDAO {
             return null;
         }
 
-        String sql = "SELECT id_tipo_Documento, descripcion_Tipo_Doc FROM tipo_Documento WHERE id_tipo_Documento = ?";
+        String sql = "SELECT id_tipo_Documento, descripcion_Tipo_Doc FROM tipo_documento WHERE id_tipo_Documento = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, Id_tipo_Documento);
@@ -110,7 +109,7 @@ public class Tipo_DocumentoDAO {
     
     public boolean eliminarTipo_Documento(int Id_tipo_Documento) {
         
-        String sql = "DELETE FROM tipo_Documento WHERE id_tipo_Documento = ?";
+        String sql = "DELETE FROM tipo_documento WHERE id_tipo_Documento = ?";
         Conexion conexion = new Conexion();
     
         try (Connection con = conexion.getConexion();
@@ -127,7 +126,7 @@ public class Tipo_DocumentoDAO {
     
     public boolean actualizarTipo_Documento(Tipo_Documento tipo_Documento) {
     
-    String sql = "UPDATE Tipo_Documento SET descripcion_Tipo_Doc = ? WHERE id_tipo_Documento = ?";
+    String sql = "UPDATE tipo_documento SET descripcion_Tipo_Doc = ? WHERE id_tipo_Documento = ?";
     
     Conexion conexion = new Conexion();
     

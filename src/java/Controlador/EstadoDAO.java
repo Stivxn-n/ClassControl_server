@@ -129,7 +129,7 @@ public class EstadoDAO {
     
     public boolean actualizarEstado(Estado estado) {
     
-    String sql = "UPDATE Estado SET descripcion_Estado = ?, Tipo_Estado_id_tipo_estado = ? WHERE id_estado = ?";
+    String sql = "UPDATE estado SET descripcion_Estado = ?, Tipo_Estado_id_tipo_estado = ? WHERE id_estado = ?";
     
     Conexion conexion = new Conexion();
     

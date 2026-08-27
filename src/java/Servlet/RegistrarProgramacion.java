@@ -25,7 +25,18 @@ public class RegistrarProgramacion extends RegistroBaseServlet {
         programacion.setHora_inicio(hora(request, "hora_inicio"));
         programacion.setHora_fin(hora(request, "hora_fin"));
         programacion.setFicha_id_ficha(entero(request, "Ficha_id_ficha"));
-        programacion.setUsuarios_id_usuarios(entero(request, "Usuarios_id_usuarios"));
+        // Un Instructor siempre programa a su propio nombre: se ignora el
+        // valor que venga del cliente (igual que hace ConsultarProgramaciones).
+        if (Autorizacion.esInstructor(request)) {
+            Integer idPropio = Autorizacion.idUsuarioDe(request);
+            if (idPropio != null) {
+                programacion.setUsuarios_id_usuarios(idPropio);
+            } else {
+                programacion.setUsuarios_id_usuarios(entero(request, "Usuarios_id_usuarios"));
+            }
+        } else {
+            programacion.setUsuarios_id_usuarios(entero(request, "Usuarios_id_usuarios"));
+        }
         programacion.setAmbientes_id_ambientes(entero(request, "Ambientes_id_ambientes"));
         programacion.setTrimestre_id_trimestre(entero(request, "Trimestre_id_trimestre"));
         programacion.setEstado_id_estado(entero(request, "Estado_id_estado"));

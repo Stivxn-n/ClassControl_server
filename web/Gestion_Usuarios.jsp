@@ -12,8 +12,8 @@
     return;
   }
 
-  // Solo el rol Administrador (3) puede gestionar usuarios.
-  if (sesRol == null || sesRol != 3) {
+  // Solo Administrador (3) y Coordinador (4) ven Gestión de Usuarios.
+  if (sesRol == null || (sesRol != 3 && sesRol != 4)) {
     response.sendRedirect("Pagina_Principal.jsp?error=permiso");
     return;
   }
@@ -62,6 +62,9 @@
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
+            <button id="dark-toggle" class="btn cc-icon-btn" title="Cambiar tema">
+              <span class="material-symbols-outlined">dark_mode</span>
+            </button>
             <button class="btn btn-sm btn-outline-secondary" id="btnExport" type="button">Exportar CSV</button>
             <button class="btn btn-sm btn-brand" id="btnNewUser" type="button" data-bs-toggle="modal" data-bs-target="#userModal">Nuevo Usuario</button>
           </div>
@@ -71,11 +74,15 @@
       <main class="container-fluid py-4">
         <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
           <div>
-            <h2 class="h4 fw-bold text-brand-blue mb-1">Gestión de Usuarios</h2>
+            <h2 class="cc-page-title mb-1">Gestión de Usuarios</h2>
             <p class="text-muted mb-0">Administra los accesos y roles de la institución académica.</p>
           </div>
 
           <div class="d-flex gap-2 flex-wrap">
+            <select id="filterFicha" class="form-select form-select-sm w-auto">
+              <option value="">Todas las fichas</option>
+              <%-- Las opciones se llenan dinámicamente en JS desde ConsultarFichas --%>
+            </select>
             <select id="filterRole" class="form-select form-select-sm w-auto">
               <option value="">Todos los roles</option>
               <%-- Las opciones de rol se llenan dinámicamente en JS desde ConsultarRoles --%>
@@ -202,8 +209,8 @@
         <span class="material-symbols-outlined">calendar_month</span><span>Programación</span>
       </a>
       <div class="cc-nav-separator"></div>
-      <a class="cc-nav-link" href="Reportes_Y_Consultas.jsp">
-        <span class="material-symbols-outlined">analytics</span><span>Reportes</span>
+      <a class="cc-nav-link" href="Incidencias.jsp">
+        <span class="material-symbols-outlined">report_problem</span><span>Incidencias</span>
       </a>
       <a class="cc-nav-link" href="Gestion_Usuarios.jsp">
         <span class="material-symbols-outlined">manage_accounts</span><span>Usuarios</span>
@@ -289,6 +296,13 @@
                 <input type="password" class="form-control" id="fieldPassword" placeholder="Mínimo 6 caracteres" />
                 <div class="form-text">En edición, dejar vacío para no cambiar.</div>
                 <div class="invalid-feedback" id="fieldPasswordFeedback">La contraseña debe tener al menos 6 caracteres.</div>
+              </div>
+              <div class="col-md-6 d-none" id="fieldFichaWrap">
+                <label for="fieldFicha" class="form-label">Ficha del aprendiz</label>
+                <select class="form-select" id="fieldFicha">
+                  <option value="">Sin asignar</option>
+                </select>
+                <div class="form-text">Visible solo para el rol Aprendiz. Determina el horario que verá en Programación.</div>
               </div>
             </div>
           </div>

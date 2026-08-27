@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Modalidad;
-import jakarta.resource.cci.ResultSet;
 
 
 public class ModalidadDAO {
@@ -127,7 +126,7 @@ public class ModalidadDAO {
     
     public boolean actualizarModalidad(Modalidad modalidad) {
     
-    String sql = "UPDATE Modalidad SET descripcion_Modalidad = ? WHERE id_modalidad = ?";
+    String sql = "UPDATE modalidad SET descripcion_Modalidad = ? WHERE id_modalidad = ?";
     
     Conexion conexion = new Conexion();
     

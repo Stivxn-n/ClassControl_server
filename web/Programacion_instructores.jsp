@@ -59,10 +59,10 @@
     <!-- Header -->
     <header class="cc-header">
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-sm d-lg-none" id="btn-sidebar-toggle">
+        <button class="btn btn-sm d-lg-none" id="sidebar-toggle">
           <span class="material-symbols-outlined">menu</span>
         </button>
-        <h1 class="cc-header__title mb-0"><fmt:message bundle="${i18n}" key="programacion.header.title"/></h1>
+        <h1 class="cc-page-title mb-0"><fmt:message bundle="${i18n}" key="programacion.header.title"/></h1>
       </div>
 
       <div class="cc-header__actions">
@@ -89,14 +89,10 @@
         </button>
 
         <!-- Dark mode -->
-        <button id="btn-dark-toggle" class="btn btn-outline-secondary cc-btn-icon" title="Alternar modo oscuro">
+        <button id="dark-toggle" class="btn cc-icon-btn" title="Cambiar tema">
           <span class="material-symbols-outlined cc-icon-sm">dark_mode</span>
         </button>
 
-        <!-- Avatar -->
-        <div class="cc-avatar">
-          <img src="https://i.pravatar.cc/40?img=12" alt="Avatar usuario" />
-        </div>
       </div>
     </header>
 
@@ -120,6 +116,7 @@
         <select id="filter-instructor" class="form-select form-select-sm cc-filter-select">
           <option value="">Todos los instructores</option>
         </select>
+        <span id="filter-instructor-horas" class="cc-filter-horas d-none"></span>
 
         <label class="cc-filter-label" for="filter-ficha">Ficha</label>
         <select id="filter-ficha" class="form-select form-select-sm cc-filter-select">
@@ -171,6 +168,7 @@
                 <th>Ambiente</th>
                 <th>Día</th>
                 <th>Horario</th>
+                <th>Horas/sem</th>
                 <th>Estado</th>
                 <th>Vigencia</th>
                 <th></th>
@@ -376,6 +374,11 @@
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 <script src="JS/ClassControl_ui.js"></script>
+<script>
+  // Instructor (1), Administrador (3) y Coordinador (4) crean/editan programación.
+  // El Aprendiz (2) solo consulta su horario: sin botones de escritura.
+  window.ccPuedeEscribirProgramacion = <%= (sesRol != null && (sesRol == 1 || sesRol == 3 || sesRol == 4)) %>;
+</script>
 <script src="JS/Programacion_instructoresJS.js"></script>
   <script src="JS/ClassControl_theme.js"></script>
 </body>

@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.PrintWriter;
 
 public abstract class RegistroBaseServlet extends HttpServlet {
 
@@ -27,21 +28,44 @@ public abstract class RegistroBaseServlet extends HttpServlet {
             return;
         }
 
+        boolean api = aceptaJson(request);
         try {
             boolean ok = guardar(request);
-            String tipo = getTipo();
-            response.sendRedirect(getUrlRedireccion() + "?" + (ok ? "ok=" + tipo : "error=" + tipo));
+            responder(response, api, ok, ok ? "" : "No se pudo guardar el registro.",
+                    ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_BAD_REQUEST);
         } catch (NumberFormatException e) {
             System.out.println(getClass().getSimpleName() + " - error en parametros numericos: " + e.getMessage());
-            response.sendRedirect(getUrlRedireccion() + "?error=formato");
+            responder(response, api, false, "Formato de datos invalido.", HttpServletResponse.SC_BAD_REQUEST);
         } catch (Controlador.ConflictoHorarioException e) {
             System.out.println(getClass().getSimpleName() + " - conflicto de horario: " + e.getMessage());
-            response.sendRedirect(getUrlRedireccion() + "?error=conflicto");
+            responder(response, api, false, e.getMessage(), HttpServletResponse.SC_CONFLICT);
         } catch (Exception e) {
             System.out.println(getClass().getSimpleName() + " - error general: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect(getUrlRedireccion() + "?error=1");
+            responder(response, api, false, "No se pudo guardar el registro.", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean aceptaJson(HttpServletRequest request) {
+        String accept = request.getHeader("Accept");
+        return accept != null && accept.toLowerCase(java.util.Locale.ROOT).contains("application/json");
+    }
+
+    private void responder(HttpServletResponse response, boolean api, boolean ok,
+            String mensaje, int status) throws IOException {
+        if (!api) {
+            response.sendRedirect(getUrlRedireccion() + "?" + (ok ? "ok=" + getTipo() : "error=" + getTipo()));
+            return;
+        }
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            out.print(ok ? "{\"ok\":true}" : "{\"error\":\"" + escapar(mensaje) + "\"}");
+        }
+    }
+
+    private String escapar(String valor) {
+        return valor.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     protected String texto(HttpServletRequest request, String nombre) {

@@ -142,7 +142,7 @@ public class VinculacionLaboralDAO {
     
     public boolean actualizarVinculacionLaboral(VinculacionLaboral vinculacionLaboral) {
     
-    String sql = "UPDATE VinculacionLaboral SET descripcion = ?, numero_Contrato = ?, fecha_Inicio = ?, fecha_Fin = ?, Usuarios_id_usuarios = ? WHERE id_vinculacion_Laboral = ?";
+    String sql = "UPDATE vinculacion_laboral SET descripcion = ?, numero_Contrato = ?, fecha_Inicio = ?, fecha_Fin = ?, Usuarios_id_usuarios = ? WHERE id_vinculacion_Laboral = ?";
     
     Conexion conexion = new Conexion();
     

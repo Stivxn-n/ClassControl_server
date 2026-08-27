@@ -5,13 +5,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Conexion {
-
     public Connection getConexion() {
         Connection con = null;
         String driver = "com.mysql.cj.jdbc.Driver";
-        String url = "jdbc:mysql://localhost:3306/ClassControl?useSSL=false&serverTimezone=UTC";
+        String url = "jdbc:mysql://switchback.proxy.rlwy.net:12083/railway?useSSL=false&serverTimezone=UTC";
         String user = "root";
-        String password = "12345";
+        String password = "PyzGmfeJAtUkQEYDuKDjGjiOHuOJolDe";
+
         try {
             Class.forName(driver);
             con = DriverManager.getConnection(url, user, password);

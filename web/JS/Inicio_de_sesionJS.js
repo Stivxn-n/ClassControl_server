@@ -1,6 +1,6 @@
 'use strict';
 
-/* ── SELECTORES ── */
+/* -- SELECTORES -- */
 const formLogin     = document.getElementById('form-login');
 const inputUsuario  = document.getElementById('login-usuario');
 const inputPassword = document.getElementById('login-password');
@@ -12,7 +12,7 @@ const btnLoginText  = document.getElementById('btn-login-text');
 const btnLoginIcon  = document.getElementById('btn-login-icon');
 const btnSpinner    = document.getElementById('btn-spinner');
 
-/* ── RECORDARME — restaurar usuario ── */
+/* -- RECORDARME - restaurar usuario -- */
 (function restaurarUsuario() {
   const guardado = localStorage.getItem('cc_usuario');
   if (guardado) {
@@ -21,7 +21,7 @@ const btnSpinner    = document.getElementById('btn-spinner');
   }
 })();
 
-/* ── TOGGLE CONTRASEÑA ── */
+/* -- TOGGLE CONTRASEÑA -- */
 btnTogglePass.addEventListener('click', () => {
   const visible = inputPassword.type === 'password';
   inputPassword.type = visible ? 'text' : 'password';
@@ -30,14 +30,14 @@ btnTogglePass.addEventListener('click', () => {
   inputPassword.focus();
 });
 
-/* ── LIMPIAR ERRORES AL ESCRIBIR ── */
+/* -- LIMPIAR ERRORES AL ESCRIBIR -- */
 [inputUsuario, inputPassword].forEach(campo => {
   campo.addEventListener('input', () => {
     campo.classList.remove('is-invalid');
   });
 });
 
-/* ── VALIDACIÓN ── */
+/* -- VALIDACIÓN -- */
 function validarCampos() {
   let valido = true;
 
@@ -58,7 +58,7 @@ function validarCampos() {
   return valido;
 }
 
-/* ── SUBMIT — envía al servlet real /Iniciar ── */
+/* -- SUBMIT -> envía al servlet real /Iniciar -- */
 formLogin.addEventListener('submit', (e) => {
   if (!validarCampos()) {
     e.preventDefault(); // Solo cancela si hay campos vacíos
@@ -76,10 +76,10 @@ formLogin.addEventListener('submit', (e) => {
   btnLoginIcon.classList.add('d-none');
   btnSpinner.classList.remove('d-none');
 
-  // ✅ El formulario se envía normalmente al servlet /Iniciar
+  // ? El formulario se envía normalmente al servlet /Iniciar
 });
 
-/* ── ENTER DESDE CUALQUIER CAMPO ── */
+/* -- ENTER DESDE CUALQUIER CAMPO -- */
 [inputUsuario, inputPassword].forEach(campo => {
   campo.addEventListener('keydown', e => {
     if (e.key === 'Enter') formLogin.requestSubmit();

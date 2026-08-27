@@ -1,5 +1,5 @@
 /* ============================================================
-   AmbientesJS.js — ClassControl
+   AmbientesJS.js ? ClassControl
    CRUD + DataTables + Chart.js + Filtro por sede
    Datos reales desde el backend:
    - GET  ConsultarAmbientes -> lista de ambientes (JSON)
@@ -11,19 +11,45 @@
 
 'use strict';
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    1. ESTADO EN MEMORIA (poblado desde el backend)
-────────────────────────────────────────── */
+------------------------------------------ */
 let ambientes = [];
 let sedes = [];
+let ocupacionIds = new Set();
+
+function estadoEfectivo(ambiente) {
+  const guardado = String(ambiente.estado || 'Disponible');
+  if (guardado === 'Mantenimiento' || guardado === 'Inhabilitado') return guardado;
+  return ocupacionIds.has(Number(ambiente.id)) ? 'Ocupado' : 'Disponible';
+}
+
+function renderEstado(data, type, row) {
+  const estado = estadoEfectivo(row);
+  if (type === 'filter' || type === 'sort') return estado;
+  return `<span class="status-pill status-${estado.toLowerCase()}">${estado}</span>`;
+}
+
+async function cargarProgramaciones() {
+  try {
+    const resp = await fetch('ConsultarProgramaciones');
+    if (!resp.ok) return;
+    const progs = await resp.json();
+    ocupacionIds = new Set((Array.isArray(progs) ? progs : [])
+      .map(p => Number(p.ambienteId ?? p.ambiente_id ?? p.Ambientes_id_ambientes))
+      .filter(x => x > 0));
+  } catch (_) {
+    /* sin datos de programación, todos se muestran según su estado guardado */
+  }
+}
 
 let tablaAmbientes;
 let chartAmbientes;
 let deleteTargetId = null;
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    2. UTILIDADES
-────────────────────────────────────────── */
+------------------------------------------ */
 const $id = id => document.getElementById(id);
 
 function escapeHtml(value) {
@@ -36,7 +62,7 @@ function escapeRegex(value) {
 
 function sedeNombre(id) {
   const sede = sedes.find(s => s.id === id);
-  return sede ? sede.nombre : '—';
+  return sede ? sede.nombre : '-';
 }
 
 function llenarSelectSedes(select, placeholder) {
@@ -47,9 +73,9 @@ function llenarSelectSedes(select, placeholder) {
   if (actual) select.value = actual;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    3. CARGA DE DATOS DESDE EL BACKEND
-────────────────────────────────────────── */
+------------------------------------------ */
 async function cargarSedes() {
   const resp = await fetch('ConsultarSedes');
   sedes = resp.ok ? await resp.json() : [];
@@ -70,6 +96,7 @@ async function cargarAmbientes() {
 async function inicializarDatos() {
   try {
     await cargarSedes();
+    await cargarProgramaciones();
     await cargarAmbientes();
   } catch (err) {
     console.error(err);
@@ -77,9 +104,9 @@ async function inicializarDatos() {
   }
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    4. RENDERERS DATATABLES
-────────────────────────────────────────── */
+------------------------------------------ */
 function renderAmbiente(data, type, row) {
   if (type === 'filter' || type === 'sort') return row.descripcion;
   return `
@@ -113,9 +140,9 @@ function renderAcciones(id) {
     </span>`;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    5. DATATABLES
-────────────────────────────────────────── */
+------------------------------------------ */
 function initDataTable() {
   tablaAmbientes = $('#tabla-ambientes').DataTable({
     data: ambientes,
@@ -133,7 +160,7 @@ function initDataTable() {
       search:        'Buscar:',
       zeroRecords:   'No se encontraron ambientes',
       paginate: {
-        first: 'Primero', last: 'Último',
+        first: 'Primero', last: 'último',
         next: 'Siguiente', previous: 'Anterior',
       },
     },
@@ -142,6 +169,7 @@ function initDataTable() {
       { data: null,       render: renderSede },
       { data: 'capacidad', className: 'text-center',
         render: data => `${data} <span class="text-muted" style="font-size:.75rem">personas</span>` },
+      { data: null, render: renderEstado },
       { data: 'id', orderable: false, searchable: false,
         className: 'text-end', render: renderAcciones },
     ],
@@ -158,14 +186,19 @@ function reloadTable() {
 function applyExternalFilters() {
   if (!tablaAmbientes) return;
   const sede = $id('filter-sede').value;
-  tablaAmbientes
-    .column(1).search(sede ? `^${escapeRegex(sedeNombre(Number(sede)))}$` : '', true, false)
-    .draw();
+  const estado = $id('filter-estado') ? $id('filter-estado').value : '';
+  tablaAmbientes.column(1).search(sede ? `^${escapeRegex(sedeNombre(Number(sede)))}$` : '', true, false);
+  if (estado) {
+    tablaAmbientes.column(3).search(`^${escapeRegex(estado)}$`, true, false);
+  } else {
+    tablaAmbientes.column(3).search('');
+  }
+  tablaAmbientes.draw();
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    6. ESTADÍSTICAS
-────────────────────────────────────────── */
+------------------------------------------ */
 function updateStats() {
   const totalCapacidad = ambientes.reduce((s, a) => s + Number(a.capacidad), 0);
   const sedesConAmbientes = new Set(ambientes.map(a => a.sedeId)).size;
@@ -177,9 +210,9 @@ function updateStats() {
   $id('stat-promedio').textContent = promedio;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    7. GRÁFICA CHART.JS (donut por sede)
-────────────────────────────────────────── */
+------------------------------------------ */
 function getChartData() {
   return sedes.map(s => ambientes.filter(a => a.sedeId === s.id).length);
 }
@@ -222,9 +255,9 @@ function updateChart() {
   chartAmbientes.update();
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    8. TOAST (CSS puro)
-────────────────────────────────────────── */
+------------------------------------------ */
 let toastTimer = null;
 
 const TOAST_VARIANTS = {
@@ -249,9 +282,9 @@ function showToast(message, variant = 'success') {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    9. FORMULARIO HELPERS
-────────────────────────────────────────── */
+------------------------------------------ */
 function resetForm() {
   const form = $id('form-ambiente');
   form.reset();
@@ -266,11 +299,12 @@ function setFormData(ambiente) {
   $id('amb-nombre').value    = ambiente.descripcion;
   $id('amb-sede').value      = ambiente.sedeId;
   $id('amb-capacidad').value = ambiente.capacidad;
+  if ($id('amb-estado')) $id('amb-estado').value = String(ambiente.estado || 'Disponible');
 }
 
-/* ──────────────────────────────────────────
-   10. GUARDAR (crear / editar) vía fetch
-────────────────────────────────────────── */
+/* ------------------------------------------
+   10. GUARDAR (crear / editar) v?a fetch
+------------------------------------------ */
 async function saveAmbiente(event) {
   event.preventDefault();
   const form = event.currentTarget;
@@ -286,6 +320,7 @@ async function saveAmbiente(event) {
     descripcion_Ambiente: $id('amb-nombre').value.trim(),
     Sede_id_sede: $id('amb-sede').value,
     capacidad: $id('amb-capacidad').value,
+    estado_Ambiente: $id('amb-estado') ? ($id('amb-estado').value || 'Disponible') : 'Disponible',
   });
   if (id) params.set('id', String(id));
 
@@ -297,7 +332,7 @@ async function saveAmbiente(event) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params,
     });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+    if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
     await cargarAmbientes();
     showToast(id ? 'Ambiente actualizado correctamente.' : 'Ambiente registrado correctamente.', 'success');
@@ -308,9 +343,9 @@ async function saveAmbiente(event) {
   }
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    11. MODALES EDITAR / ELIMINAR
-────────────────────────────────────────── */
+------------------------------------------ */
 function openEditModal(id) {
   const ambiente = ambientes.find(a => a.id === id);
   if (!ambiente) return;
@@ -325,7 +360,7 @@ function openDeleteModal(id) {
   if (!ambiente) return;
   deleteTargetId = id;
   $id('delete-msg').textContent =
-    `¿Seguro que desea eliminar "${ambiente.descripcion}"? Esta acción no se puede deshacer.`;
+    `?Seguro que desea eliminar "${ambiente.descripcion}"? Esta acciÓn no se puede deshacer.`;
   bootstrap.Modal.getOrCreateInstance($id('deleteModal')).show();
 }
 
@@ -340,7 +375,7 @@ async function confirmDelete() {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ id: String(deleteTargetId) }),
     });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+    if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
     deleteTargetId = null;
     await cargarAmbientes();
@@ -348,16 +383,17 @@ async function confirmDelete() {
     showToast(`"${nombre}" eliminado.`, 'info');
   } catch (err) {
     console.error(err);
-    showToast('No se pudo eliminar el ambiente.', 'danger');
+    showToast(err.message || 'No se pudo eliminar el ambiente.', 'danger');
   }
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    12. EVENTOS
-────────────────────────────────────────── */
+------------------------------------------ */
 function wireEvents() {
   /* Filtro externo */
   $id('filter-sede').addEventListener('change', applyExternalFilters);
+  if ($id('filter-estado')) $id('filter-estado').addEventListener('change', applyExternalFilters);
 
   /* Nuevo ambiente */
   $id('btn-nuevo').addEventListener('click', resetForm);
@@ -376,12 +412,12 @@ function wireEvents() {
     if (deleteBtn) openDeleteModal(Number(deleteBtn.dataset.id));
   });
 
-  /* Sidebar toggle (móvil) */
+  /* Sidebar toggle (m?vil) */
   $id('btnSidebarToggle')?.addEventListener('click', () => {
     $id('sidebar').classList.toggle('open');
   });
 
-  /* Atajo Alt+N → nuevo ambiente */
+  /* Atajo Alt+N ? nuevo ambiente */
   document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'n') {
       e.preventDefault();
@@ -391,9 +427,9 @@ function wireEvents() {
   });
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    13. INICIALIZACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 document.addEventListener('DOMContentLoaded', () => {
   initDataTable();
   initChart();

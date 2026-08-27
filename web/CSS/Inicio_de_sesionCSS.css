@@ -1,10 +1,10 @@
 /* ============================================================
-   Inicio_de_sesionCSS.css — ClassControl
+   Inicio_de_sesionCSS.css ? ClassControl
    Bootstrap 5 + sistema de diseño ClassControl (DM Sans)
 
    Las variables de marca (--cc-primary, --cc-font, --cc-border,
    --cc-text-main, etc.) ya vienen de ClassControl_base.css, que
-   se carga ANTES que este archivo. Aquí solo se agregan variables
+   se carga ANTES que este archivo. AquÍ solo se agregan variables
    propias de esta pantalla que el base no define.
    ============================================================ */
 
@@ -23,7 +23,7 @@ h3 { font-size: 1.1rem;  font-weight: 600; }
 p, li, td, th, .form-label { font-size: 0.9375rem; }
 small, .small, .form-text   { font-size: 0.8125rem; }
 
-/* ── Página de login ─────────────────────────────────────── */
+/* -- Página de login --------------------------------------- */
 .cc-login-body {
   min-height: 100vh;
   background-color: var(--cc-bg);
@@ -114,7 +114,7 @@ small, .small, .form-text   { font-size: 0.8125rem; }
   margin-bottom: 1.5rem;
 }
 
-/* ── Inputs & Input Groups ───────────────────────────────── */
+/* -- Inputs & Input Groups --------------------------------- */
 .form-label {
   font-size: 0.875rem;
   font-weight: 600;
@@ -163,7 +163,7 @@ small, .small, .form-text   { font-size: 0.8125rem; }
 }
 .cc-toggle-pass:hover { color: var(--cc-primary); }
 
-/* ── Checkbox ────────────────────────────────────────────── */
+/* -- Checkbox ---------------------------------------------- */
 .form-check-input:checked {
   background-color: var(--cc-primary);
   border-color: var(--cc-primary);
@@ -176,7 +176,7 @@ small, .small, .form-text   { font-size: 0.8125rem; }
   color: var(--cc-muted);
 }
 
-/* ── Links ───────────────────────────────────────────────── */
+/* -- Links ------------------------------------------------- */
 .cc-link-forgot {
   font-size: 0.875rem;
   font-weight: 600;
@@ -186,7 +186,7 @@ small, .small, .form-text   { font-size: 0.8125rem; }
 }
 .cc-link-forgot:hover { color: var(--cc-primary-dark); }
 
-/* ── Botón principal ─────────────────────────────────────── */
+/* -- Botón principal --------------------------------------- */
 .cc-btn-primary {
   white-space: nowrap;
   flex-shrink: 0;
@@ -212,13 +212,13 @@ small, .small, .form-text   { font-size: 0.8125rem; }
   cursor: not-allowed;
 }
 
-/* ── Alerta de error ─────────────────────────────────────── */
+/* -- Alerta de error --------------------------------------- */
 .alert-danger {
   font-size: 0.875rem;
   border-radius: 0.5rem;
 }
 
-/* ── Pie de tarjeta (registro) ───────────────────────────── */
+/* -- Pie de tarjeta (registro) ----------------------------- */
 .cc-login-footer {
   padding: 1.25rem 2rem 1.75rem;
   border-top: 1px solid #eef2ea;
@@ -239,7 +239,7 @@ small, .small, .form-text   { font-size: 0.8125rem; }
   color: var(--cc-primary);
 }
 
-/* ── Footer SENA ─────────────────────────────────────────── */
+/* -- Footer SENA ------------------------------------------- */
 .cc-sena-footer { color: var(--cc-muted); }
 
 .cc-sena-logo {
@@ -258,13 +258,13 @@ small, .small, .form-text   { font-size: 0.8125rem; }
   margin-bottom: 0;
 }
 
-/* ── Animación de entrada ────────────────────────────────── */
+/* -- Animación de entrada ---------------------------------- */
 @keyframes cc-fadeUp {
   from { opacity: 0; transform: translateY(22px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Animación shake (error) ─────────────────────────────── */
+/* -- Animación shake (error) ------------------------------- */
 @keyframes cc-shake {
   0%, 100% { transform: translateX(0); }
   20%      { transform: translateX(-7px); }
@@ -274,7 +274,7 @@ small, .small, .form-text   { font-size: 0.8125rem; }
 }
 .cc-shake { animation: cc-shake 0.38s ease; }
 
-/* ── Responsive ──────────────────────────────────────────── */
+/* -- Responsive -------------------------------------------- */
 @media (max-width: 480px) {
   .cc-login-header { padding: 2rem 1.25rem 1.5rem; }
   .cc-login-body-inner { padding: 1.5rem 1.25rem 1rem; }

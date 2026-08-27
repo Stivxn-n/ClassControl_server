@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Resultado_aprendizaje;
-import jakarta.resource.cci.ResultSet;
 
 
 public class Resultado_aprendizajeDAO {
@@ -134,7 +133,7 @@ public class Resultado_aprendizajeDAO {
     
     public boolean actualizarResultado_aprendizaje(Resultado_aprendizaje resultado_aprendizaje) {
     
-    String sql = "UPDATE Resultado_aprendizaje SET codigo_ResultadoAp = ?, descripcion_Resul = ?, Competencias_id_competencias = ? WHERE id_resultado_aprendizaje = ?";
+    String sql = "UPDATE resultado_aprendizaje SET codigo_ResultadoAp = ?, descripcion_Resul = ?, Competencias_id_competencias = ? WHERE id_resultado_aprendizaje = ?";
     
     Conexion conexion = new Conexion();
     

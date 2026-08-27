@@ -1,9 +1,9 @@
 /* ============================================================
-   CompetenciasJS.js — ClassControl
-   CRUD + filtros reactivos + paginación + métricas + CSV
+   CompetenciasJS.js ? ClassControl
+   CRUD + filtros reactivos + paginaciÓn + mÉtricas + CSV
    Datos reales desde el backend:
    - GET  ConsultarCompetencias    -> lista de competencias (JSON)
-   - GET  ConsultarProgramas       -> catálogo de programas de formación
+   - GET  ConsultarProgramas       -> catálogo de programas de formaciÓn
    - POST RegistrarCompetencia     -> crear competencia
    - POST ActualizarCompetencia    -> editar competencia
    - POST EliminarCompetencia      -> eliminar competencia
@@ -11,9 +11,9 @@
 
 'use strict';
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    1. ESTADO EN MEMORIA (poblado desde el backend)
-────────────────────────────────────────── */
+------------------------------------------ */
 let competencias   = [];
 let programas = [];
 
@@ -21,9 +21,9 @@ let paginaActual = 1;
 const POR_PAGINA = 5;
 let idAEliminar  = null;
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    2. SELECTORES
-────────────────────────────────────────── */
+------------------------------------------ */
 const tbodyComp      = document.getElementById('tbody-competencias');
 const contadorEl     = document.getElementById('contador-competencias');
 const paginacionEl   = document.getElementById('paginacion');
@@ -55,21 +55,21 @@ const bsModalComp    = new bootstrap.Modal(document.getElementById('modal-compet
 const bsModalDetalle = new bootstrap.Modal(document.getElementById('modal-detalle'));
 const bsModalElim    = new bootstrap.Modal(document.getElementById('modal-eliminar'));
 
-/* Sidebar toggle móvil */
+/* Sidebar toggle m?vil */
 document.getElementById('btnSidebarToggle')?.addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('open');
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    3. UTILIDADES
-────────────────────────────────────────── */
+------------------------------------------ */
 function escHtml(str) {
   return ClassControl.escapeHtml(str);
 }
 
 function programaLabel(p) {
   if (!p) return null;
-  return `${p.codigo ?? ''} — ${p.nombre ?? 'Sin nombre'}`;
+  return `${p.codigo ?? ''} - ${p.nombre ?? 'Sin nombre'}`;
 }
 
 function programaPorId(id) {
@@ -84,18 +84,18 @@ function llenarSelectProgramas(select, placeholder) {
   if (actual) select.value = actual;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    4. BADGE PROGRAMACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 function badgePrograma(id) {
   const p = programaPorId(id);
   if (!p) return `<span class="cc-badge badge-transversal">Sin asignar</span>`;
   return `<span class="cc-badge badge-gestion">${escHtml(programaLabel(p))}</span>`;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    5. CARGA DE DATOS DESDE EL BACKEND
-────────────────────────────────────────── */
+------------------------------------------ */
 async function cargarProgramas() {
   const resp = await fetch('ConsultarProgramas');
   programas = resp.ok ? await resp.json() : [];
@@ -121,9 +121,9 @@ async function inicializarDatos() {
   }
 }
 
-/* ──────────────────────────────────────────
-   6. MÉTRICAS
-────────────────────────────────────────── */
+/* ------------------------------------------
+   6. M?TRICAS
+------------------------------------------ */
 function renderMetricas() {
   const total       = competencias.length;
   const asignadas   = competencias.filter(c => programaPorId(c.programaId)).length;
@@ -149,9 +149,9 @@ function renderMetricas() {
   }
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    7. FILTRADO
-────────────────────────────────────────── */
+------------------------------------------ */
 function filtrar() {
   const busq = filtroBusqueda.value.trim().toLowerCase();
   const prog = filtroPrograma.value;
@@ -162,9 +162,9 @@ function filtrar() {
   );
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    8. RENDER TABLA
-────────────────────────────────────────── */
+------------------------------------------ */
 function renderTabla() {
   const filtradas = filtrar();
   const total     = filtradas.length;
@@ -190,13 +190,22 @@ function renderTabla() {
   const desde = total === 0 ? 0 : inicio + 1;
   const hasta  = Math.min(inicio + POR_PAGINA, total);
   contadorEl.textContent =
-    `Mostrando ${desde}–${hasta} de ${total} competencia${total !== 1 ? 's' : ''}`;
+    `Mostrando ${desde} - ${hasta} de ${total} competencia${total !== 1 ? 's' : ''}`;
 
   renderPaginacion(totalPags);
   renderMetricas();
 }
 
 function crearFila(c) {
+  // Botones de escritura solo para quien puede gestionar (Admin/Coordinador).
+  const btnEditar = window.ccPuedeGestionarCatalogo ? `
+        <button class="cc-btn-icon cc-btn-icon-edit btn-editar" data-id="${c.id}" title="Editar">
+          <span class="material-symbols-outlined">edit</span>
+        </button>` : '';
+  const btnEliminar = window.ccPuedeGestionarCatalogo ? `
+        <button class="cc-btn-icon cc-btn-icon-del btn-eliminar" data-id="${c.id}" title="Eliminar">
+          <span class="material-symbols-outlined">delete</span>
+        </button>` : '';
   return `
   <tr data-id="${c.id}">
     <td><span class="cc-code">${escHtml(c.codigo)}</span></td>
@@ -206,21 +215,15 @@ function crearFila(c) {
       <div class="action-btns d-flex justify-content-end gap-1">
         <button class="cc-btn-icon cc-btn-icon-view btn-ver" data-id="${c.id}" title="Ver detalle">
           <span class="material-symbols-outlined">visibility</span>
-        </button>
-        <button class="cc-btn-icon cc-btn-icon-edit btn-editar" data-id="${c.id}" title="Editar">
-          <span class="material-symbols-outlined">edit</span>
-        </button>
-        <button class="cc-btn-icon cc-btn-icon-del btn-eliminar" data-id="${c.id}" title="Eliminar">
-          <span class="material-symbols-outlined">delete</span>
-        </button>
+        </button>${btnEditar}${btnEliminar}
       </div>
     </td>
   </tr>`;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    9. PAGINACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 function renderPaginacion(totalPags) {
   paginacionEl.innerHTML = '';
 
@@ -269,9 +272,9 @@ function calcularRango(actual, total) {
   return result;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    10. MODAL CREAR / EDITAR
-────────────────────────────────────────── */
+------------------------------------------ */
 function abrirModalNuevo() {
   modalTituloEl.textContent = 'Nueva Competencia';
   formComp.reset();
@@ -298,9 +301,9 @@ document.getElementById('modal-competencia').addEventListener('hidden.bs.modal',
   formComp.reset(); limpiarValidacion();
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    11. VALIDACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 function validar() {
   let ok = true;
   [compCodigo, compDescripcion, compPrograma].forEach(campo => {
@@ -319,9 +322,9 @@ function limpiarValidacion() {
   });
 }
 
-/* ──────────────────────────────────────────
-   12. GUARDAR (crear / editar) vía fetch
-────────────────────────────────────────── */
+/* ------------------------------------------
+   12. GUARDAR (crear / editar) v?a fetch
+------------------------------------------ */
 formComp.addEventListener('submit', async e => {
   e.preventDefault();
   if (!validar()) return;
@@ -342,7 +345,7 @@ formComp.addEventListener('submit', async e => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params,
     });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+    if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
     await cargarCompetencias();
     bsModalComp.hide();
@@ -353,9 +356,9 @@ formComp.addEventListener('submit', async e => {
   }
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    13. VER DETALLE (modal Bootstrap)
-────────────────────────────────────────── */
+------------------------------------------ */
 function verDetalle(id) {
   const c = competencias.find(x => x.id === id);
   if (!c) return;
@@ -378,37 +381,41 @@ function verDetalle(id) {
   bsModalDetalle.show();
 }
 
-/* ──────────────────────────────────────────
-   14. ELIMINAR vía fetch
-────────────────────────────────────────── */
+/* ------------------------------------------
+   14. ELIMINAR v?a fetch
+------------------------------------------ */
 function abrirModalEliminar(id) {
   idAEliminar = id;
   bsModalElim.show();
 }
 
-btnConfirmarElim.addEventListener('click', async () => {
-  if (idAEliminar === null) return;
-  try {
-    const resp = await fetch('EliminarCompetencia', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ id: String(idAEliminar) }),
-    });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+/* Solo se enlaza el confirmar si el rol puede gestionar (Admin/Coordinador);
+   el backend además lo bloquea con puedeEliminar para no-Admin. */
+if (window.ccPuedeGestionarCatalogo) {
+  btnConfirmarElim.addEventListener('click', async () => {
+    if (idAEliminar === null) return;
+    try {
+      const resp = await fetch('EliminarCompetencia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ id: String(idAEliminar) }),
+      });
+      if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
-    idAEliminar = null;
-    bsModalElim.hide();
-    await cargarCompetencias();
-    mostrarToast('Competencia eliminada.', 'delete', ClassControl.colors.danger);
-  } catch (err) {
-    console.error(err);
-    mostrarToast('No se pudo eliminar la competencia.', 'error', ClassControl.colors.danger);
-  }
-});
+      idAEliminar = null;
+      bsModalElim.hide();
+      await cargarCompetencias();
+      mostrarToast('Competencia eliminada.', 'delete', ClassControl.colors.danger);
+    } catch (err) {
+      console.error(err);
+      mostrarToast(err.message || 'No se pudo eliminar la competencia.', 'error', ClassControl.colors.danger);
+    }
+  });
+}
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    15. EXPORTAR CSV
-────────────────────────────────────────── */
+------------------------------------------ */
 function exportarCSV() {
   const BOM      = '\uFEFF';
   const cabecera = ['Código', 'Descripción', 'Programa'];
@@ -426,9 +433,9 @@ function exportarCSV() {
   mostrarToast('Reporte exportado correctamente.', 'download', ClassControl.colors.info);
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    16. TOAST (CSS puro)
-────────────────────────────────────────── */
+------------------------------------------ */
 let toastTimer = null;
 
 function mostrarToast(msg, icon = 'check_circle', color = 'var(--cc-primary)') {
@@ -440,9 +447,9 @@ function mostrarToast(msg, icon = 'check_circle', color = 'var(--cc-primary)') {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    17. DELEGACIÓN EN TABLA
-────────────────────────────────────────── */
+------------------------------------------ */
 tbodyComp.addEventListener('click', e => {
   const btnVer  = e.target.closest('.btn-ver');
   const btnEdit = e.target.closest('.btn-editar');
@@ -452,9 +459,9 @@ tbodyComp.addEventListener('click', e => {
   if (btnDel)  abrirModalEliminar(parseInt(btnDel.dataset.id, 10));
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    18. FILTROS REACTIVOS
-────────────────────────────────────────── */
+------------------------------------------ */
 [filtroBusqueda, filtroPrograma].forEach(el => {
   el.addEventListener('input', () => { paginaActual = 1; renderTabla(); });
 });
@@ -467,18 +474,24 @@ formFiltros.addEventListener('submit', e => {
   e.preventDefault(); paginaActual = 1; renderTabla();
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    19. EVENTOS BOTONES + ATAJOS
-────────────────────────────────────────── */
-btnNueva.addEventListener('click', abrirModalNuevo);
+   El botón "Nueva" y el atajo Alt+N solo
+   aplican a quien puede gestionar el catálogo.
+   ------------------------------------------ */
+if (window.ccPuedeGestionarCatalogo) {
+  btnNueva.addEventListener('click', abrirModalNuevo);
+} else {
+  btnNueva?.classList.add('d-none');
+}
 btnDescargar.addEventListener('click', exportarCSV);
 btnGenerarReporte.addEventListener('click', exportarCSV);
 
 document.addEventListener('keydown', e => {
-  if (e.altKey && e.key === 'n') { e.preventDefault(); abrirModalNuevo(); }
+  if (e.altKey && e.key === 'n' && window.ccPuedeGestionarCatalogo) { e.preventDefault(); abrirModalNuevo(); }
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    20. INICIALIZACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 inicializarDatos();

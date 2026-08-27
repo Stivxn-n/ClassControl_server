@@ -4,18 +4,29 @@
   'use strict';
 
   const STORAGE_KEYS = {
-    profile: 'cc_profile_data',
+    prefs: 'cc_profile_prefs',
+    legacyProfile: 'cc_profile_data',
     notifications: 'cc_profile_notifications'
   };
 
+  const DEFAULT_AVATAR = 'https://lh3.googleusercontent.com/aida-public/AB6AXuA9RbNayg0uD8d6VrgYgLzyUvBjkd-_MJABU6ZwO_jsdoNcOQwz5eCvECVCTdXf42AMADF3cYVLr_d1HbQciAo3voDlwETXof2nAg_kFusorx-GrT8WnDhVg1C4ieO8WKAXslFS38MmKubNEgVu-zob64Q9DI9187gBtqT8q6aG66yzFaL_z1kJvgSTgoMLVf5YyL0MgTLbRNxNEv6NzjULrL5rZUoke3duGXAYyCL-c6rnVBdYqiwgH_htpIshyHpSC823tun09ys';
+
+  // Los datos de identidad (nombre, rol, correo, cédula) SIEMPRE vienen
+  // del servidor (/api/MiPerfil). En localStorage solo se guardan
+  // preferencias locales del navegador (avatar y sede visualizada).
   const defaultProfile = {
-    name: 'Admin SENA',
-    role: 'Coordinador Académico',
-    email: 'admin.sena@institucion.edu.co',
-    cedula: 'CC 1.098.765.432',
-    sede: 'Centro Metalmecánico - Sede Principal',
-    department: 'Coordinación Académica',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA9RbNayg0uD8d6VrgYgLzyUvBjkd-_MJABU6ZwO_jsdoNcOQwz5eCvECVCTdXf42AMADF3cYVLr_d1HbQciAo3voDlwETXof2nAg_kFusorx-GrT8WnDhVg1C4ieO8WKAXslFS38MmKubNEgVu-zob64Q9DI9187gBtqT8q6aG66yzFaL_z1kJvgSTgoMLVf5YyL0MgTLbRNxNEv6NzjULrL5rZUoke3duGXAYyCL-c6rnVBdYqiwgH_htpIshyHpSC823tun09ys'
+    name: '',
+    role: '',
+    email: '',
+    cedula: '',
+    sede: '',
+    department: '',
+    avatar: DEFAULT_AVATAR
+  };
+
+  const defaultPrefs = {
+    sede: '',
+    avatar: DEFAULT_AVATAR
   };
 
   const defaultNotifications = {
@@ -32,8 +43,32 @@
     ['2026-06-10 22:14', 'IP desconocida', 'Safari / macOS', '<span class="badge text-bg-danger">Bloqueado</span>']
   ];
 
-  let profile = loadJson(STORAGE_KEYS.profile, defaultProfile);
+  let profile = { ...defaultProfile };
+  let prefs = loadPrefs();
+  profile.sede = prefs.sede || '';
+  profile.avatar = prefs.avatar || DEFAULT_AVATAR;
   let notifications = loadJson(STORAGE_KEYS.notifications, defaultNotifications);
+
+  function loadPrefs() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.prefs);
+      if (raw) return { ...defaultPrefs, ...JSON.parse(raw) };
+    } catch { /* preferencias corruptas: usar defaults */ }
+    // Migración: si había un perfil viejo guardado, conservar solo el
+    // avatar y la sede como preferencia local y borrar el resto.
+    try {
+      const legacy = JSON.parse(localStorage.getItem(STORAGE_KEYS.legacyProfile) || 'null');
+      if (legacy) {
+        const migrado = {
+          sede: typeof legacy.sede === 'string' ? legacy.sede : '',
+          avatar: typeof legacy.avatar === 'string' ? legacy.avatar : DEFAULT_AVATAR
+        };
+        localStorage.removeItem(STORAGE_KEYS.legacyProfile);
+        return migrado;
+      }
+    } catch { /* sin datos legados */ }
+    return { ...defaultPrefs };
+  }
 
   let accessTable = null;
 
@@ -53,33 +88,6 @@
 
   function saveJson(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  async function loadProfileFromDatabase() {
-    const userId = Number(document.body.dataset.userId);
-    if (!userId) return;
-
-    const [usersResponse, rolesResponse] = await Promise.all([
-      fetch('ConsultarUsuarios'),
-      fetch('ConsultarRoles')
-    ]);
-    if (!usersResponse.ok || !rolesResponse.ok) throw new Error('No fue posible consultar el perfil');
-
-    const users = await usersResponse.json();
-    const roles = await rolesResponse.json();
-    const user = users.find(item => Number(item.id) === userId);
-    if (!user) return;
-
-    const role = roles.find(item => Number(item.id) === Number(user.rolId));
-    profile = {
-      ...profile,
-      name: [user.nombres, user.apellidos].filter(Boolean).join(' '),
-      role: role?.descripcion || 'Sin rol asignado',
-      email: user.correo || '',
-      cedula: user.identificacion || '',
-      sede: 'No asignada',
-      department: user.profesion || 'No especificado'
-    };
   }
 
   function showToast(message, type = 'success') {
@@ -331,30 +339,44 @@
       const reader = new FileReader();
       reader.onload = (ev) => {
         profile.avatar = ev.target.result;
-        saveJson(STORAGE_KEYS.profile, profile);
+        prefs.avatar = ev.target.result;
+        saveJson(STORAGE_KEYS.prefs, prefs);
         renderProfileCards();
         showToast('Foto de perfil actualizada.', 'success');
       };
       reader.readAsDataURL(file);
     });
 
-    profileForm.addEventListener('submit', (e) => {
+    profileForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!validateProfileForm()) return;
 
-      profile = {
-        ...profile,
-        name: document.getElementById('fieldName').value.trim(),
-        role: document.getElementById('fieldRole').value.trim(),
-        email: document.getElementById('fieldEmail').value.trim(),
-        cedula: document.getElementById('fieldCedula').value.trim(),
-        sede: document.getElementById('fieldSede').value.trim(),
-        department: document.getElementById('fieldDepartment').value.trim()
-      };
+      const email = document.getElementById('fieldEmail').value.trim();
+      const department = document.getElementById('fieldDepartment').value.trim();
+      const sede = document.getElementById('fieldSede').value.trim();
 
-      saveJson(STORAGE_KEYS.profile, profile);
-      renderProfileCards();
-      showToast('Perfil actualizado correctamente.', 'success');
+      try {
+        // El servidor solo actualiza correo y profesión (datos de
+        // contacto); nombre, rol y cédula los gestiona el administrador.
+        const resp = await fetch('api/MiPerfil', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: new URLSearchParams({ correo: email, profesion: department })
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'No fue posible guardar el perfil.');
+
+        profile.email = data.correo || email;
+        profile.department = data.profesion || department;
+        profile.sede = sede;
+        prefs.sede = sede;
+        saveJson(STORAGE_KEYS.prefs, prefs);
+
+        renderProfileCards();
+        showToast(data.mensaje || 'Perfil actualizado correctamente.', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
     });
 
     document.getElementById('btnQuickSave').addEventListener('click', () => {
@@ -369,14 +391,16 @@
 
     document.getElementById('btnResetProfile').addEventListener('click', () => {
       profile = { ...defaultProfile };
+      prefs = { ...defaultPrefs };
       notifications = { ...defaultNotifications };
-      saveJson(STORAGE_KEYS.profile, profile);
+      saveJson(STORAGE_KEYS.prefs, prefs);
       saveJson(STORAGE_KEYS.notifications, notifications);
       fillProfileForm();
       renderProfileCards();
       buildNotifications();
       resetFormValidation(profileForm);
-      showToast('Perfil restablecido al estado inicial.', 'info');
+      showToast('Preferencias restablecidas. Cargando tus datos...', 'info');
+      cargarPerfilServidor();
     });
 
     document.getElementById('newPassword').addEventListener('input', updatePasswordStrength);
@@ -410,17 +434,42 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
+  async function cargarPerfilServidor() {
     try {
-      await loadProfileFromDatabase();
-    } catch (error) {
-      console.error('No fue posible cargar el perfil desde la base de datos', error);
+      const resp = await fetch('api/MiPerfil', { headers: { Accept: 'application/json' } });
+      if (resp.status === 401) {
+        window.location.href = 'Inicio_de_sesion.jsp';
+        return;
+      }
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'No fue posible cargar tu perfil.');
+
+      const nombreCompleto = [data.nombres, data.apellidos]
+        .filter(Boolean).join(' ').trim();
+
+      profile = {
+        ...profile,
+        name: nombreCompleto || data.username || profile.name,
+        role: data.rolNombre || profile.role,
+        email: data.correo || '',
+        cedula: data.identificacion || '',
+        department: data.profesion || ''
+      };
+
+      renderProfileCards();
+      fillProfileForm();
+    } catch (err) {
+      showToast(err.message, 'error');
     }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
     renderProfileCards();
     fillProfileForm();
     buildNotifications();
     initAccessTable();
     bindEvents();
     updatePasswordStrength();
+    cargarPerfilServidor();
   });
 })();

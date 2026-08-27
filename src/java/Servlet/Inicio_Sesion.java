@@ -5,6 +5,7 @@ import Modelo.Roles;
 import Controlador.UsuariosDAO;
 import Controlador.RolesDAO;
 import java.io.IOException;
+import java.io.PrintWriter;
 import org.mindrot.jbcrypt.BCrypt;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,55 +22,100 @@ public class Inicio_Sesion extends HttpServlet {
             throws ServletException, IOException {
 
         String username = request.getParameter("username");
-        String clave    = request.getParameter("clave");
+        String clave = request.getParameter("clave");
+        boolean api = aceptaJson(request);
 
         UsuariosDAO midao = new UsuariosDAO();
         Usuarios usuariosBD = midao.consultaUsuarios(username);
 
         if (usuariosBD == null) {
-            request.setAttribute("mensaje", "❌ El usuario no existe.");
-            request.getRequestDispatcher("Inicio_de_sesion.jsp").forward(request, response);
+            responderError(request, response, api, "El usuario no existe.", HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
-        } else if (!coincideClave(clave, usuariosBD.getClave())) {
-            request.setAttribute("mensaje", "❌ Contraseña incorrecta.");
-            request.getRequestDispatcher("Inicio_de_sesion.jsp").forward(request, response);
+        if (!coincideClave(clave, usuariosBD.getClave())) {
+            responderError(request, response, api, "Contraseña incorrecta.", HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
-        } else if (!usuariosBD.isActivo()) {
-            request.setAttribute("mensaje", "❌ Usuario inactivo. Contacte al administrador.");
-            request.getRequestDispatcher("Inicio_de_sesion.jsp").forward(request, response);
+        if (!usuariosBD.isActivo()) {
+            responderError(request, response, api,
+                    "Usuario inactivo. Contacte al administrador.",
+                    HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
 
-        } else {
-            // Guardar datos en sesión
-            Roles rolBD = new RolesDAO().consultaRoles(usuariosBD.getRoles_id_roles());
-            if (rolBD == null || rolBD.getDescripcion_Roles() == null) {
-                request.setAttribute("mensaje", "No fue posible validar los permisos del usuario.");
-                request.getRequestDispatcher("Inicio_de_sesion.jsp").forward(request, response);
-                return;
+        Roles rolBD = new RolesDAO().consultaRoles(usuariosBD.getRoles_id_roles());
+        if (rolBD == null || rolBD.getDescripcion_Roles() == null) {
+            responderError(request, response, api,
+                    "No fue posible validar los permisos del usuario.",
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
+        }
+
+        HttpSession session = request.getSession(true);
+        request.changeSessionId();
+        session.setAttribute("id_usuario", usuariosBD.getId_usuarios());
+        session.setAttribute("nombres", usuariosBD.getNombres());
+        session.setAttribute("apellidos", usuariosBD.getApellidos());
+        session.setAttribute("username", usuariosBD.getUsername());
+        session.setAttribute("rol", usuariosBD.getRoles_id_roles());
+        session.setAttribute("rol_nombre", rolBD.getDescripcion_Roles());
+
+        if (api) {
+            // Flutter Web corre en localhost y Railway en otro dominio. Sin
+            // SameSite=None el navegador no devuelve JSESSIONID en las
+            // consultas posteriores (dashboard, fichas, etc.).
+            response.setHeader("Set-Cookie", "JSESSIONID=" + session.getId()
+                    + "; Path=/; HttpOnly; Secure; SameSite=None");
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_OK);
+            try (PrintWriter out = response.getWriter()) {
+                out.print("{");
+                out.print("\"idUsuario\":" + usuariosBD.getId_usuarios() + ",");
+                out.print("\"nombres\":" + jsonStr(usuariosBD.getNombres()) + ",");
+                out.print("\"apellidos\":" + jsonStr(usuariosBD.getApellidos()) + ",");
+                out.print("\"username\":" + jsonStr(usuariosBD.getUsername()) + ",");
+                out.print("\"rolId\":" + usuariosBD.getRoles_id_roles() + ",");
+                out.print("\"rolNombre\":" + jsonStr(rolBD.getDescripcion_Roles()));
+                out.print("}");
             }
-
-            HttpSession session = request.getSession(true);
-            request.changeSessionId();
-            session.setAttribute("id_usuario",  usuariosBD.getId_usuarios());
-            session.setAttribute("nombres",      usuariosBD.getNombres());
-            session.setAttribute("apellidos",    usuariosBD.getApellidos());
-            session.setAttribute("username",     usuariosBD.getUsername());
-            session.setAttribute("rol",          usuariosBD.getRoles_id_roles());
-            session.setAttribute("rol_nombre",   rolBD.getDescripcion_Roles());
-
-            // Redirigir a página principal
+        } else {
             response.sendRedirect("Pagina_Principal.jsp");
         }
     }
 
-    /**
-     * A malformed or legacy BCrypt hash must reject authentication without
-     * leaking an HTTP 500 error to the user.
-     */
+    private boolean aceptaJson(HttpServletRequest request) {
+        String accept = request.getHeader("Accept");
+        return accept != null && accept.toLowerCase(java.util.Locale.ROOT).contains("application/json");
+    }
+
+    private void responderError(HttpServletRequest request, HttpServletResponse response,
+            boolean api, String mensaje, int status) throws IOException, ServletException {
+        if (!api) {
+            request.setAttribute("mensaje", "❌ " + mensaje);
+            request.getRequestDispatcher("Inicio_de_sesion.jsp").forward(request, response);
+            return;
+        }
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            out.print("{\"error\":" + jsonStr(mensaje) + "}");
+        }
+    }
+
+    private String jsonStr(String valor) {
+        if (valor == null) return "null";
+        return "\"" + valor.replace("\\\\", "\\\\\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "")
+                .replace("\n", "\\\\n") + "\"";
+    }
+
     private boolean coincideClave(String claveIngresada, String hashAlmacenado) {
         if (claveIngresada == null || hashAlmacenado == null) {
             return false;
         }
-
         try {
             return BCrypt.checkpw(claveIngresada, hashAlmacenado);
         } catch (IllegalArgumentException e) {

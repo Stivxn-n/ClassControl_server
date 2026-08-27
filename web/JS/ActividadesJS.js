@@ -1,6 +1,6 @@
 /* ============================================================
-   ActividadesJS.js — ClassControl
-   CRUD completo + filtros reactivos + paginación propia
+   ActividadesJS.js ? ClassControl
+   CRUD completo + filtros reactivos + paginaciÓn propia
 
    Datos reales desde el backend:
    - GET  ConsultarActividades -> lista de actividades (JSON)
@@ -11,24 +11,24 @@
 
    Nota: la tabla "actividades" en la BD solo guarda código, nombre,
    descripción y el resultado de aprendizaje asociado. Instructor,
-   ambiente, días y horario se quitaron del formulario y la tabla
+   ambiente, dÍas y horario se quitaron del formulario y la tabla
    porque esos datos viven en Programacion_Instructores, no aquí.
    ============================================================ */
 
 'use strict';
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    1. ESTADO EN MEMORIA (poblado desde el backend)
-────────────────────────────────────────── */
+------------------------------------------ */
 let actividades  = [];
 let resultados   = [];
 let paginaActual = 1;
 const POR_PAGINA = 5;
 let idAEliminar  = null;
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    2. SELECTORES DOM
-────────────────────────────────────────── */
+------------------------------------------ */
 const tbodyActividades = document.getElementById('tbody-actividades');
 const contadorEl       = document.getElementById('contador-actividades');
 const paginacionEl     = document.getElementById('paginacion');
@@ -57,14 +57,14 @@ const bsModalActividad = new bootstrap.Modal(document.getElementById('modal-acti
 const bsModalEliminar  = new bootstrap.Modal(document.getElementById('modal-eliminar'));
 const bsModalDetalle   = new bootstrap.Modal(document.getElementById('modal-detalle'));
 
-/* Sidebar toggle móvil */
+/* Sidebar toggle m?vil */
 document.getElementById('btnSidebarToggle')?.addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('open');
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    3. UTILIDADES
-────────────────────────────────────────── */
+------------------------------------------ */
 /** Escapa HTML para prevenir XSS */
 function escHtml(str) {
   return String(str ?? '')
@@ -80,20 +80,20 @@ function resultadoPorId(id) {
 
 function resultadoLabel(id) {
   const r = resultadoPorId(id);
-  return r ? `${r.codigo} — ${r.descripcion}` : '—';
+  return r ? `${r.codigo} - ${r.descripcion}` : '-';
 }
 
 function llenarSelectResultados(select, placeholder) {
   if (!select) return;
   const actual = select.value;
   select.innerHTML = `<option value="">${placeholder}</option>` +
-    resultados.map(r => `<option value="${r.id}">${escHtml(r.codigo + ' — ' + r.descripcion)}</option>`).join('');
+    resultados.map(r => `<option value="${r.id}">${escHtml(r.codigo + ' ? ' + r.descripcion)}</option>`).join('');
   if (actual) select.value = actual;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    4. CARGA DE DATOS DESDE EL BACKEND
-────────────────────────────────────────── */
+------------------------------------------ */
 async function cargarResultados() {
   const resp = await fetch('ConsultarResultados');
   resultados = resp.ok ? await resp.json() : [];
@@ -119,9 +119,9 @@ async function inicializarDatos() {
   }
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    5. FILTRADO
-────────────────────────────────────────── */
+------------------------------------------ */
 function filtrarActividades() {
   const busq  = filtroBusqueda.value.trim().toLowerCase();
   const ficha = filtroFicha.value ? parseInt(filtroFicha.value, 10) : null;
@@ -134,9 +134,9 @@ function filtrarActividades() {
   );
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    6. RENDER TABLA
-────────────────────────────────────────── */
+------------------------------------------ */
 function renderTabla() {
   const filtradas = filtrarActividades();
   const total     = filtradas.length;
@@ -162,17 +162,26 @@ function renderTabla() {
   const desde = total === 0 ? 0 : inicio + 1;
   const hasta  = Math.min(inicio + POR_PAGINA, total);
   contadorEl.textContent =
-    `Mostrando ${desde}–${hasta} de ${total} actividad${total !== 1 ? 'es' : ''}`;
+    `Mostrando ${desde} - ${hasta} de ${total} actividad${total !== 1 ? 'es' : ''}`;
 
   renderPaginacion(totalPags);
 }
 
 function crearFila(a) {
+  // Botones de escritura solo para quien puede gestionar (Admin/Coordinador).
+  const btnEditar = window.ccPuedeGestionarCatalogo ? `
+        <button class="cc-btn-icon cc-btn-icon-edit btn-editar" data-id="${a.id}" title="Editar">
+          <span class="material-symbols-outlined">edit</span>
+        </button>` : '';
+  const btnEliminar = window.ccPuedeGestionarCatalogo ? `
+        <button class="cc-btn-icon cc-btn-icon-del btn-eliminar" data-id="${a.id}" title="Eliminar">
+          <span class="material-symbols-outlined">delete</span>
+        </button>` : '';
   return `
   <tr data-id="${a.id}">
     <td><span class="cc-code">${escHtml(a.codigoActividad)}</span></td>
     <td class="fw-semibold">${escHtml(a.nombre)}</td>
-    <td class="small text-muted text-truncate" style="max-width:280px">${escHtml(a.descripcion || '—')}</td>
+    <td class="small text-muted text-truncate" style="max-width:280px">${escHtml(a.descripcion || '-')}</td>
     <td>
       <span class="d-inline-flex align-items-center gap-1 text-muted small">
         <span class="material-symbols-outlined" style="font-size:.9rem">tag</span>${escHtml(resultadoLabel(a.resultadoId))}
@@ -182,21 +191,15 @@ function crearFila(a) {
       <div class="action-btns d-flex justify-content-end gap-1">
         <button class="cc-btn-icon cc-btn-icon-view btn-ver" data-id="${a.id}" title="Ver detalle">
           <span class="material-symbols-outlined">visibility</span>
-        </button>
-        <button class="cc-btn-icon cc-btn-icon-edit btn-editar" data-id="${a.id}" title="Editar">
-          <span class="material-symbols-outlined">edit</span>
-        </button>
-        <button class="cc-btn-icon cc-btn-icon-del btn-eliminar" data-id="${a.id}" title="Eliminar">
-          <span class="material-symbols-outlined">delete</span>
-        </button>
+        </button>${btnEditar}${btnEliminar}
       </div>
     </td>
   </tr>`;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    7. PAGINACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 function renderPaginacion(totalPags) {
   paginacionEl.innerHTML = '';
 
@@ -247,9 +250,9 @@ function calcularRango(actual, total) {
   return result;
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    8. MODAL CREAR / EDITAR (Bootstrap 5)
-────────────────────────────────────────── */
+------------------------------------------ */
 function abrirModalNuevo() {
   modalTituloEl.textContent = 'Nueva Actividad';
   formActividad.reset();
@@ -277,9 +280,9 @@ document.getElementById('modal-actividad').addEventListener('hidden.bs.modal', (
   limpiarValidacion();
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    9. MODAL DETALLE (Bootstrap 5)
-────────────────────────────────────────── */
+------------------------------------------ */
 function verDetalle(id) {
   const a = actividades.find(x => x.id === id);
   if (!a) return;
@@ -300,9 +303,9 @@ function verDetalle(id) {
   bsModalDetalle.show();
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    10. VALIDACIÓN (Bootstrap 5 nativa)
-────────────────────────────────────────── */
+------------------------------------------ */
 function validarFormulario() {
   const requeridos = [actCodigo, actNombre, actFicha];
   let valido = true;
@@ -325,9 +328,9 @@ function limpiarValidacion() {
   });
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    11. GUARDAR ACTIVIDAD
-────────────────────────────────────────── */
+------------------------------------------ */
 formActividad.addEventListener('submit', async e => {
   e.preventDefault();
   if (!validarFormulario()) return;
@@ -349,7 +352,7 @@ formActividad.addEventListener('submit', async e => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params
     });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+    if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
     await cargarActividades();
     bsModalActividad.hide();
@@ -360,37 +363,41 @@ formActividad.addEventListener('submit', async e => {
   }
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    12. ELIMINAR ACTIVIDAD
-────────────────────────────────────────── */
+------------------------------------------ */
 function abrirModalEliminar(id) {
   idAEliminar = id;
   bsModalEliminar.show();
 }
 
-btnConfirmarElim.addEventListener('click', async () => {
-  try {
-    const resp = await fetch('EliminarActividad', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ id: String(idAEliminar) })
-    });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+/* Solo se enlaza el confirmar si el rol puede gestionar (Admin/Coordinador);
+   el backend además lo bloquea con puedeEliminar para no-Admin. */
+if (window.ccPuedeGestionarCatalogo) {
+  btnConfirmarElim.addEventListener('click', async () => {
+    try {
+      const resp = await fetch('EliminarActividad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ id: String(idAEliminar) })
+      });
+      if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
-    idAEliminar = null;
-    bsModalEliminar.hide();
-    await cargarActividades();
-    mostrarToast('Actividad eliminada.', 'delete', ClassControl.colors.danger);
-  } catch (err) {
-    console.error(err);
-    bsModalEliminar.hide();
-    mostrarToast('No se pudo eliminar la actividad.', 'error', ClassControl.colors.danger);
-  }
-});
+      idAEliminar = null;
+      bsModalEliminar.hide();
+      await cargarActividades();
+      mostrarToast('Actividad eliminada.', 'delete', ClassControl.colors.danger);
+    } catch (err) {
+      console.error(err);
+      bsModalEliminar.hide();
+      mostrarToast(err.message || 'No se pudo eliminar la actividad.', 'error', ClassControl.colors.danger);
+    }
+  });
+}
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    13. DESCARGA CSV
-────────────────────────────────────────── */
+------------------------------------------ */
 function descargarCSV() {
   const BOM      = '\uFEFF';
   const cabecera = ['Código', 'Nombre', 'Descripción', 'Resultado de aprendizaje'];
@@ -415,9 +422,9 @@ function descargarCSV() {
 /* Botón de descarga (si existe en el HTML) */
 document.getElementById('btn-descargar')?.addEventListener('click', descargarCSV);
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    14. TOAST
-────────────────────────────────────────── */
+------------------------------------------ */
 let toastTimer = null;
 
 function mostrarToast(msg, icon = 'check_circle', color = 'var(--cc-primary)') {
@@ -429,9 +436,9 @@ function mostrarToast(msg, icon = 'check_circle', color = 'var(--cc-primary)') {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
 }
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    15. DELEGACIÓN EN TABLA
-────────────────────────────────────────── */
+------------------------------------------ */
 tbodyActividades.addEventListener('click', e => {
   const btnVer  = e.target.closest('.btn-ver');
   const btnEdit = e.target.closest('.btn-editar');
@@ -441,9 +448,9 @@ tbodyActividades.addEventListener('click', e => {
   if (btnDel)  abrirModalEliminar(parseInt(btnDel.dataset.id, 10));
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    16. FILTROS REACTIVOS
-────────────────────────────────────────── */
+------------------------------------------ */
 [filtroBusqueda, filtroFicha].forEach(el => {
   el.addEventListener('input', () => { paginaActual = 1; renderTabla(); });
 });
@@ -458,16 +465,22 @@ formFiltros.addEventListener('submit', e => {
   renderTabla();
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    17. ATAJOS DE TECLADO
-────────────────────────────────────────── */
-btnNuevaActividad.addEventListener('click', abrirModalNuevo);
+   El botón "Nueva" y el atajo Alt+N solo
+   aplican a quien puede gestionar el catálogo.
+   ------------------------------------------ */
+if (window.ccPuedeGestionarCatalogo) {
+  btnNuevaActividad.addEventListener('click', abrirModalNuevo);
+} else {
+  btnNuevaActividad?.classList.add('d-none');
+}
 
 document.addEventListener('keydown', e => {
-  if (e.altKey && e.key === 'n') { e.preventDefault(); abrirModalNuevo(); }
+  if (e.altKey && e.key === 'n' && window.ccPuedeGestionarCatalogo) { e.preventDefault(); abrirModalNuevo(); }
 });
 
-/* ──────────────────────────────────────────
+/* ------------------------------------------
    18. INICIALIZACIÓN
-────────────────────────────────────────── */
+------------------------------------------ */
 inicializarDatos();

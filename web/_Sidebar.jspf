@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%--
   ══════════════════════════════════════════════════════════════
   _Sidebar.jspf — Sidebar compartido de ClassControl
@@ -11,8 +12,8 @@
 
   Valores válidos de ccActivePage:
     inicio | fichas | instructores | programas | ambientes |
-    competencias | actividades | programacion | reportes |
-    usuarios | perfil
+    competencias | actividades | programacion | incidencias |
+    juicios | usuarios | perfil
 
   No inventa markup nuevo de golpe: reutiliza exactamente las
   clases cc-sidebar / cc-nav-link / cc-sidebar-footer que ya
@@ -40,6 +41,38 @@
     }
 
     if (ccActivePage == null) { ccActivePage = ""; }
+
+    /*
+     * ═══════════════ VISIBILIDAD DEL MENÚ POR ROL ═══════════════
+     * id rol: 1=Instructor  2=Aprendiz  3=Administrador  4=Coordinador
+     *
+     *                Inicio Fichas Instr. Progr. Ambien. Compet. Activ. Progrmc. Reportes Usuar. Perfil
+     * Administrador    x      x      x      x      x       x      x       x        x       x      x
+     * Coordinador      x      x      x      x      x       x      x       x        x       x      x   (sin poder eliminar)
+     * Instructor       x      x*     x**    -      -       -      x       x***     -       -      x
+     * Aprendiz         x      -      -      -      -       -      x       x****    -       -      x
+     *
+     *  *   Instructor: solo ve las fichas asignadas a su propia programación.
+     *  **  Instructor: Instructores en modo solo lectura (contacto).
+     *  *** Instructor: puede crear/editar su propio horario.
+     *  **** Aprendiz: solo ve su propio horario/ambiente asignado.
+     */
+    boolean ccEsAdmin        = sesRol != null && sesRol == 3;
+    boolean ccEsCoordinador  = sesRol != null && sesRol == 4;
+    boolean ccEsInstructor   = sesRol != null && sesRol == 1;
+    boolean ccEsAprendiz     = sesRol != null && sesRol == 2;
+    boolean ccEsGestor       = ccEsAdmin || ccEsCoordinador; // Admin + Coordinador
+
+    boolean ccVerFichas        = ccEsGestor || ccEsInstructor;
+    boolean ccVerInstructores  = ccEsGestor || ccEsInstructor;
+    boolean ccVerProgramas     = ccEsGestor;
+    boolean ccVerAmbientes     = ccEsGestor || ccEsInstructor; // igual que la app: todos menos aprendiz
+    boolean ccVerCompetencias  = ccEsGestor || ccEsAprendiz;
+    boolean ccVerActividades   = true; // todos los roles
+    boolean ccVerProgramacion  = true; // todos los roles (contenido filtrado por rol)
+    boolean ccVerReportes      = ccEsGestor || ccEsInstructor; // Incidencias
+    boolean ccVerJuicios       = true; // todos los roles (contenido filtrado por rol)
+    boolean ccVerUsuarios      = ccEsAdmin; // igual que la app: solo administrador
 %>
 <aside class="cc-sidebar" id="cc-sidebar">
   <div class="cc-sidebar-logo">
@@ -48,43 +81,68 @@
     </div>
     <div>
       <h1 class="cc-brand-name">ClassControl</h1>
-      <p class="cc-brand-sub"><fmt:message bundle="${i18n}" key="app.gestionEducativa"/></p>
+      <p class="cc-brand-sub">Gestión Educativa</p>
     </div>
   </div>
 
   <nav class="cc-nav">
-    <a class="cc-nav-link <%= "inicio".equals(ccActivePage) ? "active" : "" %>" href="Pagina_Principal.jsp">
+    <a class="cc-nav-link cc-nav-link--standard <%= "inicio".equals(ccActivePage) ? "active" : "" %>" href="Pagina_Principal.jsp">
       <span class="material-symbols-outlined">dashboard</span><span>Inicio</span>
     </a>
-    <a class="cc-nav-link <%= "fichas".equals(ccActivePage) ? "active" : "" %>" href="Fichas.jsp">
+    <% if (ccVerFichas) { %>
+    <a class="cc-nav-link cc-nav-link--standard <%= "fichas".equals(ccActivePage) ? "active" : "" %>" href="Fichas.jsp">
       <span class="material-symbols-outlined">description</span><span>Fichas</span>
     </a>
-    <a class="cc-nav-link <%= "instructores".equals(ccActivePage) ? "active" : "" %>" href="Instructores.jsp">
+    <% } %>
+    <% if (ccVerInstructores) { %>
+    <a class="cc-nav-link cc-nav-link--standard <%= "instructores".equals(ccActivePage) ? "active" : "" %>" href="Instructores.jsp">
       <span class="material-symbols-outlined">groups</span><span>Instructores</span>
     </a>
-    <a class="cc-nav-link <%= "programas".equals(ccActivePage) ? "active" : "" %>" href="Programas.jsp">
+    <% } %>
+    <% if (ccVerProgramas) { %>
+    <a class="cc-nav-link cc-nav-link--compact <%= "programas".equals(ccActivePage) ? "active" : "" %>" href="Programas.jsp">
       <span class="material-symbols-outlined">school</span><span>Programas</span>
     </a>
-    <a class="cc-nav-link <%= "ambientes".equals(ccActivePage) ? "active" : "" %>" href="Ambientes.jsp">
+    <% } %>
+    <% if (ccVerAmbientes) { %>
+    <a class="cc-nav-link cc-nav-link--compact <%= "ambientes".equals(ccActivePage) ? "active" : "" %>" href="Ambientes.jsp">
       <span class="material-symbols-outlined">meeting_room</span><span>Ambientes</span>
     </a>
-    <a class="cc-nav-link <%= "competencias".equals(ccActivePage) ? "active" : "" %>" href="Competencias.jsp">
+    <% } %>
+    <% if (ccVerCompetencias) { %>
+    <a class="cc-nav-link cc-nav-link--compact <%= "competencias".equals(ccActivePage) ? "active" : "" %>" href="Competencias.jsp">
       <span class="material-symbols-outlined">target</span><span>Competencias</span>
     </a>
-    <a class="cc-nav-link <%= "actividades".equals(ccActivePage) ? "active" : "" %>" href="Actividades.jsp">
+    <% } %>
+    <% if (ccVerActividades) { %>
+    <a class="cc-nav-link cc-nav-link--compact <%= "actividades".equals(ccActivePage) ? "active" : "" %>" href="Actividades.jsp">
       <span class="material-symbols-outlined">assignment_turned_in</span><span>Actividades</span>
     </a>
-    <a class="cc-nav-link <%= "programacion".equals(ccActivePage) ? "active" : "" %>" href="Programacion_instructores.jsp">
+    <% } %>
+    <% if (ccVerProgramacion) { %>
+    <a class="cc-nav-link cc-nav-link--programacion <%= "programacion".equals(ccActivePage) ? "active" : "" %>" href="ProgramacionInstructoresServlet">
       <span class="material-symbols-outlined">calendar_month</span><span>Programación</span>
     </a>
+    <% } %>
+    <% if (ccVerReportes || ccVerJuicios || ccVerUsuarios) { %>
     <div class="cc-nav-separator"></div>
-    <a class="cc-nav-link <%= "reportes".equals(ccActivePage) ? "active" : "" %>" href="Reportes_Y_Consultas.jsp">
-      <span class="material-symbols-outlined">analytics</span><span>Reportes</span>
+    <% } %>
+    <% if (ccVerReportes) { %>
+    <a class="cc-nav-link cc-nav-link--standard <%= "incidencias".equals(ccActivePage) ? "active" : "" %>" href="Incidencias.jsp">
+      <span class="material-symbols-outlined">report_problem</span><span>Incidencias</span>
     </a>
-    <a class="cc-nav-link <%= "usuarios".equals(ccActivePage) ? "active" : "" %>" href="Gestion_Usuarios.jsp">
+    <% } %>
+    <% if (ccVerJuicios) { %>
+    <a class="cc-nav-link cc-nav-link--standard <%= "juicios".equals(ccActivePage) ? "active" : "" %>" href="Juicios.jsp">
+      <span class="material-symbols-outlined">fact_check</span><span>Juicios</span>
+    </a>
+    <% } %>
+    <% if (ccVerUsuarios) { %>
+    <a class="cc-nav-link cc-nav-link--standard <%= "usuarios".equals(ccActivePage) ? "active" : "" %>" href="Gestion_Usuarios.jsp">
       <span class="material-symbols-outlined">manage_accounts</span><span>Usuarios</span>
     </a>
-    <a class="cc-nav-link <%= "perfil".equals(ccActivePage) ? "active" : "" %>" href="Mi_Perfil.jsp">
+    <% } %>
+    <a class="cc-nav-link cc-nav-link--standard <%= "perfil".equals(ccActivePage) ? "active" : "" %>" href="Mi_Perfil.jsp">
       <span class="material-symbols-outlined">person</span><span>Mi Perfil</span>
     </a>
   </nav>

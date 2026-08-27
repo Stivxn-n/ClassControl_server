@@ -1,16 +1,79 @@
+/* -- Modo oscuro (sistema propio de esta pantalla: Instructores) -- */
+[data-bs-theme="dark"] {
+  --cc-bg:      #0f1a13;
+  --cc-surface: #16241c;
+  --cc-border:  #2c3d33;
+  --cc-text:    #f1f5f9;
+  --cc-muted:   #94a3b8;
+}
+html[data-bs-theme="dark"] body { background-color: var(--cc-bg); color: var(--cc-text); }
+html[data-bs-theme="dark"] h1, html[data-bs-theme="dark"] .h1,
+html[data-bs-theme="dark"] h2, html[data-bs-theme="dark"] .h2,
+html[data-bs-theme="dark"] .cc-page-title { color: var(--cc-text); }
+html[data-bs-theme="dark"] .cc-page-sub,
+html[data-bs-theme="dark"] .text-muted,
+html[data-bs-theme="dark"] .form-label,
+html[data-bs-theme="dark"] .form-text { color: var(--cc-muted) !important; }
+html[data-bs-theme="dark"] .card,
+html[data-bs-theme="dark"] .modal-content,
+html[data-bs-theme="dark"] .dropdown-menu,
+html[data-bs-theme="dark"] .list-group-item,
+html[data-bs-theme="dark"] .offcanvas {
+  background-color: var(--cc-surface);
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .table,
+html[data-bs-theme="dark"] .dataTable {
+  --bs-table-color: var(--cc-text);
+  --bs-table-bg: var(--cc-surface);
+  --bs-table-striped-bg: #131f18;
+  --bs-table-border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .table thead th { color: var(--cc-text); }
+html[data-bs-theme="dark"] .form-control,
+html[data-bs-theme="dark"] .form-select,
+html[data-bs-theme="dark"] .input-group-text {
+  background-color: var(--cc-surface);
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .form-control::placeholder { color: var(--cc-muted); }
+html[data-bs-theme="dark"] .bg-white,
+html[data-bs-theme="dark"] header.bg-white {
+  background-color: var(--cc-surface) !important;
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] hr,
+html[data-bs-theme="dark"] .border,
+html[data-bs-theme="dark"] .border-bottom,
+html[data-bs-theme="dark"] .border-top { border-color: var(--cc-border) !important; }
+html[data-bs-theme="dark"] .cc-btn-outline {
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .cc-btn-outline:hover:not(:disabled) {
+  background: rgba(255,255,255,.06);
+  border-color: var(--cc-border);
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] .cc-btn-icon { color: var(--cc-muted); }
+html[data-bs-theme="dark"] .cc-btn-icon:hover { background: rgba(255,255,255,.08); }
+html[data-bs-theme="dark"] .page-link {
+  background-color: var(--cc-surface);
+  border-color: var(--cc-border);
+  color: var(--cc-text);
+}
+
 /* ============================================================
-   ClassControl — Instructores  (complementa Pagina_PrincipalCSS.css)
+   ClassControl · Instructores  (complementa Pagina_PrincipalCSS.css)
    InstructoresCSS.css
    ============================================================ */
 
-/* ── Page subtitle ──────────────────────────────── */
-.cc-page-sub {
-  font-size: var(--cc-fs-sm);
-  color: var(--cc-muted);
-  margin-top: 0.1rem;
-}
+/* -- Page subtitle -------------------------------- */
 
-/* ── Metric cards ───────────────────────────────── */
+
+/* -- Metric cards --------------------------------- */
 .cc-metrica-card {
   background: var(--cc-surface);
   border: 1px solid var(--cc-border);
@@ -39,7 +102,7 @@
   color: var(--cc-text);
 }
 
-/* ── Avatar iniciales ───────────────────────────── */
+/* -- Avatar iniciales ----------------------------- */
 .cc-avatar-ini {
   width: 2.5rem;
   height: 2.5rem;
@@ -60,7 +123,7 @@
   font-size: 1.1rem;
 }
 
-/* ── Role badges ────────────────────────────────── */
+/* -- Role badges ---------------------------------- */
 .cc-rol-badge {
   display: inline-flex;
   align-items: center;
@@ -77,7 +140,7 @@
 .cc-rol-badge--administrador { background: rgba(56,168,0,.12);  color: var(--cc-primary); border-color: rgba(56,168,0,.2); }
 .cc-rol-badge--coordinador   { background: rgba(124,58,237,.1); color: #7c3aed; border-color: rgba(124,58,237,.2); }
 
-/* ── Area badge ─────────────────────────────────── */
+/* -- Area badge ----------------------------------- */
 .cc-area-badge {
   display: inline-flex;
   align-items: center;
@@ -97,7 +160,7 @@
   border-color: rgba(100,116,139,.25);
 }
 
-/* ── Status indicator ───────────────────────────── */
+/* -- Status indicator ----------------------------- */
 .cc-inst-status {
   display: inline-flex;
   align-items: center;
@@ -121,7 +184,7 @@
 .cc-inst-status.activo  { color: var(--cc-primary); }
 .cc-inst-status.inactivo { color: var(--cc-muted); }
 
-/* ── Action buttons (table) ─────────────────────── */
+/* -- Action buttons (table) ----------------------- */
 .cc-inst-btn {
   background: none;
   border: none;
@@ -145,7 +208,7 @@
 }
 tr:hover .cc-action-group { opacity: 1; }
 
-/* ── Instructor name cell ───────────────────────── */
+/* -- Instructor name cell ------------------------- */
 .cc-inst-name {
   font-size: var(--cc-fs-base);
   font-weight: 600;
@@ -159,14 +222,14 @@ tr:hover .cc-action-group { opacity: 1; }
   color: var(--cc-muted);
 }
 
-/* ── Correo cell ────────────────────────────────── */
+/* -- Correo cell ---------------------------------- */
 .cc-inst-correo {
   font-size: var(--cc-fs-base);
   color: var(--cc-primary);
   font-weight: 500;
 }
 
-/* ── Cédula cell ────────────────────────────────── */
+/* -- Cédula cell ---------------------------------- */
 .cc-inst-cedula {
   font-family: var(--cc-font-mono) !important;
   font-size: var(--cc-fs-base);
@@ -174,10 +237,10 @@ tr:hover .cc-action-group { opacity: 1; }
   white-space: nowrap;
 }
 
-/* ── Inactive row ───────────────────────────────── */
+/* -- Inactive row --------------------------------- */
 tr.cc-row-inactive { opacity: 0.6; }
 
-/* ── Detail grid in modal ───────────────────────── */
+/* -- Detail grid in modal ------------------------- */
 .cc-detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -190,7 +253,7 @@ tr.cc-row-inactive { opacity: 0.6; }
 }
 .cc-detail-grid .cc-detail-row:nth-last-child(-n+2) { border-bottom: none; }
 
-/* ── Confirm icon box ───────────────────────────── */
+/* -- Confirm icon box ----------------------------- */
 .cc-confirm-icon {
   width: 52px;
   height: 52px;
@@ -201,10 +264,10 @@ tr.cc-row-inactive { opacity: 0.6; }
   justify-content: center;
 }
 
-/* ── DataTable: hide default search (we use ours) ── */
+/* -- DataTable: hide default search (we use ours) -- */
 #instructores-table_wrapper .dataTables_filter { display: none; }
 
-/* ── Modal form labels ──────────────────────────── */
+/* -- Modal form labels ---------------------------- */
 #modal-instructor .form-label {
   font-size: var(--cc-fs-sm);
   font-weight: 600;

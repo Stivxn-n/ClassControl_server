@@ -53,24 +53,10 @@
 
       <!-- Acciones -->
       <div class="d-flex align-items-center gap-3">
-        <button class="btn cc-nav-notif position-relative" aria-label="Notificaciones">
-          <span class="material-symbols-outlined fs-5">notifications</span>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.45rem">●</span>
-        </button>
-
-        <div class="vr cc-nav-divider"></div>
-
-        <div class="d-flex align-items-center gap-2 cc-nav-user">
-          <div class="text-end d-none d-sm-block">
-            <div class="cc-user-name">Admin Sistema</div>
-            <div class="cc-user-role">Sede Central</div>
-          </div>
-          <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnyozBpjjjQSpBYL9es4vLiKTF61vSzKaTzxBfglJbBOHweZiQTtm2om6dhKfBy0vSJb3GRKgl-PKkrdX0VxRZQH0CsvzH6JBF89_9X62vG-PjOvfCxBuG6kb3JoimyedWT0yT4NZ_zKugkSEIJ3gROg7LUVSH9_VlOWciWSkSrwChuyG4eKaofmyFmex4ZvjpiaxQ5poz5TDFzLVOqLLWp0n1SGwX4YttLxU1qWdokkKEO28yig7UliSAv0s490sZ9LGjRg-BgSI"
-            alt="Avatar administrador"
-            class="cc-avatar"
-          />
-        </div>
+        <a href="Inicio_de_sesion.jsp" class="btn cc-btn-outline-light btn-sm">
+          <span class="material-symbols-outlined fs-6 align-middle">login</span>
+          ¿Ya tienes cuenta? Inicia sesión
+        </a>
       </div>
     </div>
   </nav>

@@ -1,12 +1,12 @@
 /**
- * FichasJS.js — ClassControl
+ * FichasJS.js ? ClassControl
  *
  * Datos reales desde el backend:
  * - GET  ConsultarFichas      -> lista de fichas (JSON)
  * - GET  ConsultarProgramas   -> catálogo de programas
  * - GET  ConsultarSedes       -> catálogo de sedes
  * - GET  ConsultarModalidades -> catálogo de modalidades
- * - GET  ConsultarNiveles     -> catálogo de niveles de formación
+ * - GET  ConsultarNiveles     -> catálogo de niveles de formaciÓn
  * - GET  ConsultarEstados     -> catálogo de estados
  * - GET  ConsultarJornadas    -> catálogo de jornadas
  * - GET  ConsultarEtapas      -> catálogo de etapas
@@ -17,9 +17,9 @@
 
 'use strict';
 
-/* ══════════════════════════════════════════
+/* ------------------------------------------
    1. ESTADO EN MEMORIA (poblado desde el backend)
-══════════════════════════════════════════ */
+------------------------------------------ */
 let fichas = [];
 let programas = [];
 let sedes = [];
@@ -30,18 +30,18 @@ let jornadas = [];
 let etapas = [];
 
 
-/* ══════════════════════════════════════════
+/* ------------------------------------------
    2. UTILIDADES
-══════════════════════════════════════════ */
+------------------------------------------ */
 function formatDate(iso) {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const [y, m, d] = iso.split('-');
   return `${d}/${m}/${y}`;
 }
 
 function nombrePor(lista, id, campo) {
   const item = lista.find(x => x.id === id);
-  return item ? item[campo] : '—';
+  return item ? item[campo] : '-';
 }
 
 function programaNombre(id) { return nombrePor(programas, id, 'nombre'); }
@@ -84,9 +84,9 @@ function llenarFiltro(select, lista, placeholder, campoTexto) {
 }
 
 
-/* ══════════════════════════════════════════
+/* ------------------------------------------
    3. CARGA DE DATOS DESDE EL BACKEND
-══════════════════════════════════════════ */
+------------------------------------------ */
 async function cargarCatalogos() {
   const [progR, sedeR, modR, nivR, estR, jorR, etaR] = await Promise.all([
     fetch('ConsultarProgramas'),
@@ -137,9 +137,9 @@ async function inicializarDatos() {
 }
 
 
-/* ══════════════════════════════════════════
-   4. DATATABLES — INIT
-══════════════════════════════════════════ */
+/* ------------------------------------------
+   4. DATATABLES ? INIT
+------------------------------------------ */
 let dataTable;
 
 function initDataTable() {
@@ -185,16 +185,26 @@ $(document).ready(function () {
 });
 
 
-/* ══════════════════════════════════════════
+/* ------------------------------------------
    5. RENDERIZADO DE FILAS
-══════════════════════════════════════════ */
+------------------------------------------ */
 function rowHTML(f) {
+  // Botones según permisos expuestos por Fichas.jsp:
+  // ccPuedeEscribirFichas = Admin/Coordinador, ccPuedeEliminarFichas = solo Admin.
+  const btnEditar = window.ccPuedeEscribirFichas ? `
+          <button class="cc-row-btn cc-edit" data-edit="${f.id}" title="Editar">
+            <span class="material-symbols-outlined">edit</span>
+          </button>` : '';
+  const btnEliminar = window.ccPuedeEliminarFichas ? `
+          <button class="cc-row-btn cc-delete" data-del="${f.id}" title="Eliminar">
+            <span class="material-symbols-outlined">delete</span>
+          </button>` : '';
   return `
     <tr data-id="${f.id}">
       <td class="cc-ficha-codigo">${f.codigo}</td>
       <td>
         <div class="cc-prog-name">${ClassControl.escapeHtml(programaNombre(f.programaId))}</div>
-        <div class="cc-prog-meta">${ClassControl.escapeHtml(nivelNombre(f.nivelFormacionId))} • ${ClassControl.escapeHtml(sedeNombre(f.sedeId))}</div>
+        <div class="cc-prog-meta">${ClassControl.escapeHtml(nivelNombre(f.nivelFormacionId))} - ${ClassControl.escapeHtml(sedeNombre(f.sedeId))}</div>
       </td>
       <td class="text-center">
         <div class="cc-fecha-main">${formatDate(f.fechaInicio)}</div>
@@ -207,13 +217,7 @@ function rowHTML(f) {
         <div class="d-flex justify-content-end gap-1">
           <button class="cc-row-btn cc-view"   data-view="${f.id}" title="Ver detalle">
             <span class="material-symbols-outlined">visibility</span>
-          </button>
-          <button class="cc-row-btn cc-edit"   data-edit="${f.id}" title="Editar">
-            <span class="material-symbols-outlined">edit</span>
-          </button>
-          <button class="cc-row-btn cc-delete" data-del="${f.id}"  title="Eliminar">
-            <span class="material-symbols-outlined">delete</span>
-          </button>
+          </button>${btnEditar}${btnEliminar}
         </div>
       </td>
     </tr>`;
@@ -244,9 +248,9 @@ function attachRowEvents() {
 }
 
 
-/* ══════════════════════════════════════════
-   6. MODAL — NUEVA / EDITAR FICHA
-══════════════════════════════════════════ */
+/* ------------------------------------------
+   6. MODAL ? NUEVA / EDITAR FICHA
+------------------------------------------ */
 const formModalEl = document.getElementById('modal-form');
 const formModal   = formModalEl ? new bootstrap.Modal(formModalEl) : null;
 const fichaForm   = document.getElementById('ficha-form');
@@ -255,7 +259,11 @@ const btnFormDel  = document.getElementById('btn-form-delete');
 
 let editingId = null;
 
-document.getElementById('btn-new-ficha')?.addEventListener('click', openNew);
+if (window.ccPuedeEscribirFichas) {
+  document.getElementById('btn-new-ficha')?.addEventListener('click', openNew);
+} else {
+  document.getElementById('btn-new-ficha')?.classList.add('d-none');
+}
 
 function openNew() {
   editingId = null;
@@ -275,7 +283,12 @@ function openEdit(id) {
 
   if (formTitle) formTitle.innerHTML = '<span class="material-symbols-outlined me-2">edit</span>Editar Ficha';
   fichaForm?.classList.remove('was-validated');
-  btnFormDel?.classList.remove('d-none');
+  // El botón de eliminar del formulario solo se muestra para quien puede eliminar (Admin).
+  if (window.ccPuedeEliminarFichas) {
+    btnFormDel?.classList.remove('d-none');
+  } else {
+    btnFormDel?.classList.add('d-none');
+  }
 
   document.getElementById('f-codigo').value     = f.codigo;
   document.getElementById('f-programa').value   = f.programaId;
@@ -326,12 +339,12 @@ function bindFormEvents() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params
       });
-      if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
+      if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
 
       await cargarFichas();
       formModal?.hide();
       fichaForm.classList.remove('was-validated');
-      showToast(isEdit ? 'Ficha actualizada correctamente ✓' : 'Ficha creada correctamente ✓');
+      showToast(isEdit ? 'Ficha actualizada correctamente ?' : 'Ficha creada correctamente ?');
     } catch (err) {
       console.error(err);
       showToast('No se pudo guardar la ficha. Verifica los datos e intenta de nuevo.', 'error');
@@ -350,9 +363,9 @@ function bindFormEvents() {
 }
 
 
-/* ══════════════════════════════════════════
-   7. MODAL — DETALLE (solo lectura)
-══════════════════════════════════════════ */
+/* ------------------------------------------
+   7. MODAL ? DETALLE (solo lectura)
+------------------------------------------ */
 const detailModalEl = document.getElementById('modal-detail');
 const detailModal   = detailModalEl ? new bootstrap.Modal(detailModalEl) : null;
 const detailContent = document.getElementById('detail-content');
@@ -375,7 +388,7 @@ function openDetail(id) {
       <span class="cc-detail-value cc-mono">${f.codigo}</span>
     </div>
     <div class="cc-detail-row">
-      <span class="cc-detail-label">Programa de Formación</span>
+      <span class="cc-detail-label">Programa de FormaciÓn</span>
       <span class="cc-detail-value">${ClassControl.escapeHtml(programaNombre(f.programaId))}</span>
     </div>
     <div class="cc-detail-row">
@@ -403,7 +416,7 @@ function openDetail(id) {
       </span>
     </div>
     <div class="cc-detail-row">
-      <span class="cc-detail-label">N.º Aprendices</span>
+      <span class="cc-detail-label">N.? Aprendices</span>
       <span class="cc-detail-value">${f.cantidadAprendices ?? 0}</span>
     </div>
     <div class="cc-detail-row">
@@ -415,14 +428,18 @@ function openDetail(id) {
   detailModal?.show();
 }
 
-btnDetailEdit?.addEventListener('click', () => {
-  if (viewingId !== null) openEdit(viewingId);
-});
+if (window.ccPuedeEscribirFichas) {
+  btnDetailEdit?.addEventListener('click', () => {
+    if (viewingId !== null) openEdit(viewingId);
+  });
+} else {
+  btnDetailEdit?.classList.add('d-none');
+}
 
 
-/* ══════════════════════════════════════════
-   8. MODAL — CONFIRMAR ELIMINACIÓN
-══════════════════════════════════════════ */
+/* ------------------------------------------
+   8. MODAL ? CONFIRMAR ELIMINACIÓN
+------------------------------------------ */
 const confirmModalEl = document.getElementById('modal-confirm');
 const confirmModal   = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
 const confirmName    = document.getElementById('confirm-ficha-name');
@@ -434,32 +451,34 @@ function openConfirm(id) {
   const f = fichas.find(x => x.id === id);
   if (!f) return;
   deletingId = id;
-  if (confirmName) confirmName.textContent = `${f.codigo} — ${programaNombre(f.programaId)}`;
+  if (confirmName) confirmName.textContent = `${f.codigo} - ${programaNombre(f.programaId)}`;
   confirmModal?.show();
 }
 
-btnConfirmDel?.addEventListener('click', async () => {
-  if (deletingId === null) return;
-  try {
-    const resp = await fetch('EliminarFicha', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ id: String(deletingId) })
-    });
-    if (!resp.ok) throw new Error('Respuesta no exitosa del servidor');
-    await cargarFichas();
-    confirmModal?.hide();
-    showToast('Ficha eliminada.', 'error');
-  } catch (err) {
-    console.error(err);
-    showToast('No se pudo eliminar la ficha.', 'error');
-  }
-});
+if (window.ccPuedeEliminarFichas) {
+  btnConfirmDel?.addEventListener('click', async () => {
+    if (deletingId === null) return;
+    try {
+      const resp = await fetch('EliminarFicha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ id: String(deletingId) })
+      });
+      if (!resp.ok) { let m = 'Respuesta no exitosa del servidor'; try { const d = await resp.json(); if (d && d.error) m = d.error; } catch (_) {} throw new Error(m); }
+      await cargarFichas();
+      confirmModal?.hide();
+      showToast('Ficha eliminada.', 'error');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'No se pudo eliminar la ficha.', 'error');
+    }
+  });
+}
 
 
-/* ══════════════════════════════════════════
+/* ------------------------------------------
    9. TOASTS BOOTSTRAP 5
-══════════════════════════════════════════ */
+------------------------------------------ */
 function showToast(message, type = 'success') {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -487,9 +506,9 @@ function showToast(message, type = 'success') {
 }
 
 
-/* ══════════════════════════════════════════
+/* ------------------------------------------
    10. DARK MODE
-══════════════════════════════════════════ */
+------------------------------------------ */
 (function initDarkMode() {
   const btn  = document.getElementById('dark-toggle');
   const icon = document.getElementById('dark-icon');
@@ -512,9 +531,9 @@ function showToast(message, type = 'success') {
 })();
 
 
-/* ══════════════════════════════════════════
-   11. SIDEBAR TOGGLE (móvil)
-══════════════════════════════════════════ */
+/* ------------------------------------------
+   11. SIDEBAR TOGGLE (m?vil)
+------------------------------------------ */
 (function initSidebar() {
   const toggle  = document.getElementById('sidebarToggle');
   const sidebar = document.getElementById('cc-sidebar');

@@ -48,6 +48,14 @@ public class ActualizarUsuario extends ActualizarBaseServlet {
         usuario.setTipo_vinculacion_id_tipo_vinculacion(
                 enteroOpcional(request, "tipoVinculacion", usuario.getTipo_vinculacion_id_tipo_vinculacion()));
 
+        // Ficha del aprendiz: solo se toca si el formulario la envía
+        // (vacío = sin ficha asignada).
+        String fichaStr = request.getParameter("ficha");
+        if (fichaStr != null) {
+            usuario.setFicha_id_ficha(fichaStr.trim().isEmpty()
+                    ? null : Integer.valueOf(fichaStr.trim()));
+        }
+
         String fechaNacStr = request.getParameter("fecha_Nacimiento");
         if (fechaNacStr != null && !fechaNacStr.trim().isEmpty()) {
             usuario.setFecha_Nacimiento(java.time.LocalDate.parse(fechaNacStr.trim()));

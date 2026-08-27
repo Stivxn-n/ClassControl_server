@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- ══════════════════════ PROTECCIÓN DE SESIÓN ══════════════════════ --%>
+<%-- ---------------------- PROTECCIÓN DE SESIÓN ---------------------- --%>
 <%
   String sesNombres   = (String)  session.getAttribute("nombres");
   String sesApellidos = (String)  session.getAttribute("apellidos");
@@ -9,6 +9,12 @@
 
   if (sesNombres == null) {
     response.sendRedirect("Inicio_de_sesion.jsp");
+    return;
+  }
+
+  // Solo Administrador (3) y Coordinador (4) ven Ambientes.
+  if (sesRol == null || (sesRol != 1 && sesRol != 3 && sesRol != 4)) { // 1=Instructor tambien gestiona ambientes (igual que la app)
+    response.sendRedirect("Pagina_Principal.jsp?error=permiso");
     return;
   }
 %>
@@ -44,19 +50,19 @@
 <body>
 <div class="cc-layout">
 
-  <!-- ═══════════════════════════════════════
+  <!-- ---------------------------------------
        SIDEBAR (idéntico en todas las pantallas)
-  ══════════════════════════════════════════ -->
+  ------------------------------------------ -->
   <%   String ccActivePage = "ambientes"; %>
 <%@ include file="_Sidebar.jspf" %>
 
-  <!-- ═══════════════════════════════════════
+  <!-- ---------------------------------------
        MAIN
-  ══════════════════════════════════════════ -->
-  <main class="cc-main">
+  ------------------------------------------ -->
+  <main class="cc-main cc-catalog-main">
 
-    <!-- Toggle sidebar (móvil) -->
-    <button class="cc-sidebar-toggle d-lg-none" id="btnSidebarToggle" aria-label="Abrir menú">
+    <!-- Toggle sidebar (m?vil) -->
+    <button class="cc-sidebar-toggle d-lg-none" id="btnSidebarToggle" aria-label="Abrir men?">
       <span class="material-symbols-outlined">menu</span>
     </button>
 
@@ -66,14 +72,19 @@
         <h1 class="cc-page-title">Gestión de <fmt:message bundle="${i18n}" key="nav.ambientes"/></h1>
         <p class="cc-page-sub"><fmt:message bundle="${i18n}" key="ambientes.header.subtitle"/></p>
       </div>
-      <button id="btn-nuevo" class="btn cc-btn-primary" type="button"
-              data-bs-toggle="modal" data-bs-target="#ambienteModal">
-        <span class="material-symbols-outlined">add_circle</span>
-        <fmt:message bundle="${i18n}" key="ambientes.btn.nuevo"/>
-      </button>
+      <div class="d-flex align-items-center gap-2">
+        <button id="dark-toggle" class="btn cc-icon-btn" title="Cambiar tema">
+          <span class="material-symbols-outlined">dark_mode</span>
+        </button>
+        <button id="btn-nuevo" class="btn cc-btn-primary" type="button"
+                data-bs-toggle="modal" data-bs-target="#ambienteModal">
+          <span class="material-symbols-outlined">add_circle</span>
+          <fmt:message bundle="${i18n}" key="ambientes.btn.nuevo"/>
+        </button>
+      </div>
     </div>
 
-    <!-- Métricas -->
+    <!-- MÉtricas -->
     <div class="row g-3 mb-4">
       <div class="col-6 col-xl-3">
         <div class="cc-metric" style="border-left-color: var(--cc-primary)">
@@ -120,6 +131,15 @@
                   <option value="">Todas</option>
                 </select>
               </div>
+              <div>
+                <label class="cc-label" for="filter-estado">Estado</label>
+                <select id="filter-estado" class="form-select cc-input cc-input-sm">
+                  <option value="">Todos</option>
+                  <option value="Disponible">Disponibles</option>
+                  <option value="Ocupado">Ocupados</option>
+                  <option value="Mantenimiento">En mantenimiento</option>
+                </select>
+              </div>
             </form>
           </div>
           <div class="card-body p-0">
@@ -130,6 +150,7 @@
                     <th>Ambiente</th>
                     <th>Sede</th>
                     <th class="text-center">Capacidad</th>
+                    <th>Estado</th>
                     <th class="text-end">Acciones</th>
                   </tr>
                 </thead>
@@ -140,7 +161,7 @@
         </div>
       </div>
 
-      <!-- Gráfica donut -->
+      <!-- GrÁfica donut -->
       <div class="col-12 col-xxl-4">
         <div class="card cc-card h-100">
           <div class="card-header cc-card-header">
@@ -151,7 +172,7 @@
           </div>
           <div class="card-body d-flex align-items-center justify-content-center">
             <canvas id="ambientesChart" style="max-height:300px"
-              aria-label="Gráfica de ocupación de ambientes" role="img"></canvas>
+              aria-label="GrÁfica de ocupación de ambientes" role="img"></canvas>
           </div>
         </div>
       </div>
@@ -161,9 +182,9 @@
 </div><!-- /.cc-layout -->
 
 
-<!-- ═══════════════════════════════════════
-     MODAL — Nuevo / Editar Ambiente
-══════════════════════════════════════════ -->
+<!-- ---------------------------------------
+     MODAL ? Nuevo / Editar Ambiente
+------------------------------------------ -->
 <div class="modal fade" id="ambienteModal" tabindex="-1"
      aria-labelledby="ambienteModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -195,6 +216,15 @@
                      min="1" max="500" placeholder="Ej. 30" required/>
               <div class="invalid-feedback"><fmt:message bundle="${i18n}" key="ambientes.validation.capacidad"/></div>
             </div>
+            <div class="col-12 col-md-6">
+              <label class="cc-label" for="amb-estado">Estado administrativo</label>
+              <select id="amb-estado" name="estado_Ambiente" class="form-select cc-input">
+                <option value="Disponible">Disponible</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+                <option value="Inhabilitado">Inhabilitado</option>
+              </select>
+              <div class="form-text">&ldquo;Ocupado&rdquo; se calcula solo seg&uacute;n las clases programadas.</div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -209,9 +239,9 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════
-     MODAL — Confirmar <fmt:message bundle="${i18n}" key="common.btn.eliminar"/>
-══════════════════════════════════════════ -->
+<!-- ---------------------------------------
+     MODAL ? Confirmar <fmt:message bundle="${i18n}" key="common.btn.eliminar"/>
+------------------------------------------ -->
 <div class="modal fade" id="deleteModal" tabindex="-1"
      aria-labelledby="deleteModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -234,9 +264,9 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════
+<!-- ---------------------------------------
      TOAST
-══════════════════════════════════════════ -->
+------------------------------------------ -->
 <div id="toast" class="cc-toast" role="alert" aria-live="polite">
   <span id="toast-icon" class="material-symbols-outlined">check_circle</span>
   <span id="toast-msg"><fmt:message bundle="${i18n}" key="common.info.operacionExitosa"/></span>

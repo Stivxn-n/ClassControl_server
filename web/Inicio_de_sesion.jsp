@@ -64,10 +64,7 @@
       <!-- ── Cabecera / Logo ── -->
       <div class="cc-login-header text-center">
         <div class="cc-logo-icon mb-3">
-          <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M24 0C10.7452 0 0 10.7452 0 24C0 37.2548 10.7452 48 24 48C37.2548 48 48 37.2548 48 24C48 10.7452 37.2548 0 24 0ZM34.2 34.2H13.8V13.8H34.2V34.2Z" fill="currentColor"/>
-            <path d="M24 16.8V31.2M16.8 24H31.2" stroke="white" stroke-linecap="round" stroke-width="4"/>
-          </svg>
+          <img src="img/logo.png" alt="Logo ClassControl" style="width:100%;height:100%;object-fit:contain;" />
         </div>
         <h1 class="cc-app-title">ClassControl</h1>
         <p class="cc-app-subtitle">Gestión de Programación de Instructores</p>

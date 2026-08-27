@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Tipo_vinculacion;
-import jakarta.resource.cci.ResultSet;
 
 
 public class Tipo_vinculacionDAO {
@@ -127,7 +126,7 @@ public class Tipo_vinculacionDAO {
     
     public boolean actualizarTipo_vinculacion(Tipo_vinculacion tipo_vinculacion) {
     
-    String sql = "UPDATE Tipo_vinculacion SET descripcion_vinculacion = ? WHERE id_tipo_vinculacion = ?";
+    String sql = "UPDATE tipo_vinculacion SET descripcion_vinculacion = ? WHERE id_tipo_vinculacion = ?";
     
     Conexion conexion = new Conexion();
     

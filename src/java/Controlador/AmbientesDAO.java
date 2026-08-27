@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import Modelo.Ambientes;
-import jakarta.resource.cci.ResultSet;
 
 
 public class AmbientesDAO {
@@ -22,7 +21,7 @@ public class AmbientesDAO {
             return lista;
         }
 
-        String sql = "SELECT id_ambientes, descripcion_Ambiente, capacidad, Sede_id_sede FROM ambientes ORDER BY descripcion_Ambiente";
+        String sql = "SELECT id_ambientes, descripcion_Ambiente, capacidad, Sede_id_sede, Estado_Ambiente FROM ambientes ORDER BY descripcion_Ambiente";
 
         try (PreparedStatement ps = con.prepareStatement(sql);
              java.sql.ResultSet rs = ps.executeQuery()) {
@@ -33,6 +32,7 @@ public class AmbientesDAO {
                 a.setDescripcion_Ambiente(rs.getString("descripcion_Ambiente"));
                 a.setCapacidad(rs.getInt("capacidad"));
                 a.setSede_id_sede(rs.getInt("Sede_id_sede"));
+                a.setEstado_Ambiente(rs.getString("Estado_Ambiente"));
                 lista.add(a);
             }
         } catch (SQLException e) {
@@ -50,13 +50,15 @@ public class AmbientesDAO {
         Conexion conexion = new Conexion();
         Connection con = conexion.getConexion();
        
-        String sql = "INSERT INTO ambientes (id_ambientes, descripcion_Ambiente, capacidad, Sede_id_sede) VALUES (?, ?, ?, ?)";
-        
+        String sql = "INSERT INTO ambientes (id_ambientes, descripcion_Ambiente, capacidad, Sede_id_sede, Estado_Ambiente) VALUES (?, ?, ?, ?, ?)";
+
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, rol.getId_ambientes());
             ps.setString(2, rol.getDescripcion_Ambiente());
             ps.setInt(3, rol.getCapacidad());
             ps.setInt(4, rol.getSede_id_sede());
+            ps.setString(5, (rol.getEstado_Ambiente() == null || rol.getEstado_Ambiente().isBlank())
+                    ? "Disponible" : rol.getEstado_Ambiente());
             ps.executeUpdate();
             insertado = true;
             System.out.println("✅ Ambiente insertado correctamente en la base de datos.");
@@ -86,7 +88,7 @@ public class AmbientesDAO {
             return null;
         }
 
-        String sql = "SELECT id_ambientes, descripcion_Ambiente, capacidad, Sede_id_sede FROM ambientes WHERE id_ambientes = ?";
+        String sql = "SELECT id_ambientes, descripcion_Ambiente, capacidad, Sede_id_sede, Estado_Ambiente FROM ambientes WHERE id_ambientes = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, Id_ambientes);
@@ -99,6 +101,7 @@ public class AmbientesDAO {
                 rolEncontrado.setDescripcion_Ambiente(rs.getString("Descripcion_Ambiente"));
                 rolEncontrado.setCapacidad(rs.getInt("Capacidad"));
                 rolEncontrado.setSede_id_sede(rs.getInt("Sede_id_sede"));
+                rolEncontrado.setEstado_Ambiente(rs.getString("Estado_Ambiente"));
             }
 
         } catch (SQLException e) {
@@ -131,9 +134,24 @@ public class AmbientesDAO {
          }
      }
     
+    /** Cambia solo el estado administrativo del ambiente. */
+    public boolean actualizarEstadoAmbiente(int idAmbiente, String estado) {
+        String sql = "UPDATE ambientes SET Estado_Ambiente = ? WHERE id_ambientes = ?";
+        Conexion conexion = new Conexion();
+        try (Connection con = conexion.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, estado);
+            ps.setInt(2, idAmbiente);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar estado del ambiente: " + e.getMessage());
+            return false;
+        }
+    }
+
     public boolean actualizarAmbientes(Ambientes ambientes) {
     
-    String sql = "UPDATE Ambientes SET descripcion_Ambiente = ?, capacidad = ?, Sede_id_sede = ? WHERE id_ambientes = ?";
+    String sql = "UPDATE ambientes SET descripcion_Ambiente = ?, capacidad = ?, Sede_id_sede = ?, Estado_Ambiente = ? WHERE id_ambientes = ?";
     
     Conexion conexion = new Conexion();
     
@@ -143,7 +161,9 @@ public class AmbientesDAO {
         ps.setString(1, ambientes.getDescripcion_Ambiente());   
         ps.setInt(2, ambientes.getCapacidad()); 
         ps.setInt(3, ambientes.getSede_id_sede()); 
-        ps.setInt(4, ambientes.getId_ambientes());    
+        ps.setString(4, (ambientes.getEstado_Ambiente() == null || ambientes.getEstado_Ambiente().isBlank())
+                ? "Disponible" : ambientes.getEstado_Ambiente());
+        ps.setInt(5, ambientes.getId_ambientes());    
         
         int filas = ps.executeUpdate();
         

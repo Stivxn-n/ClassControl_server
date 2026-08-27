@@ -321,7 +321,10 @@
   const fields = document.getElementById("catalogo-fields");
 
   /* ── Listener en cada botón con data-catalogo ── */
-  document.querySelectorAll("[data-catalogo]").forEach(btn => {
+  // Los modales de catálogo se controlan exclusivamente desde
+  // catalogo-modal.js, que genera selects con opciones reales. Este bloque
+  // antiguo se conserva solo como referencia y no registra eventos.
+  document.querySelectorAll("[data-catalogo-legacy]").forEach(btn => {
     btn.addEventListener("click", function () {
       const tipo    = this.dataset.catalogo;
       const servlet = SERVLET_MAP[tipo];
@@ -353,7 +356,7 @@
   /* ── Listener en botones Ficha / Actividad / Ambiente
         (usan data-bs-target pero no tienen toggle automático
          porque están dentro de otro modal) ── */
-  document.querySelectorAll(".cc-create-item[data-bs-target]").forEach(btn => {
+  document.querySelectorAll(".cc-create-item[data-bs-target-legacy]").forEach(btn => {
     btn.addEventListener("click", function () {
       const targetId = this.dataset.bsTarget;
 
@@ -463,7 +466,16 @@
       },
       pageLength: 5,
       lengthMenu: [5, 10, 25],
-      order: [[3, "asc"]]
+      order: [[3, "asc"]],
+      autoWidth: false,
+      columnDefs: [
+        { targets: 0, width: "22%" }, // Ficha / Programa
+        { targets: 1, width: "18%" }, // Actividad
+        { targets: 2, width: "16%" }, // Ambiente
+        { targets: 3, width: "16%" }, // Horario
+        { targets: 4, width: "16%" }, // Instructor
+        { targets: 5, width: "12%", orderable: false } // Acción
+      ]
     });
   }
 

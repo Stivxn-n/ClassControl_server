@@ -12,7 +12,7 @@ import java.util.List;
 public class PermisosDAO {
 
     public boolean insertarPermiso(Permisos permiso) {
-        String sql = "INSERT INTO Permisos (id_permisos, descripcion_permisos) VALUES (?, ?)";
+        String sql = "INSERT INTO permisos (id_permisos, descripcion_permisos) VALUES (?, ?)";
         Conexion conexion = new Conexion();
 
         try (Connection con = conexion.getConexion();
@@ -29,7 +29,7 @@ public class PermisosDAO {
     }
 
     public Permisos consultarPermiso(int idPermiso) {
-        String sql = "SELECT id_permisos, descripcion_permisos FROM Permisos WHERE id_permisos = ?";
+        String sql = "SELECT id_permisos, descripcion_permisos FROM permisos WHERE id_permisos = ?";
         Conexion conexion = new Conexion();
 
         try (Connection con = conexion.getConexion();
@@ -54,7 +54,7 @@ public class PermisosDAO {
 
     public List<Permisos> listarPermisos() {
         List<Permisos> lista = new ArrayList<>();
-        String sql = "SELECT id_permisos, descripcion_permisos FROM Permisos";
+        String sql = "SELECT id_permisos, descripcion_permisos FROM permisos";
         Conexion conexion = new Conexion();
 
         try (Connection con = conexion.getConexion();
@@ -76,7 +76,7 @@ public class PermisosDAO {
     }
 
     public boolean actualizarPermiso(Permisos permiso) {
-        String sql = "UPDATE Permisos SET descripcion_permisos = ? WHERE id_permisos = ?";
+        String sql = "UPDATE permisos SET descripcion_permisos = ? WHERE id_permisos = ?";
         Conexion conexion = new Conexion();
 
         try (Connection con = conexion.getConexion();
@@ -93,7 +93,7 @@ public class PermisosDAO {
     }
 
     public boolean eliminarPermiso(int idPermiso) {
-        String sql = "DELETE FROM Permisos WHERE id_permisos = ?";
+        String sql = "DELETE FROM permisos WHERE id_permisos = ?";
         Conexion conexion = new Conexion();
 
         try (Connection con = conexion.getConexion();

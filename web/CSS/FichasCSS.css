@@ -1,14 +1,81 @@
+﻿/* -- Modo oscuro (sistema propio de esta pantalla: Fichas) -- */
+[data-bs-theme="dark"] {
+  --cc-bg:      #0f1a13;
+  --cc-surface: #16241c;
+  --cc-border:  #2c3d33;
+  --cc-text:    #f1f5f9;
+  --cc-muted:   #94a3b8;
+}
+html[data-bs-theme="dark"] body { background-color: var(--cc-bg); color: var(--cc-text); }
+html[data-bs-theme="dark"] h1, html[data-bs-theme="dark"] .h1,
+html[data-bs-theme="dark"] h2, html[data-bs-theme="dark"] .h2,
+html[data-bs-theme="dark"] .cc-page-title { color: var(--cc-text); }
+html[data-bs-theme="dark"] .cc-page-sub,
+html[data-bs-theme="dark"] .text-muted,
+html[data-bs-theme="dark"] .form-label,
+html[data-bs-theme="dark"] .form-text { color: var(--cc-muted) !important; }
+html[data-bs-theme="dark"] .card,
+html[data-bs-theme="dark"] .modal-content,
+html[data-bs-theme="dark"] .dropdown-menu,
+html[data-bs-theme="dark"] .list-group-item,
+html[data-bs-theme="dark"] .offcanvas {
+  background-color: var(--cc-surface);
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .table,
+html[data-bs-theme="dark"] .dataTable {
+  --bs-table-color: var(--cc-text);
+  --bs-table-bg: var(--cc-surface);
+  --bs-table-striped-bg: #131f18;
+  --bs-table-border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .table thead th { color: var(--cc-text); }
+html[data-bs-theme="dark"] .form-control,
+html[data-bs-theme="dark"] .form-select,
+html[data-bs-theme="dark"] .input-group-text {
+  background-color: var(--cc-surface);
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .form-control::placeholder { color: var(--cc-muted); }
+html[data-bs-theme="dark"] .bg-white,
+html[data-bs-theme="dark"] header.bg-white {
+  background-color: var(--cc-surface) !important;
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] hr,
+html[data-bs-theme="dark"] .border,
+html[data-bs-theme="dark"] .border-bottom,
+html[data-bs-theme="dark"] .border-top { border-color: var(--cc-border) !important; }
+html[data-bs-theme="dark"] .cc-btn-outline {
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .cc-btn-outline:hover:not(:disabled) {
+  background: rgba(255,255,255,.06);
+  border-color: var(--cc-border);
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] .cc-btn-icon { color: var(--cc-muted); }
+html[data-bs-theme="dark"] .cc-btn-icon:hover { background: rgba(255,255,255,.08); }
+html[data-bs-theme="dark"] .page-link {
+  background-color: var(--cc-surface);
+  border-color: var(--cc-border);
+  color: var(--cc-text);
+}
+
 /* ============================================================
-   FichasCSS.css — ClassControl
+   FichasCSS.css ? ClassControl
    Estilos exclusivos de "Gestión de Fichas"
    Cargado DESPUÉS de: Inicio_de_sesionCSS.css + Pagina_PrincipalCSS.css
    ============================================================ */
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    CORRECCIONES DE LAYOUT CRÍTICAS
    (parchan lo que Pagina_PrincipalCSS
     ya define, por si las rutas fallan)
-══════════════════════════════════════ */
+-------------------------------------- */
 
 /* Garantiza que el body sea flex y sin scroll horizontal */
 .cc-dash-body {
@@ -17,195 +84,51 @@
   overflow-x: hidden;
 }
 
-/* Wrapper principal: sidebar fijo + main que ocupa el resto */
-.cc-app-wrapper {
-  display: flex;
-  min-height: 100vh;
-}
+/* Wrapper principal: sidebar fijo + main que ocupa el resto.
+   NOTA: el layout real ahora vive en ClassControl_sidebar.css
+   bajo las clases compartidas .cc-wrapper / .cc-main, iguales
+   a las que usan el resto de las pantallas. Este archivo ya NO
+   debe redefinir .cc-app-wrapper / .cc-main-content: esa
+   duplicación (flex:1 + margin-left:256px) era lo que generaba
+   el hueco extra entre el sidebar y el contenido de Fichas. */
 
-/* ── SIDEBAR ────────────────────────────────────────────────── */
-.cc-sidebar {
-  width: 256px;              /* ancho fijo — nunca más de esto */
-  min-width: 256px;
-  max-width: 256px;
-  flex-shrink: 0;
-  background: #00304D;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;        /* el logo NUNCA desborda lateralmente */
-  z-index: 300;
-  transition: transform 0.28s ease;
-}
+/* -- SIDEBAR -------------------------------------------------- */
+
 
 /* Logo row: altura fija, sin crecer */
-.cc-sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  flex-shrink: 0;            /* no crecer aunque el img sea grande */
-}
 
-/* Caja que contiene el img — tamaño fijo para controlar el logo */
-.cc-sidebar-logo-box {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;           /* evita que se comprima */
-  background: #fff;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;          /* recorta si el img es mayor */
-  flex-shrink: 0;
-}
 
-.cc-sidebar-logo-box img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;       /* escala proporcional dentro de la caja */
-  display: block;
-}
+/* Caja que contiene el img ? tamaño fijo para controlar el logo */
 
-.cc-sidebar-app {
-  font-size: 0.9375rem;
-  font-weight: 800;
-  line-height: 1.1;
-  color: #fff;
-  white-space: nowrap;
-}
-
-.cc-sidebar-sub {
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: #39A900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-}
 
 /* Nav links */
-.cc-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 0.75rem;
-  flex: 1;
-}
 
-.cc-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.875rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.7);
-  text-decoration: none;
-  transition: background 0.18s, color 0.18s;
-  white-space: nowrap;
-}
-
-.cc-nav-link i { font-size: 1rem; flex-shrink: 0; }
-.cc-nav-link:hover  { background: rgba(255,255,255,0.09); color: #fff; }
-.cc-nav-link.active { background: #39A900; color: #fff; font-weight: 700; }
-
-.cc-nav-divider {
-  height: 1px;
-  background: rgba(255,255,255,0.1);
-  margin: 0.4rem 0.875rem;
-}
 
 /* Botón cerrar sesión */
-.cc-btn-logout {
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.85);
-  font-size: 0.875rem;
-  font-weight: 700;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 0.5rem;
-  padding: 0.6rem 1rem;
-  transition: background 0.18s;
-  text-decoration: none;
-  text-align: center;
-  display: block;
-}
-.cc-btn-logout:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
-/* Overlay para móvil */
-.cc-sidebar-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  z-index: 299;
-}
-.cc-sidebar-overlay.show { display: block; }
 
-/* ── MAIN CONTENT ───────────────────────────────────────────── */
-/* Empuja el main hacia la derecha exactamente el ancho del sidebar */
-.cc-main-content {
-  flex: 1;
-  min-width: 0;              /* crucial: sin esto el flex no reduce */
-  display: flex;
-  flex-direction: column;
-  margin-left: 256px;        /* igual al ancho del sidebar */
-}
+
+/* Overlay para m?vil */
+
+
+/* -- MAIN CONTENT --------------------------------------------- */
+/* El posicionamiento (flex:1, sin margin-left) ya lo resuelve
+   .cc-main en ClassControl_sidebar.css; no se duplica aquí. */
 
 /* Header pegajoso */
-.cc-top-header {
-  height: 62px;
-  background: #fff;
-  border-bottom: 1px solid #dde8d5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  flex-shrink: 0;
-}
 
-.cc-page-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #1a2b12;
-}
+
 
 /* Botones de icono en header */
-.cc-icon-btn {
-  background: none;
-  border: none;
-  color: #6b7c62;
-  padding: 0.35rem 0.5rem;
-  border-radius: 0.4rem;
-  font-size: 1rem;
-  transition: color 0.18s, background 0.18s;
-}
-.cc-icon-btn:hover { color: #39A900; background: #edfbe0; }
+
+
 
 /* Info de usuario en header */
-.cc-user-name { font-size: 0.875rem; font-weight: 700; color: #1a2b12; line-height: 1.1; }
-.cc-user-role { font-size: 0.7rem;   color: #6b7c62; }
+
+
 
 /* Avatar */
-.cc-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #39A900;
-  flex-shrink: 0;
-}
+
 
 /* Separador vertical */
 .cc-nav-vr { background: #dde8d5; height: 28px; }
@@ -226,7 +149,7 @@
 .cc-search-input:focus {
   box-shadow: 0 0 0 3px rgba(57,169,0,0.18);
   border-color: #39A900 !important;
-  background: #fff;
+  background: var(--cc-surface);
 }
 
 /* Cuerpo del dashboard */
@@ -238,12 +161,12 @@
 
 /* Cards compartidas */
 .cc-widget-card {
-  background: #fff;
+  background: var(--cc-surface);
   border-radius: 0.75rem;
   box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
 
-/* Botones de acción */
+/* Botones de acciÓn */
 .cc-btn-action {
   background: #39A900;
   color: #fff;
@@ -273,30 +196,20 @@
 }
 .cc-btn-secondary:hover { background: #e4eddf; color: #1a2b12; }
 
-/* ══════════════════════════════════════
-   RESPONSIVE — MÓVIL
-══════════════════════════════════════ */
+/* --------------------------------------
+   RESPONSIVE ? M?VIL
+-------------------------------------- */
 @media (max-width: 991.98px) {
-  /* Sidebar oculto por defecto en móvil */
-  .cc-sidebar {
-    transform: translateX(-100%);
-  }
-  .cc-sidebar.show {
-    transform: translateX(0);
-  }
-  /* Main ocupa todo el ancho */
-  .cc-main-content {
-    margin-left: 0;
-  }
+  /* Sidebar oculto por defecto en m?vil (ya manejado por .cc-sidebar
+     en ClassControl_sidebar.css); .cc-main no lleva margin-left. */
   .cc-dashboard-body { padding: 1rem; }
-  .cc-top-header { padding: 0 1rem; }
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    FILTROS
-══════════════════════════════════════ */
+-------------------------------------- */
 .cc-filter-card {
-  background: #fff;
+  background: var(--cc-surface);
   border-radius: 0.75rem;
 }
 
@@ -312,9 +225,9 @@
   box-shadow: 0 0 0 3px rgba(57,169,0,0.18);
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    TABLA
-══════════════════════════════════════ */
+-------------------------------------- */
 .cc-table {
   font-family: var(--cc-font);
   font-size: 0.875rem;
@@ -353,7 +266,7 @@
 .cc-fecha-main { font-size: 0.875rem; color: #1a2b12; }
 .cc-fecha-sub  { font-size: 0.72rem;  color: #6b7c62; }
 
-/* ── Badges de estado ── */
+/* -- Badges de estado -- */
 .cc-badge {
   display: inline-flex;
   align-items: center;
@@ -372,7 +285,7 @@
 .cc-badge-proceso   { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
 .cc-badge-finalizada{ background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 
-/* ── Chips de modalidad ── */
+/* -- Chips de modalidad -- */
 .cc-chip {
   display: inline-flex;
   align-items: center;
@@ -390,7 +303,7 @@
 .cc-chip-virtual    { background: #faf5ff; color: #7c3aed; }
 .cc-chip-distancia  { background: #fff7ed; color: #c2410c; }
 
-/* ── Botones por fila ── */
+/* -- Botones por fila -- */
 .cc-row-btn {
   background: none;
   border: none;
@@ -406,9 +319,9 @@
 .cc-row-btn.cc-edit:hover   { color: #d97706; }
 .cc-row-btn.cc-delete:hover { color: #dc2626; }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    DATATABLES OVERRIDES
-══════════════════════════════════════ */
+-------------------------------------- */
 .dataTables_wrapper {
   font-family: var(--cc-font);
 }
@@ -448,9 +361,9 @@
   color: #fff;
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    MODALES
-══════════════════════════════════════ */
+-------------------------------------- */
 .cc-modal          { border-radius: 0.75rem; border: none; overflow: hidden; }
 .cc-modal-header   { background: #f8faf7; border-bottom: 1px solid #dde8d5; padding: 1rem 1.25rem; }
 .cc-modal-header .modal-title { font-size: 1rem; font-weight: 700; color: #1a2b12; }
@@ -473,7 +386,7 @@
 .cc-modal .form-select:focus {
   border-color: #39A900;
   box-shadow: 0 0 0 3px rgba(57,169,0,0.18);
-  background: #fff;
+  background: var(--cc-surface);
 }
 .cc-modal .form-control.is-invalid {
   border-color: #dc3545;
@@ -508,7 +421,7 @@
   font-size: 1rem;
 }
 
-/* Ícono de advertencia en confirm */
+/* ?cono de advertencia en confirm */
 .cc-warn-icon {
   width: 42px;
   height: 42px;
@@ -518,4 +431,41 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+/* -- Modo oscuro (propio de Fichas: chips/tabla con fondo pastel fijo) -- */
+html[data-bs-theme="dark"] .cc-search-input,
+html[data-bs-theme="dark"] .cc-filter-select,
+html[data-bs-theme="dark"] .dataTables_wrapper .dataTables_filter input {
+  background: var(--cc-surface);
+  border-color: var(--cc-border) !important;
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] .cc-btn-secondary {
+  background: rgba(255,255,255,.06);
+  border-color: var(--cc-border);
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] .cc-btn-secondary:hover { background: rgba(255,255,255,.1); color: var(--cc-text); }
+html[data-bs-theme="dark"] .cc-table,
+html[data-bs-theme="dark"] .cc-prog-name,
+html[data-bs-theme="dark"] .cc-fecha-main,
+html[data-bs-theme="dark"] .cc-detail-value { color: var(--cc-text); }
+html[data-bs-theme="dark"] .cc-table thead th {
+  background: var(--cc-surface);
+  color: var(--cc-muted);
+  border-bottom-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .cc-table tbody tr { border-color: var(--cc-border); }
+html[data-bs-theme="dark"] .cc-table tbody tr:hover { background: rgba(255,255,255,.04); }
+html[data-bs-theme="dark"] .cc-modal-header,
+html[data-bs-theme="dark"] .cc-modal-footer {
+  background: var(--cc-surface);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .cc-modal-header .modal-title { color: var(--cc-text); }
+html[data-bs-theme="dark"] .cc-modal .form-label { color: var(--cc-muted); }
+html[data-bs-theme="dark"] .dataTables_wrapper .dataTables_paginate .page-link {
+  color: var(--cc-muted);
+  border-color: var(--cc-border);
 }

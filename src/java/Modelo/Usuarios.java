@@ -26,6 +26,8 @@ private LocalDate fecha_ExpiracionContraseña = LocalDate.now().plusDays(90);
 private int Roles_id_roles;
 private int Tipo_Documento_id_tipo_Documento;
 private int Tipo_vinculacion_id_tipo_vinculacion;
+/** Ficha a la que pertenece el Aprendiz. Null para otros roles. */
+private Integer Ficha_id_ficha;
 
     public int getId_usuarios() {
         return id_usuarios;
@@ -170,6 +172,14 @@ private int Tipo_vinculacion_id_tipo_vinculacion;
 
     public void setTipo_vinculacion_id_tipo_vinculacion(int Tipo_vinculacion_id_tipo_vinculacion) {
         this.Tipo_vinculacion_id_tipo_vinculacion = Tipo_vinculacion_id_tipo_vinculacion;
+    }
+
+    public Integer getFicha_id_ficha() {
+        return Ficha_id_ficha;
+    }
+
+    public void setFicha_id_ficha(Integer Ficha_id_ficha) {
+        this.Ficha_id_ficha = Ficha_id_ficha;
     }
 
     public boolean isContraseñaExpirada() {

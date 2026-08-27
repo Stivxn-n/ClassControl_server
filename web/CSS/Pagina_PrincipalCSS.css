@@ -1,18 +1,84 @@
-/* ===========================
-   ClassControl – styles.css
-   Bootstrap 5 companion
-   =========================== */
-/* ── Google Font import ─────────────────────────── */
-/* DM Sans loaded via HTML <link>; fallback chain below */
-/* ── CSS Variables ──────────────────────────────── */
+/* -- Modo oscuro (sistema propio de esta pantalla: Pagina Principal) -- */
 [data-bs-theme="dark"] {
-  --cc-bg:      #16230f;
-  --cc-surface: #1e293b;
+  --cc-bg:      #0f1a13;
+  --cc-surface: #16241c;
+  --cc-border:  #2c3d33;
   --cc-text:    #f1f5f9;
   --cc-muted:   #94a3b8;
-  --cc-border:  #334155;
 }
-/* ── Global reset additions ─────────────────────── */
+html[data-bs-theme="dark"] body { background-color: var(--cc-bg); color: var(--cc-text); }
+html[data-bs-theme="dark"] h1, html[data-bs-theme="dark"] .h1,
+html[data-bs-theme="dark"] h2, html[data-bs-theme="dark"] .h2,
+html[data-bs-theme="dark"] .cc-page-title { color: var(--cc-text); }
+html[data-bs-theme="dark"] .cc-page-sub,
+html[data-bs-theme="dark"] .text-muted,
+html[data-bs-theme="dark"] .form-label,
+html[data-bs-theme="dark"] .form-text { color: var(--cc-muted) !important; }
+html[data-bs-theme="dark"] .card,
+html[data-bs-theme="dark"] .modal-content,
+html[data-bs-theme="dark"] .dropdown-menu,
+html[data-bs-theme="dark"] .list-group-item,
+html[data-bs-theme="dark"] .offcanvas {
+  background-color: var(--cc-surface);
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .table,
+html[data-bs-theme="dark"] .dataTable {
+  --bs-table-color: var(--cc-text);
+  --bs-table-bg: var(--cc-surface);
+  --bs-table-striped-bg: #131f18;
+  --bs-table-border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .table thead th { color: var(--cc-text); }
+html[data-bs-theme="dark"] .form-control,
+html[data-bs-theme="dark"] .form-select,
+html[data-bs-theme="dark"] .input-group-text {
+  background-color: var(--cc-surface);
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .form-control::placeholder { color: var(--cc-muted); }
+html[data-bs-theme="dark"] .bg-white,
+html[data-bs-theme="dark"] header.bg-white {
+  background-color: var(--cc-surface) !important;
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] hr,
+html[data-bs-theme="dark"] .border,
+html[data-bs-theme="dark"] .border-bottom,
+html[data-bs-theme="dark"] .border-top { border-color: var(--cc-border) !important; }
+html[data-bs-theme="dark"] .cc-btn-outline {
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+html[data-bs-theme="dark"] .cc-btn-outline:hover:not(:disabled) {
+  background: rgba(255,255,255,.06);
+  border-color: var(--cc-border);
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] .cc-btn-icon { color: var(--cc-muted); }
+html[data-bs-theme="dark"] .cc-btn-icon:hover { background: rgba(255,255,255,.08); }
+html[data-bs-theme="dark"] .page-link {
+  background-color: var(--cc-surface);
+  border-color: var(--cc-border);
+  color: var(--cc-text);
+}
+html[data-bs-theme="dark"] table.dataTable thead th {
+  background: var(--cc-surface);
+  color: var(--cc-muted);
+  border-bottom-color: var(--cc-border) !important;
+}
+
+/* ===========================
+   ClassControl ? styles.css
+   Bootstrap 5 companion
+   =========================== */
+/* -- Google Font import --------------------------- */
+/* DM Sans loaded via HTML <link>; fallback chain below */
+/* El modo oscuro (variables --cc-*) ahora vive en ClassControl_base.css,
+   fuente ?nica para toda la app: no redefinir aquí. */
+/* -- Global reset additions ----------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 body {
   font-family: var(--cc-font);
@@ -40,114 +106,20 @@ textarea, button, td, th, li,
   display: inline-flex;
   align-items: center;
 }
-/* ── Layout ─────────────────────────────────────── */
+/* -- Layout --------------------------------------- */
 .cc-wrapper {
   display: flex;
   min-height: 100vh;
 }
-/* ── Sidebar ─────────────────────────────────────── */
-.cc-sidebar {
-  width: var(--cc-sidebar-w);
-  background: var(--cc-dark);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  transition: transform var(--cc-transition);
-  z-index: 1040;
-}
-.cc-sidebar-logo {
-  padding: 1.5rem 1.25rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.cc-logo-box {
-  background: #fff;
-  padding: 0.3rem;
-  border-radius: var(--cc-radius);
-  flex-shrink: 0;
-}
-.cc-logo-box img { width: 36px; height: auto; display: block; }
-.cc-brand-name {
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
-}
-.cc-brand-sub {
-  font-size: 0.68rem;
-  color: var(--cc-primary);
-  font-weight: 600;
-  margin: 0;
-}
+/* -- Sidebar --------------------------------------- */
+
 /* Nav */
-.cc-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0 0.875rem;
-}
-.cc-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.875rem;
-  border-radius: var(--cc-radius);
-  font-size: var(--cc-fs-base);
-  font-weight: 500;
-  color: rgba(255,255,255,.72);
-  text-decoration: none;
-  transition: background var(--cc-transition), color var(--cc-transition);
-}
-.cc-nav-link:hover       { background: rgba(255,255,255,.10); color: #fff; }
-.cc-nav-link.active      { background: var(--cc-primary); color: #fff; font-weight: 700; }
-.cc-nav-separator {
-  border-top: 1px solid rgba(255,255,255,.14);
-  margin: 0.5rem 0.875rem 0.35rem;
-}
-.cc-sidebar-footer {
-  margin-top: auto;
-  padding: 1.25rem;
-  font-size: 0.68rem;
-  color: rgba(255,255,255,.3);
-}
-/* ── Main ────────────────────────────────────────── */
-.cc-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  background: var(--cc-bg);
-}
-/* ── Header ──────────────────────────────────────── */
-.cc-header {
-  height: var(--cc-header-h);
-  background: var(--cc-surface);
-  border-bottom: 1px solid var(--cc-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 1030;
-  flex-shrink: 0;
-  gap: 1rem;
-}
-.cc-page-title {
-  font-size: var(--cc-fs-page);
-  font-weight: 700;
-}
-.cc-header-right {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-}
+
+/* -- Main ------------------------------------------ */
+
+/* -- Header ---------------------------------------- */
+
+
 /* Search */
 .cc-search-group {
   width: 220px;
@@ -173,29 +145,14 @@ textarea, button, td, th, li,
   border-color: var(--cc-primary);
 }
 /* User info */
-.cc-user-name  { font-size: var(--cc-fs-base); font-weight: 700; line-height: 1.2; }
-.cc-user-role  { font-size: var(--cc-fs-sm); color: var(--cc-muted); }
+
+
 /* Avatar */
-.cc-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 2px solid var(--cc-primary);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.cc-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+
 /* Icon button (header + table) */
-.cc-icon-btn {
-  background: none;
-  border: none;
-  color: var(--cc-muted);
-  padding: 0.25rem;
-  border-radius: var(--cc-radius);
-  line-height: 1;
-  transition: color var(--cc-transition), background var(--cc-transition);
-}
-.cc-icon-btn:hover { color: var(--cc-primary); background: var(--cc-primary-light); }
+
+
 .cc-icon-sm { font-size: 1.1rem !important; }
 /* Dark toggle */
 #dark-toggle {
@@ -204,17 +161,14 @@ textarea, button, td, th, li,
 }
 #dark-toggle:hover { color: var(--cc-primary); }
 /* Hamburger */
-.cc-hamburger {
-  color: var(--cc-muted);
-  padding: 0.25rem;
-}
-/* ── Dashboard body ──────────────────────────────── */
+
+/* -- Dashboard body -------------------------------- */
 .cc-body {
   padding: 1.75rem 1.5rem;
   overflow-y: auto;
   flex: 1;
 }
-/* ── Primary button ──────────────────────────────── */
+/* -- Primary button -------------------------------- */
 .cc-btn-primary {
   white-space: nowrap;
   flex-shrink: 0;
@@ -234,7 +188,7 @@ textarea, button, td, th, li,
 .cc-btn-primary:hover  { background: var(--cc-primary-dark) !important; box-shadow: 0 6px 16px rgba(56,168,0,.32) !important; }
 .cc-btn-primary:active { transform: scale(.97) !important; }
 .cc-btn-primary .material-symbols-outlined { font-size: 1rem !important; }
-/* ── Stat cards ──────────────────────────────────── */
+/* -- Stat cards ------------------------------------ */
 .cc-stat-card {
   background: var(--cc-surface);
   border: 1px solid var(--cc-border);
@@ -276,7 +230,7 @@ textarea, button, td, th, li,
   line-height: 1;
   margin: 0;
 }
-/* ── Widget cards ────────────────────────────────── */
+/* -- Widget cards ---------------------------------- */
 .cc-widget-card {
   background: var(--cc-surface);
   border: 1px solid var(--cc-border);
@@ -307,7 +261,7 @@ textarea, button, td, th, li,
 .cc-prog-green  { background: var(--cc-primary); transition: width .6s ease; }
 .cc-prog-blue   { background: #3b82f6; transition: width .6s ease; }
 .cc-prog-orange { background: #f97316; transition: width .6s ease; }
-/* ── Activities table card ───────────────────────── */
+/* -- Activities table card ------------------------- */
 .cc-table-card {
   background: var(--cc-surface);
   border: 1px solid var(--cc-border);
@@ -376,7 +330,7 @@ table.dataTable.no-footer { border-bottom: none; }
 .cc-amb-badge.blue   { background: #dbeafe; color: #1d4ed8; }
 .cc-amb-badge.purple { background: #f3e8ff; color: #7e22ce; }
 .cc-amb-badge.orange { background: #ffedd5; color: #c2410c; }
-/* ── Modal "Crear registro" ──────────────────────── */
+/* -- Modal "Crear registro" ------------------------ */
 .cc-modal-subtitle { font-size: var(--cc-fs-sm); color: var(--cc-muted); }
 
 .cc-create-wrap { display: flex; }
@@ -428,7 +382,7 @@ table.dataTable.no-footer { border-bottom: none; }
 .cc-create-icon.orange { background: rgba(249,115,22,.1); color: #f97316; }
 .cc-create-icon.purple { background: rgba(168,85,247,.1); color: #a855f7; }
 
-/* ── Modals ──────────────────────────────────────── */
+/* -- Modals ---------------------------------------- */
 .modal-content {
   border-radius: var(--cc-radius-lg);
   border: none;
@@ -462,7 +416,7 @@ table.dataTable.no-footer { border-bottom: none; }
   box-shadow: 0 0 0 3px rgba(56,168,0,.15);
 }
 .modal .invalid-feedback { font-size: var(--cc-fs-sm); }
-/* ── Toast notifications ─────────────────────────── */
+/* -- Toast notifications --------------------------- */
 #toast-container {
   position: fixed;
   bottom: 1.5rem;
@@ -493,23 +447,17 @@ table.dataTable.no-footer { border-bottom: none; }
 @keyframes ccToastIn  { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
 @keyframes ccToastOut { to   { opacity:0; transform:translateX(20px); } }
 .cc-toast.hide { animation: ccToastOut 0.3s ease forwards; }
-/* ── Responsive ──────────────────────────────────── */
+/* -- Responsive ------------------------------------ */
 @media (max-width: 991.98px) {
-  .cc-sidebar {
-    position: fixed;
-    left: 0; top: 0;
-    height: 100vh;
-    transform: translateX(-100%);
-  }
-  .cc-sidebar.open { transform: translateX(0); }
+  
 
   .cc-wrapper { display: block; }
-  .cc-main    { min-height: 100vh; }
+  
 
   .cc-search-group { width: 160px; }
 }
 @media (max-width: 575.98px) {
   .cc-body { padding: 1.25rem 1rem; }
-  .cc-header { padding: 0 1rem; }
+  
   .cc-search-group { display: none; }
 }

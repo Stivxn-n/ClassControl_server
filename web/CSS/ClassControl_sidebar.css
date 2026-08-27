@@ -1,6 +1,6 @@
 /* ============================================================
    ClassControl_sidebar.css
-   Estilos ÚNICOS del sidebar/header compartido (_Sidebar.jspf).
+   Estilos ?NICOS del sidebar/header compartido (_Sidebar.jspf).
    Cargar SIEMPRE después de ClassControl_theme.css y antes del
    CSS propio de cada pantalla:
 
@@ -10,7 +10,7 @@
      <link rel="stylesheet" href="CSS/ProgramasCSS.css"/>
 
    No se debe duplicar el CSS del sidebar en el CSS de cada
-   pantalla: esta es ahora la única fuente.
+   pantalla: esta es ahora la ?nica fuente.
    ============================================================ */
 
 .cc-sidebar {
@@ -41,21 +41,23 @@
 }
 .cc-logo-box img { width: 36px; height: auto; display: block; }
 .cc-brand-name {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.2;
   margin: 0;
+  color: #fff;                 /* antes heredaba el color oscuro de h1 (--cc-dark)
+                                   y quedaba invisible sobre el fondo oscuro del sidebar */
   font-family: var(--cc-font);
 }
 .cc-brand-sub {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: var(--cc-primary);
   font-weight: 600;
-  margin: 0;
+  margin: 2px 0 0;
   font-family: var(--cc-font);
 }
 
-/* ── Nav ─────────────────────────────────────────── */
+/* -- Nav ------------------------------------------- */
 .cc-nav {
   display: flex;
   flex-direction: column;
@@ -76,6 +78,9 @@
   transition: background .15s ease, color .15s ease;
 }
 .cc-nav-link .material-symbols-outlined { font-size: 1.25rem; }
+.cc-nav-link--standard { font-size: .9rem; }
+.cc-nav-link--compact { font-size: .78rem; }
+.cc-nav-link--programacion { font-size: 1rem; }
 .cc-nav-link:hover       { background: rgba(255,255,255,.10); color: #fff; }
 .cc-nav-link.active      { background: var(--cc-primary); color: #fff; font-weight: 700; }
 .cc-nav-separator {
@@ -84,8 +89,8 @@
   margin: 0.5rem 0.75rem;
 }
 
-/* ── Footer (usuario + cerrar sesión) ───────────────
-   Reemplaza el antiguo "© 2024 SENA ClassControl" por
+/* -- Footer (usuario + cerrar sesión) ---------------
+   Reemplaza el antiguo "? 2024 SENA ClassControl" por
    la info real del usuario en sesión, igual en toda la app. */
 .cc-sidebar-footer {
   margin-top: auto;
@@ -142,7 +147,15 @@
 .cc-btn-logout:hover { background: rgba(239,68,68,.25); color: #fecaca; }
 .cc-btn-logout .material-symbols-outlined { font-size: 1.1rem; }
 
-/* ── Main / Header ───────────────────────────────── */
+/* -- Layout general (sidebar + main) ---------------- */
+/* Regla compartida: antes viva solo en el CSS de cada
+   pagina y las paginas sin CSS propio quedaban apiladas */
+.cc-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* -- Main / Header --------------------------------- */
 .cc-main {
   flex: 1;
   display: flex;
@@ -206,7 +219,7 @@
 }
 .cc-icon-btn:hover { background: var(--cc-bg); }
 
-/* ── Responsive ──────────────────────────────────── */
+/* -- Responsive ------------------------------------ */
 @media (max-width: 991.98px) {
   .cc-sidebar {
     position: fixed;
@@ -217,7 +230,7 @@
   .cc-header, .cc-top-header, .cc-topbar { padding: 0 1rem; }
 }
 
-/* ── Modo oscuro ─────────────────────────────────── */
+/* -- Modo oscuro ----------------------------------- */
 html[data-bs-theme="dark"] .cc-header,
 html[data-bs-theme="dark"] .cc-top-header,
 html[data-bs-theme="dark"] .cc-topbar {
